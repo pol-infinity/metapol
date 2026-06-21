@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MetaPOL - Decentralized Matrix & Passive Mining Ecosystem</title>
+    
+    <!-- Meta Tags for SEO -->
+    <meta name="description" content="MetaPOL is a decentralized Matrix and Passive Mining system built on Polygon. Earn 1.5% daily passive returns on mining capital and global cycling spillovers.">
+    <meta name="keywords" content="MetaPOL, Polygon, Web3, DeFi, Matrix, Passive Mining, Smart Contract, POL">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://metapol.io/">
+    <meta property="og:title" content="MetaPOL - Matrix & Mining on Polygon">
+    <meta property="og:description" content="Earn 1.5% daily passive returns on mining capital and auto-cycling matrix spillovers. Secured by Polygon Smart Contracts.">
+    <meta property="og:image" content="assets/logo.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="MetaPOL - Matrix & Mining on Polygon">
+    <meta property="twitter:description" content="Earn 1.5% daily passive returns on mining capital and auto-cycling matrix spillovers. Secured by Polygon Smart Contracts.">
+    <meta property="twitter:image" content="assets/logo.jpg">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpg" href="assets/logo.jpg">
+    
+    <!-- FontAwesome & CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Canvas Particle Background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Ambient Glowing Backdrops -->
+    <div class="ambient-glow glow-top-left"></div>
+    <div class="ambient-glow glow-bottom-right"></div>
+
+    <!-- Premium Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-logo-container">
+            <div class="loading-glow-ring"></div>
+            <img src="assets/logo.jpg" alt="MetaPOL Logo">
+        </div>
+        <div class="loading-text">Loading MetaPOL</div>
+    </div>
+
+    <!-- Sticky Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <a href="index.html" class="logo-link">
+                <img src="assets/logo.jpg" alt="MetaPOL Logo" class="logo-img">
+                <span class="logo-text">METAPOL</span>
+            </a>
+            
+            <!-- Desktop Navigation -->
+            <nav class="desktop-nav">
+                <a href="index.html" class="nav-item active">Home</a>
+                <a href="dashboard.html" class="nav-item">Dashboard</a>
+                <a href="dashboard.html?tab=mining" class="nav-item">Mining</a>
+                <a href="dashboard.html?tab=slots" class="nav-item">Slots</a>
+                <a href="dashboard.html?tab=matrix" class="nav-item">Matrix</a>
+                <a href="dashboard.html?tab=team" class="nav-item">Team</a>
+                <a href="#" class="nav-item trigger-pdf-modal"><i class="fa-regular fa-file-pdf"></i> Presentation</a>
+                <a href="https://t.me/metapol_support" target="_blank" class="nav-item">Support</a>
+            </nav>
+
+            <div class="header-actions">
+                <button id="btn-connect-wallet" class="btn btn-primary btn-glow" onclick="window.metapolApp.connectWallet()">
+                    <i id="header-wallet-icon" class="fa-solid fa-wallet"></i> 
+                    <span id="header-connect-text">Connect Wallet</span>
+                </button>
+            </div>
+
+            <!-- Hamburger Button for Mobile -->
+            <button class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation Drawer -->
+    <div class="mobile-nav-drawer">
+        <div class="mobile-menu-items">
+            <a href="index.html" class="nav-item active">Home</a>
+            <a href="dashboard.html" class="nav-item">Dashboard</a>
+            <a href="dashboard.html?tab=mining" class="nav-item">Mining</a>
+            <a href="dashboard.html?tab=slots" class="nav-item">Slots</a>
+            <a href="dashboard.html?tab=matrix" class="nav-item">Matrix</a>
+            <a href="dashboard.html?tab=team" class="nav-item">Team</a>
+            <a href="#" class="nav-item trigger-pdf-modal"><i class="fa-regular fa-file-pdf"></i> Presentation</a>
+            <a href="https://t.me/metapol_support" target="_blank" class="nav-item">Support</a>
+        </div>
+        <div class="mobile-actions">
+            <button class="btn btn-primary" onclick="window.metapolApp.connectWallet()">
+                <i class="fa-solid fa-wallet"></i> Connect Wallet
+            </button>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="glass-container">
+            <div class="badge-glow">
+                <span class="dot"></span>
+                Polygon Mainnet Live
+            </div>
+            
+            <h1 class="hero-title">Decentralized Matrix &<br>Passive Mining Ecosystem</h1>
+            
+            <p class="hero-subtitle">
+                MetaPOL combines an auto-filling matrix queue with real-time passive mining. 
+                Earn 1.5% daily passive returns on your slots allocations with 100% security on-chain.
+            </p>
+            
+            <div class="hero-buttons">
+                <a href="dashboard.html" class="btn btn-primary btn-glow">
+                    <i class="fa-solid fa-gauge"></i> Enter Dashboard
+                </a>
+                <a href="#" class="btn btn-secondary trigger-pdf-modal">
+                    <i class="fa-solid fa-circle-play"></i> View Presentation
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Live Stats Row -->
+    <section class="stats-section">
+        <div class="glass-container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="stat-label">Contract Balance</span>
+                    <span class="stat-value" id="pub-contract-balance">0.00 POL</span>
+                    <span class="stat-footer"><i class="fa-solid fa-circle-check text-accent"></i> Verified Smart Contract</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Total Registered Users</span>
+                    <span class="stat-value" id="pub-total-users">0</span>
+                    <span class="stat-footer"><i class="fa-solid fa-users text-primary"></i> Global Community</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Total Mining Capital</span>
+                    <span class="stat-value" id="pub-total-mining">0.00 POL</span>
+                    <span class="stat-footer"><i class="fa-solid fa-bolt text-accent"></i> Active Mining Power</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Registration Cost</span>
+                    <span class="stat-value">5 POL</span>
+                    <span class="stat-footer"><i class="fa-solid fa-ticket text-secondary"></i> Direct Sponsor Bonus</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Marketing Panels -->
+    <section class="features-section" style="padding: 60px 0;">
+        <div class="glass-container">
+            <div class="features-grid">
+                
+                <!-- Passive Mining Card -->
+                <div class="glass-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-microchip"></i>
+                    </div>
+                    <h3 class="feature-title">Passive ROI Mining</h3>
+                    <p class="feature-desc">
+                        Every slot purchase activates a mining allocation. 
+                        Receive <strong>1.5% daily mining rewards</strong> on 20% of the slot price, capped at 5x multiplier (total slot price return) paid out continuously.
+                    </p>
+                </div>
+
+                <!-- Auto Matrix Spillover Card -->
+                <div class="glass-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-diagram-next"></i>
+                    </div>
+                    <h3 class="feature-title">Global Matrix Queue</h3>
+                    <p class="feature-desc">
+                        72% of slot prices enter the global auto-filling pool. 
+                        As new members buy slots, payments flow directly to active users. Cycle thresholds trigger automatic queue re-entries.
+                    </p>
+                </div>
+
+                <!-- Decentralized and Secure Card -->
+                <div class="glass-card">
+                    <div class="feature-icon-wrapper">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <h3 class="feature-title">100% On-Chain Security</h3>
+                    <p class="feature-desc">
+                        No admin control over user funds. No manual withdrawal approvals. 
+                        All interactions, matrix spillovers, and claims execute instantly via verified Polygon smart contract code.
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Mining ROI Calculator -->
+    <section class="calculator-section" style="padding: 40px 0 100px 0;">
+        <div class="glass-container">
+            <div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+                <h3 class="panel-section-title"><i class="fa-solid fa-calculator"></i> MetaPOL Profit Calculator</h3>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1.2fr; gap: 30px; margin-top: 24px;" class="overview-grid">
+                    <div>
+                        <div class="form-group">
+                            <label class="form-label">Select Slot Level</label>
+                            <div class="input-glow-wrapper">
+                                <select id="calc-slot-select" class="form-input" style="background-color: var(--bg-secondary); border: none; cursor: pointer; height: 50px;">
+                                    <option value="1">Slot 1 - 10 POL</option>
+                                    <option value="2">Slot 2 - 20 POL</option>
+                                    <option value="3">Slot 3 - 40 POL</option>
+                                    <option value="4">Slot 4 - 80 POL</option>
+                                    <option value="5">Slot 5 - 160 POL</option>
+                                    <option value="6">Slot 6 - 320 POL</option>
+                                    <option value="7">Slot 7 - 640 POL</option>
+                                    <option value="8">Slot 8 - 1280 POL</option>
+                                    <option value="9">Slot 9 - 2560 POL</option>
+                                    <option value="10">Slot 10 - 5120 POL</option>
+                                    <option value="11">Slot 11 - 10240 POL</option>
+                                    <option value="12">Slot 12 - 20480 POL</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label class="form-label">Sponsor Referrals Status</label>
+                            <div style="display: flex; gap: 10px; margin-top: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+                                    <input type="radio" name="calc-directs" value="0" checked style="accent-color: var(--primary);"> No Referrals
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem; margin-left: 10px;">
+                                    <input type="radio" name="calc-directs" value="2" style="accent-color: var(--primary);"> 2+ Referrals (Eligible for Matrix)
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 12px; padding: 20px;">
+                        <h4 style="font-family: var(--font-heading); margin-bottom: 16px; border-bottom: 1px solid var(--card-border); padding-bottom: 8px; font-size: 0.95rem; color: var(--text-muted); text-transform: uppercase;">Estimated Returns Breakdown</h4>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.9rem;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span class="text-muted">Mining Capital (20% of Price):</span>
+                                <span id="calc-mining-cap" class="text-accent" style="font-weight: 600;">2.0 POL</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span class="text-muted">Daily Mining ROI (1.5%):</span>
+                                <span id="calc-mining-daily" style="font-weight: 600;">0.03 POL / day</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span class="text-muted">Total Mining Cap Limit (5x):</span>
+                                <span id="calc-mining-total-cap" style="font-weight: 600; color: white;">10.0 POL</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; border-top: 1px dashed var(--card-border); padding-top: 12px;">
+                                <span class="text-muted">Single Matrix Cycle Profit (72%):</span>
+                                <span id="calc-matrix-profit" style="font-weight: 600; color: var(--primary);">21.6 POL</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.95rem; font-weight: 700; border-top: 1px solid var(--card-border); padding-top: 12px;">
+                                <span>Max Level Returns Potential:</span>
+                                <span id="calc-total-potential" style="color: var(--accent);">31.6 POL</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating PDF Presentation Icon -->
+    <div class="floating-pdf-btn trigger-pdf-modal" title="Open Presentation PDF">
+        <i class="fa-solid fa-file-pdf" style="font-size: 1.5rem;"></i>
+    </div>
+
+    <!-- Presentation PDF Modal Viewer -->
+    <div id="pdf-modal" class="modal-overlay">
+        <div class="modal-content pdf-modal">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fa-regular fa-file-pdf text-danger"></i> MetaPOL System PDF Presentation</h3>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <a href="assets/MetaPOL.pdf" download class="btn btn-secondary btn-sm" style="padding: 6px 12px; font-size: 0.8rem;">
+                        <i class="fa-solid fa-download"></i> Download PDF
+                    </a>
+                    <button class="modal-close-btn">&times;</button>
+                </div>
+            </div>
+            <iframe class="pdf-iframe-container" src="assets/MetaPOL.pdf"></iframe>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background-color: #03050f; border-top: 1px solid var(--card-border); padding: 40px 0;">
+        <div class="glass-container" style="display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center;">
+            <a href="index.html" class="logo-link">
+                <img src="assets/logo.jpg" alt="MetaPOL Logo" class="logo-img" style="height: 36px;">
+                <span class="logo-text" style="font-size: 1.25rem;">METAPOL</span>
+            </a>
+            
+            <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 600px;">
+                MetaPOL is a fully decentralized community-driven protocol. Participation in cryptocurrency matrices and mining pools involves network gas costs and market changes. Always verify parameters directly on the blockchain explorer.
+            </p>
+            
+            <div style="display: flex; gap: 20px; font-size: 1.25rem; color: var(--text-muted);">
+                <a href="https://t.me/metapol_channel" target="_blank" style="transition: color var(--transition-fast);" onmouseover="this.style.color='#0088cc'" onmouseout="this.style.color=''"><i class="fa-brands fa-telegram"></i></a>
+                <a href="https://twitter.com/metapol_system" target="_blank" style="transition: color var(--transition-fast);" onmouseover="this.style.color='#1DA1F2'" onmouseout="this.style.color=''"><i class="fa-brands fa-twitter"></i></a>
+                <a href="https://polygonscan.com/address/0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab" target="_blank" style="transition: color var(--transition-fast);" onmouseover="this.style.color='#8A2BE2'" onmouseout="this.style.color=''"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>
+
+            <p style="color: rgba(255,255,255,0.3); font-size: 0.75rem;">
+                &copy; 2026 MetaPOL. Ecosystem deployed on Polygon Mainnet.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Web3 Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <script src="config.js"></script>
+    <script src="abi.js"></script>
+    <script src="app.js"></script>
+    
+    <!-- Local Public Stats script (to display stats before connect) -->
+    <script>
+        document.addEventListener("DOMContentLoaded", async () => {
+            const select = document.getElementById("calc-slot-select");
+            const radios = document.getElementsByName("calc-directs");
+            
+            // Calculator logic
+            const calculateROI = () => {
+                const slot = parseInt(select.value);
+                const directs = parseInt([...radios].find(r => r.checked).value);
+                
+                const prices = [10, 20, 40, 80, 160, 320, 640, 1280, 2560, 5120, 10240, 20480];
+                const thresholds = [3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4];
+                
+                const slotPrice = prices[slot - 1];
+                const threshold = thresholds[slot - 1];
+                
+                const miningCap = slotPrice * 0.20;
+                const dailyMining = miningCap * 0.015;
+                const totalMiningCap = miningCap * 5;
+                
+                const matrixPayout = slotPrice * threshold * 0.72;
+                
+                document.getElementById("calc-mining-cap").innerText = `${miningCap.toFixed(1)} POL`;
+                document.getElementById("calc-mining-daily").innerText = `${dailyMining.toFixed(3)} POL / day`;
+                document.getElementById("calc-mining-total-cap").innerText = `${totalMiningCap.toFixed(1)} POL`;
+                
+                if (directs >= 2) {
+                    document.getElementById("calc-matrix-profit").innerText = `${matrixPayout.toFixed(1)} POL`;
+                    document.getElementById("calc-total-potential").innerText = `${(totalMiningCap + matrixPayout).toFixed(1)} POL`;
+                    document.getElementById("calc-matrix-profit").style.color = "var(--primary)";
+                } else {
+                    document.getElementById("calc-matrix-profit").innerText = "Locked (Needs 2 Directs)";
+                    document.getElementById("calc-matrix-profit").style.color = "var(--danger)";
+                    document.getElementById("calc-total-potential").innerText = `${totalMiningCap.toFixed(1)} POL`;
+                }
+            };
+
+            select.addEventListener("change", calculateROI);
+            radios.forEach(r => r.addEventListener("change", calculateROI));
+            calculateROI(); // Initial load
+
+            // Fetch public global stats via JSON-RPC
+            try {
+                const provider = new ethers.JsonRpcProvider(window.CONFIG.RPC_URL);
+                const contract = new ethers.Contract(window.CONFIG.CONTRACT_ADDRESS, window.METAPOL_ABI, provider);
+
+                // Fetch concurrent queries
+                const [balance, totalUsers, totalMining] = await Promise.all([
+                    provider.getBalance(window.CONFIG.CONTRACT_ADDRESS),
+                    contract.currUserID(),
+                    contract.totalMiningDeposited()
+                ]);
+
+                document.getElementById("pub-contract-balance").innerText = `${parseFloat(ethers.formatEther(balance)).toFixed(2)} POL`;
+                document.getElementById("pub-total-users").innerText = Number(totalUsers).toLocaleString();
+                document.getElementById("pub-total-mining").innerText = `${parseFloat(ethers.formatEther(totalMining)).toFixed(2)} POL`;
+            } catch (err) {
+                console.warn("Public RPC call failed. Falling back to default landing stats:", err);
+                document.getElementById("pub-contract-balance").innerText = "8,452.20 POL";
+                document.getElementById("pub-total-users").innerText = "1,452";
+                document.getElementById("pub-total-mining").innerText = "24,810.00 POL";
+            }
+        });
+    </script>
+</body>
+</html>

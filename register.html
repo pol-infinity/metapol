@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MetaPOL - Secure Onboarding Registration</title>
+    
+    <!-- Favicon & Styles -->
+    <link rel="icon" type="image/jpg" href="assets/logo.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Canvas Particle Background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- Ambient Glowing Backdrops -->
+    <div class="ambient-glow glow-top-left"></div>
+    <div class="ambient-glow glow-bottom-right"></div>
+
+    <!-- Premium Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-logo-container">
+            <div class="loading-glow-ring"></div>
+            <img src="assets/logo.jpg" alt="MetaPOL Logo">
+        </div>
+        <div class="loading-text">Synchronizing Network</div>
+    </div>
+
+    <!-- Sticky Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <a href="index.html" class="logo-link">
+                <img src="assets/logo.jpg" alt="MetaPOL Logo" class="logo-img">
+                <span class="logo-text">METAPOL</span>
+            </a>
+            
+            <div class="header-actions">
+                <button id="btn-connect-wallet" class="btn btn-primary btn-glow" onclick="window.metapolApp.connectWallet()">
+                    <i id="header-wallet-icon" class="fa-solid fa-wallet"></i> 
+                    <span id="header-connect-text">Connect Wallet</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Registration Interface Wrapper -->
+    <div class="auth-wrapper">
+        <div class="glass-container" style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; max-width: 1000px; width: 100%;" class="overview-grid">
+            
+            <!-- Information Panel (Benefits) -->
+            <div style="display: flex; flex-direction: column; justify-content: center; text-align: left;">
+                <div class="badge-glow" style="align-self: flex-start;">
+                    <span class="dot"></span> Active Ecosystem Onboarding
+                </div>
+                <h2 style="font-size: 2.25rem; font-family: var(--font-heading); margin-bottom: 20px; line-height: 1.2; background: linear-gradient(135deg, white 50%, var(--primary) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                    Launch Your Passive Mining & Matrix Journey
+                </h2>
+                
+                <p style="color: var(--text-muted); margin-bottom: 30px; font-size: 0.95rem;">
+                    Registering with MetaPOL creates your immutable membership ID on the Polygon blockchain. 
+                    This unlocks your passive mining limits and enables slot cycle upgrades.
+                </p>
+
+                <!-- Benefits Bullet List -->
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div style="display: flex; gap: 16px; align-items: flex-start;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(0, 255, 179, 0.1); display: flex; align-items: center; justify-content: center; color: var(--accent); flex-shrink: 0;">
+                            <i class="fa-solid fa-check" style="font-size: 0.9rem;"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.95rem; font-family: var(--font-heading);">1.5% Daily ROI Mining</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Buying slots automatically assigns 20% to passive capital that grows up to 5x.</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 16px; align-items: flex-start;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(0, 212, 255, 0.1); display: flex; align-items: center; justify-content: center; color: var(--primary); flex-shrink: 0;">
+                            <i class="fa-solid fa-check" style="font-size: 0.9rem;"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.95rem; font-family: var(--font-heading);">Matrix Queue Spillovers</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Spillover cycles assign 72% returns directly to active queue slots.</p>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 16px; align-items: flex-start;">
+                        <div style="width: 32px; height: 32px; border-radius: 50%; background: rgba(138, 43, 226, 0.1); display: flex; align-items: center; justify-content: center; color: var(--secondary); flex-shrink: 0;">
+                            <i class="fa-solid fa-check" style="font-size: 0.9rem;"></i>
+                        </div>
+                        <div>
+                            <h4 style="font-size: 0.95rem; font-family: var(--font-heading);">Direct Referral Boosts</h4>
+                            <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">Earn immediate commissions from sponsored slots, directly sent to your wallet.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registration Card -->
+            <div class="glass-card auth-card" style="align-self: center; padding: 30px;">
+                <div class="auth-logo" style="background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%); display: flex; align-items: center; justify-content: center;">
+                    <img src="assets/logo.jpg" alt="MetaPOL Logo" style="width: 80%; height: 80%; object-fit: contain; border-radius: 8px;">
+                </div>
+                <h3 class="auth-title">Register Account</h3>
+                <p class="auth-subtitle">Ecosystem Entry Cost: <strong>5.0 POL</strong></p>
+
+                <!-- Connection Prompt before registration is allowed -->
+                <div id="reg-connect-prompt">
+                    <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px;">
+                        Connect your Web3 crypto wallet to sign up and activate your account.
+                    </p>
+                    <button class="btn btn-primary btn-glow" style="width: 100%;" onclick="window.metapolApp.connectWallet()">
+                        <i class="fa-solid fa-wallet"></i> Connect Wallet
+                    </button>
+                </div>
+
+                <!-- Registration Form Inputs -->
+                <div id="reg-form-container" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Sponsor/Referrer Member ID</label>
+                        <div class="input-glow-wrapper">
+                            <input type="number" id="input-sponsor-id" class="form-input" placeholder="Enter Sponsor ID (e.g. 1)">
+                        </div>
+                        <span id="sponsor-verify-text" style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 6px;">
+                            Validating referral ID...
+                        </span>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label class="form-label">Your Connected Wallet Address</label>
+                        <div class="input-glow-wrapper" style="background: rgba(255,255,255,0.01); border-color: rgba(255,255,255,0.04);">
+                            <input type="text" id="display-wallet-address" class="form-input" disabled style="font-family: monospace; font-size: 0.85rem;">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 12px;">
+                        <button id="btn-register" class="btn btn-primary btn-glow" style="width: 100%;" onclick="executeRegistration()">
+                            <i class="fa-solid fa-user-plus"></i> Pay & Register Account
+                        </button>
+                        <button class="btn btn-outline" style="width: 100%;" onclick="window.metapolApp.disconnectWallet()">
+                            <i class="fa-solid fa-right-from-bracket"></i> Disconnect
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Confirmation Modal -->
+    <div id="tx-modal" class="modal-overlay">
+        <div class="modal-content" style="max-width: 450px; text-align: center; padding: 30px;">
+            <div id="tx-loading-state">
+                <div class="loading-logo-container" style="width: 80px; height: 80px; margin: 0 auto 20px auto;">
+                    <div class="loading-glow-ring" style="border-top-color: var(--primary); border-bottom-color: var(--secondary);"></div>
+                    <i class="fa-solid fa-arrows-spin fa-spin text-primary" style="font-size: 2.5rem; position: absolute; top: calc(50% - 1.25rem); left: calc(50% - 1.25rem);"></i>
+                </div>
+                <h4 style="font-size: 1.25rem; font-family: var(--font-heading); margin-bottom: 12px;">Broadcasting Transaction</h4>
+                <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 16px;">
+                    Please check your wallet and approve the transaction. Keeping this screen open.
+                </p>
+                <div id="tx-hash-container" style="font-family: monospace; font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; word-break: break-all; color: var(--primary);">
+                    Awaiting authorization...
+                </div>
+            </div>
+
+            <div id="tx-success-state" style="display: none;">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(0, 255, 179, 0.1); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; color: var(--accent); font-size: 2rem;">
+                    <i class="fa-solid fa-circle-check"></i>
+                </div>
+                <h4 style="font-size: 1.25rem; font-family: var(--font-heading); margin-bottom: 12px;">Registration Successful</h4>
+                <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px;">
+                    Your account has been successfully initialized on the Polygon network! You are now ready to launch the dashboard.
+                </p>
+                <a id="tx-explorer-link" href="#" target="_blank" class="btn btn-secondary" style="width: 100%; margin-bottom: 12px;">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> View on Polygonscan
+                </a>
+                <button class="btn btn-primary btn-glow" style="width: 100%;" onclick="window.location.href='dashboard.html'">
+                    <i class="fa-solid fa-gauge"></i> Open Dashboard
+                </button>
+            </div>
+
+            <div id="tx-fail-state" style="display: none;">
+                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255, 59, 48, 0.1); border: 2px solid var(--danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; color: var(--danger); font-size: 2rem;">
+                    <i class="fa-solid fa-circle-xmark"></i>
+                </div>
+                <h4 style="font-size: 1.25rem; font-family: var(--font-heading); margin-bottom: 12px;">Transaction Failed</h4>
+                <p id="tx-error-msg" style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px;">
+                    The blockchain network rejected the transaction. Please review your balance and gas limits.
+                </p>
+                <button class="btn btn-secondary" style="width: 100%;" onclick="closeTxModal()">
+                    <i class="fa-solid fa-rotate-left"></i> Try Again
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Presentation PDF Modal Viewer -->
+    <div id="pdf-modal" class="modal-overlay">
+        <div class="modal-content pdf-modal">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fa-regular fa-file-pdf text-danger"></i> MetaPOL System PDF Presentation</h3>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <a href="assets/MetaPOL.pdf" download class="btn btn-secondary btn-sm" style="padding: 6px 12px; font-size: 0.8rem;">
+                        <i class="fa-solid fa-download"></i> Download PDF
+                    </a>
+                    <button class="modal-close-btn">&times;</button>
+                </div>
+            </div>
+            <iframe class="pdf-iframe-container" src="assets/MetaPOL.pdf"></iframe>
+        </div>
+    </div>
+
+    <!-- Web3 Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <script src="config.js"></script>
+    <script src="abi.js"></script>
+    <script src="app.js"></script>
+
+    <!-- Local Registration Script -->
+    <script>
+        let maxUserIds = 1;
+
+        // Custom router interception for registration page
+        const originalRoutePage = window.metapolApp.routePage;
+        window.metapolApp.routePage = async function() {
+            const currentPath = window.location.pathname;
+            const pageName = currentPath.substring(currentPath.lastIndexOf("/") + 1);
+
+            if (this.isConnected && this.userAddress) {
+                document.getElementById("reg-connect-prompt").style.display = "none";
+                document.getElementById("reg-form-container").style.display = "block";
+                document.getElementById("display-wallet-address").value = this.userAddress;
+
+                try {
+                    // Fetch profile to see if already registered
+                    const userInfo = await this.contract.getUserInfo(this.userAddress);
+                    const isRegistered = userInfo[0];
+
+                    if (isRegistered) {
+                        this.showToast("Address already registered. Redirecting...", "success");
+                        setTimeout(() => {
+                            window.location.href = "dashboard.html";
+                        }, 1000);
+                        return;
+                    }
+
+                    // Get current max userID from contract
+                    maxUserIds = Number(await this.contract.currUserID());
+                    console.log("Current registered users on contract:", maxUserIds);
+
+                    // Setup sponsor values
+                    setupSponsorField();
+
+                } catch (err) {
+                    console.error("Failed to load registration details from contract:", err);
+                    this.showToast("Failed to connect to Polygon network parameters.", "error");
+                }
+            } else {
+                document.getElementById("reg-connect-prompt").style.display = "block";
+                document.getElementById("reg-form-container").style.display = "none";
+            }
+            this.hideLoader();
+        };
+
+        // Sponsor field setting and input listener
+        function setupSponsorField() {
+            const inputSponsor = document.getElementById("input-sponsor-id");
+            const verifyText = document.getElementById("sponsor-verify-text");
+
+            // Look in localStorage first, then default to CONFIG.DEFAULT_SPONSOR_ID
+            let sponsorId = localStorage.getItem("metapol_ref");
+            if (!sponsorId || isNaN(sponsorId)) {
+                sponsorId = window.CONFIG.DEFAULT_SPONSOR_ID;
+            }
+
+            inputSponsor.value = sponsorId;
+
+            // If referral parameter was used, lock field so they can't change the referral structure
+            if (localStorage.getItem("metapol_ref")) {
+                inputSponsor.disabled = true;
+                verifyText.innerHTML = `<i class="fa-solid fa-circle-check text-accent"></i> Sponsored via Referral ID ${sponsorId}`;
+            } else {
+                inputSponsor.disabled = false;
+                validateSponsorInput(inputSponsor.value);
+            }
+
+            inputSponsor.addEventListener("input", (e) => {
+                validateSponsorInput(e.target.value);
+            });
+        }
+
+        // Validate Sponsor input fields
+        async function validateSponsorInput(val) {
+            const verifyText = document.getElementById("sponsor-verify-text");
+            const btnRegister = document.getElementById("btn-register");
+            const id = parseInt(val);
+
+            if (isNaN(id) || id <= 0) {
+                verifyText.innerHTML = `<i class="fa-solid fa-circle-xmark text-danger"></i> Enter a valid Member ID`;
+                btnRegister.disabled = true;
+                return;
+            }
+
+            if (id > maxUserIds) {
+                verifyText.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-warning"></i> Sponsor ID ${id} does not exist (Max ID is ${maxUserIds})`;
+                btnRegister.disabled = true;
+                return;
+            }
+
+            try {
+                // Fetch sponsor address to verify
+                const sponsorAddress = await window.metapolApp.contract.userList(id);
+                if (sponsorAddress === ethers.ZeroAddress) {
+                    verifyText.innerHTML = `<i class="fa-solid fa-circle-xmark text-danger"></i> Sponsor ID is invalid`;
+                    btnRegister.disabled = true;
+                } else {
+                    verifyText.innerHTML = `<i class="fa-solid fa-circle-check text-accent"></i> Valid Sponsor (Wallet: ${window.metapolApp.shortenAddress(sponsorAddress)})`;
+                    btnRegister.disabled = false;
+                }
+            } catch (err) {
+                verifyText.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-warning"></i> Could not verify Sponsor ID`;
+                btnRegister.disabled = false;
+            }
+        }
+
+        // Execute registration transaction
+        async function executeRegistration() {
+            const inputSponsor = document.getElementById("input-sponsor-id");
+            const sponsorId = parseInt(inputSponsor.value);
+
+            if (isNaN(sponsorId) || sponsorId <= 0) {
+                window.metapolApp.showToast("Please provide a valid sponsor ID", "error");
+                return;
+            }
+
+            const txModal = document.getElementById("tx-modal");
+            const txLoading = document.getElementById("tx-loading-state");
+            const txSuccess = document.getElementById("tx-success-state");
+            const txFail = document.getElementById("tx-fail-state");
+            const txHashContainer = document.getElementById("tx-hash-container");
+            const txErrorMsg = document.getElementById("tx-error-msg");
+
+            // Open modal, reset state
+            txModal.classList.add("active");
+            txLoading.style.display = "block";
+            txSuccess.style.display = "none";
+            txFail.style.display = "none";
+            txHashContainer.innerText = "Awaiting wallet authorization...";
+
+            try {
+                const regFee = ethers.parseEther(window.CONFIG.REGISTRATION_FEE);
+                
+                // Fetch current user balance
+                const balance = await window.metapolApp.provider.getBalance(window.metapolApp.userAddress);
+                if (balance < regFee) {
+                    throw new Error(`Insufficient POL balance. You need at least 5 POL + gas to register.`);
+                }
+
+                // Gas Estimation
+                console.log("Estimating gas for regUser...");
+                let gasLimit;
+                try {
+                    gasLimit = await window.metapolApp.contract.regUser.estimateGas(sponsorId, { value: regFee });
+                    // Add 20% buffer for safety
+                    gasLimit = (gasLimit * 120n) / 100n;
+                } catch (gasErr) {
+                    console.warn("Gas estimation failed, using fallback limit:", gasErr);
+                    gasLimit = 250000n; // Safe standard limit for matrix registrations
+                }
+
+                // Send transaction
+                const tx = await window.metapolApp.contract.regUser(sponsorId, {
+                    value: regFee,
+                    gasLimit: gasLimit
+                });
+
+                console.log("Transaction dispatched:", tx.hash);
+                txHashContainer.innerHTML = `Hash: <a href="${window.CONFIG.BLOCK_EXPLORER}/tx/${tx.hash}" target="_blank" style="color: var(--primary); text-decoration: underline;">${tx.hash}</a>`;
+
+                // Wait for confirmation
+                const receipt = await tx.wait();
+                console.log("Transaction confirmed in block:", receipt.blockNumber);
+
+                if (receipt.status === 1) {
+                    // Success
+                    txLoading.style.display = "none";
+                    txSuccess.style.display = "block";
+                    document.getElementById("tx-explorer-link").href = `${window.CONFIG.BLOCK_EXPLORER}/tx/${tx.hash}`;
+                    window.metapolApp.showToast("Registration confirmed!", "success");
+                    
+                    // Clear temporary referral parameter
+                    localStorage.removeItem("metapol_ref");
+                } else {
+                    throw new Error("Transaction was reverted by the EVM network.");
+                }
+
+            } catch (err) {
+                console.error("Registration error:", err);
+                txLoading.style.display = "none";
+                txFail.style.display = "block";
+                
+                // Extract clean error message
+                let friendlyMsg = err.message;
+                if (err.code === "ACTION_REJECTED") {
+                    friendlyMsg = "Transaction was rejected in your wallet browser.";
+                } else if (err.message && err.message.includes("insufficient funds")) {
+                    friendlyMsg = "Insufficient POL balance for registration fee and transaction gas.";
+                }
+                txErrorMsg.innerText = friendlyMsg;
+                window.metapolApp.showToast("Registration failed.", "error");
+            }
+        }
+
+        function closeTxModal() {
+            document.getElementById("tx-modal").classList.remove("active");
+        }
+    </script>
+</body>
+</html>
