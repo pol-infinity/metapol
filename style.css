@@ -1960,3 +1960,358 @@ table.premium-table tr:hover td {
         margin-top: 30px;
     }
 }
+
+/* ========================================================
+   COMPREHENSIVE MOBILE RESPONSIVE — MetaPOL Dashboard
+   Targets: 480px (small phones), 768px (tablets/large phones)
+   ======================================================== */
+
+/* Prevent horizontal overflow on all screens */
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+
+    /* === HEADER === */
+    .site-header {
+        padding: 0 14px;
+        height: 60px;
+    }
+
+    .logo-text {
+        display: none;
+    }
+
+    #header-wallet-container {
+        max-width: calc(100vw - 120px);
+        overflow: hidden;
+    }
+
+    .wallet-info-panel {
+        display: flex !important;
+        gap: 6px;
+        padding: 5px 8px;
+        font-size: 0.72rem;
+        max-width: 100%;
+        flex-wrap: nowrap;
+        overflow: hidden;
+    }
+
+    .wallet-info-addr {
+        font-size: 0.68rem;
+        max-width: 90px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .wallet-info-bal {
+        font-size: 0.72rem;
+        white-space: nowrap;
+    }
+
+    .wallet-info-net {
+        font-size: 0.62rem;
+        padding: 2px 5px;
+        white-space: nowrap;
+    }
+
+    .btn-sm-icon span {
+        display: none;
+    }
+
+    .btn-sm-icon {
+        padding: 6px 8px;
+    }
+
+    /* === DASHBOARD CONTAINER === */
+    .dashboard-container {
+        padding: 0 12px;
+        margin: 12px auto;
+        gap: 0;
+    }
+
+    /* === MOBILE TAB NAV === */
+    .mobile-tab-navigation {
+        padding: 6px 12px 10px 12px;
+        gap: 6px;
+        margin-bottom: 14px;
+        position: sticky;
+        top: 60px;
+        background: var(--bg-primary);
+        z-index: 100;
+        border-bottom: 1px solid var(--card-border);
+    }
+
+    .mobile-tab-btn {
+        padding: 7px 12px;
+        font-size: 0.78rem;
+        white-space: nowrap;
+    }
+
+    /* === GLASS CARDS === */
+    .glass-card {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    /* === STATS ROW === */
+    .stats-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 14px 12px;
+    }
+
+    .stat-value {
+        font-size: 1.4rem;
+    }
+
+    .stat-label {
+        font-size: 0.72rem;
+    }
+
+    .stat-footer {
+        font-size: 0.7rem;
+    }
+
+    /* === OVERVIEW GRID === */
+    .overview-grid {
+        grid-template-columns: 1fr !important;
+        gap: 14px;
+    }
+
+    /* === MINING CARD === */
+    .mining-ticker-value {
+        font-size: 1.3rem !important;
+    }
+
+    .mining-stats-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    .live-status-row {
+        gap: 8px;
+        font-size: 0.72rem;
+        flex-wrap: wrap;
+    }
+
+    .mining-action-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .mining-action-row .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* === SLOTS GRID === */
+    .slots-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 12px;
+    }
+
+    .slot-card {
+        padding: 14px;
+        gap: 10px;
+    }
+
+    .slot-number {
+        font-size: 0.85rem;
+    }
+
+    .slot-price-val {
+        font-size: 0.95rem;
+    }
+
+    .slot-details-list {
+        gap: 6px;
+    }
+
+    .slot-detail-lbl,
+    .slot-detail-val {
+        font-size: 0.72rem;
+    }
+
+    /* === MATRIX TAB === */
+    .matrix-status-header {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+    }
+
+    .queue-line {
+        padding: 12px 6px;
+        gap: 8px;
+    }
+
+    .queue-node {
+        width: 50px;
+        height: 50px;
+        border-radius: 10px;
+    }
+
+    .queue-node-id {
+        font-size: 0.75rem;
+    }
+
+    /* === TEAM TAB === */
+    .team-stats-summary {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 10px;
+    }
+
+    .ref-link-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .ref-link-row .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .social-share-row {
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .team-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .team-table-wrapper table {
+        min-width: 480px;
+    }
+
+    /* === PROFILE TAB === */
+    .profile-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+    }
+
+    /* === FORMS & INPUTS === */
+    .form-input {
+        font-size: 0.9rem;
+        padding: 12px 14px;
+    }
+
+    /* === BUTTONS === */
+    .btn {
+        font-size: 0.85rem;
+        padding: 10px 16px;
+    }
+
+    /* === SECTION TITLES === */
+    .panel-section-title {
+        font-size: 1rem;
+    }
+
+    /* === CONNECT PROMPT OVERLAY === */
+    .connect-prompt-inner {
+        padding: 28px 20px;
+        margin: 0 12px;
+    }
+
+    .auth-title {
+        font-size: 1.3rem !important;
+    }
+
+    .auth-subtitle {
+        font-size: 0.85rem;
+    }
+
+    /* === FOOTER === */
+    .pro-footer {
+        margin-top: 30px;
+    }
+
+    .footer-inner {
+        padding: 0 14px 30px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    /* === HEADER === */
+    .site-header {
+        padding: 0 10px;
+    }
+
+    /* === STATS ROW — single column on tiny screens === */
+    .stats-row {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    /* === SLOTS — single column on very small screens === */
+    .slots-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* === TEAM STATS — single column === */
+    .team-stats-summary {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* === MINING TICKER === */
+    .mining-ticker-value {
+        font-size: 1.1rem !important;
+        word-break: break-all;
+    }
+
+    /* === CARDS === */
+    .glass-card {
+        padding: 14px 12px;
+        border-radius: 12px;
+    }
+
+    /* === TAB NAV === */
+    .mobile-tab-btn {
+        padding: 6px 10px;
+        font-size: 0.74rem;
+    }
+
+    /* === QUEUE NODES === */
+    .queue-node {
+        width: 44px;
+        height: 44px;
+    }
+
+    .queue-node-id {
+        font-size: 0.68rem;
+    }
+
+    /* === DASHBOARD CONTAINER === */
+    .dashboard-container {
+        padding: 0 8px;
+    }
+
+    /* === SOCIAL SHARE BTNS === */
+    .social-share-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+
+    /* === BUTTONS FULL WIDTH IN FORMS === */
+    .form-action-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-action-row .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
