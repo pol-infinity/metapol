@@ -168,15 +168,55 @@
                 <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(0, 255, 179, 0.1); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; color: var(--accent); font-size: 2rem;">
                     <i class="fa-solid fa-circle-check"></i>
                 </div>
-                <h4 style="font-size: 1.25rem; font-family: var(--font-heading); margin-bottom: 12px;">Registration Successful</h4>
-                <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px;">
-                    Your account has been successfully initialized on the Polygon network! You are now ready to launch the dashboard.
+                <h4 style="font-size: 1.25rem; font-family: var(--font-heading); margin-bottom: 12px;">Registration Successful!</h4>
+                <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 16px;">
+                    Your account has been successfully initialized on the Polygon network!
                 </p>
-                <a id="tx-explorer-link" href="#" target="_blank" class="btn btn-secondary" style="width: 100%; margin-bottom: 12px;">
+
+                <!-- Countdown redirect widget -->
+                <div id="redirect-countdown-widget" style="
+                    background: rgba(0,212,255,0.07);
+                    border: 1px solid rgba(0,212,255,0.25);
+                    border-radius: 14px;
+                    padding: 16px 18px;
+                    margin-bottom: 18px;
+                    display: flex;
+                    align-items: center;
+                    gap: 14px;
+                ">
+                    <!-- Circular countdown SVG -->
+                    <div style="position: relative; width: 52px; height: 52px; flex-shrink: 0;">
+                        <svg width="52" height="52" viewBox="0 0 52 52" style="transform: rotate(-90deg);">
+                            <circle cx="26" cy="26" r="22" fill="none" stroke="rgba(0,212,255,0.12)" stroke-width="4"/>
+                            <circle id="countdown-ring" cx="26" cy="26" r="22" fill="none"
+                                stroke="var(--primary)" stroke-width="4"
+                                stroke-dasharray="138.2" stroke-dashoffset="0"
+                                stroke-linecap="round"
+                                style="transition: stroke-dashoffset 1s linear;"/>
+                        </svg>
+                        <span id="countdown-number" style="
+                            position: absolute; top: 50%; left: 50%;
+                            transform: translate(-50%, -50%);
+                            font-family: var(--font-heading);
+                            font-size: 1.1rem; font-weight: 800;
+                            color: var(--primary);
+                        ">5</span>
+                    </div>
+                    <div style="text-align: left;">
+                        <div style="font-family: var(--font-heading); font-size: 0.82rem; font-weight: 700; color: white; margin-bottom: 2px;">
+                            Redirecting to Dashboard
+                        </div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">
+                            Taking you there in <span id="countdown-text">5</span> seconds…
+                        </div>
+                    </div>
+                </div>
+
+                <a id="tx-explorer-link" href="#" target="_blank" class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;">
                     <i class="fa-solid fa-arrow-up-right-from-square"></i> View on Polygonscan
                 </a>
                 <button class="btn btn-primary btn-glow" style="width: 100%;" onclick="window.location.href='dashboard.html'">
-                    <i class="fa-solid fa-gauge"></i> Open Dashboard
+                    <i class="fa-solid fa-gauge"></i> Go to Dashboard Now
                 </button>
             </div>
 
@@ -427,10 +467,35 @@
                     txLoading.style.display = "none";
                     txSuccess.style.display = "block";
                     document.getElementById("tx-explorer-link").href = `${window.CONFIG.BLOCK_EXPLORER}/tx/${tx.hash}`;
-                    window.metapolApp.showToast("Registration confirmed!", "success");
+                    window.metapolApp.showToast("Registration confirmed! Redirecting to dashboard...", "success");
                     
                     // Clear temporary referral parameter
                     localStorage.removeItem("metapol_ref");
+
+                    // 5-second auto-redirect countdown
+                    let secondsLeft = 5;
+                    const circumference = 138.2; // 2 * π * 22
+                    const ring = document.getElementById("countdown-ring");
+                    const numEl = document.getElementById("countdown-number");
+                    const txtEl = document.getElementById("countdown-text");
+
+                    // Kick off immediately then every 1s
+                    const updateCountdown = () => {
+                        if (numEl) numEl.textContent = secondsLeft;
+                        if (txtEl) txtEl.textContent = secondsLeft;
+                        if (ring) {
+                            // offset goes from 0 (full) to circumference (empty)
+                            const offset = circumference * (1 - secondsLeft / 5);
+                            ring.style.strokeDashoffset = offset;
+                        }
+                        if (secondsLeft <= 0) {
+                            window.location.href = "dashboard.html";
+                            return;
+                        }
+                        secondsLeft--;
+                        setTimeout(updateCountdown, 1000);
+                    };
+                    setTimeout(updateCountdown, 0);
                 } else {
                     throw new Error("Transaction was reverted by the EVM network.");
                 }

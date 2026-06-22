@@ -2626,3 +2626,123 @@ table {
         font-size: 0.58rem !important;
     }
 }
+
+/* ============================================================
+   ALIGNMENT & LAYOUT FIXES — June 2026
+   ============================================================ */
+
+/* ---- Stats grid: 5-card support ---- */
+.stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(min(160px, 46%), 1fr));
+}
+
+/* Commission card accent glow */
+.stat-card--commission {
+    border-color: rgba(0, 255, 179, 0.18) !important;
+    background: linear-gradient(135deg, var(--card-bg) 70%, rgba(0,255,179,0.04)) !important;
+}
+
+/* ---- Sidebar: ensure proper left alignment ---- */
+.dash-sidebar {
+    position: sticky;
+    top: 90px;
+    align-self: flex-start;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+/* ---- Overview grid: Mining card takes 60%, matrix 40% ---- */
+.overview-grid {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* Mining live card centered content */
+.mining-ticker-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+/* Registration layout: left=info, right=card */
+.reg-layout-grid {
+    grid-template-columns: 1.3fr 1fr;
+    align-items: center;
+}
+
+/* Registration info panel alignment */
+.reg-layout-grid > div:first-child {
+    padding-right: 10px;
+}
+
+@media (max-width: 1024px) {
+    .overview-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+    }
+
+    /* 5th card spans both columns on mobile for cleaner look */
+    .stat-card--commission {
+        grid-column: 1 / -1;
+    }
+
+    .overview-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+    }
+
+    .reg-layout-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 6px !important;
+    }
+
+    .stat-card--commission {
+        grid-column: 1 / -1;
+    }
+}
+
+/* ---- Redirect countdown widget subtle pulse ---- */
+#redirect-countdown-widget {
+    animation: subtlePulse 2s ease-in-out infinite;
+}
+
+@keyframes subtlePulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,255,0); }
+    50% { box-shadow: 0 0 12px 2px rgba(0,212,255,0.12); }
+}

@@ -107,6 +107,16 @@ async function syncDashboardData() {
         document.getElementById("stat-mining-capital").innerText = `${parseFloat(ethers.formatEther(totalMiningDep)).toFixed(2)} POL`;
         document.getElementById("stat-direct-referrals").innerText = Number(referredUsers);
 
+        // Fetch direct commission (SponsorPaid events) for overview stat card
+        try {
+            const sponsorFilter = window.metapolApp.contract.filters.SponsorPaid(address);
+            const sponsorEvents = await window.metapolApp.contract.queryFilter(sponsorFilter, 0, "latest");
+            let totalSponsorPaid = 0n;
+            sponsorEvents.forEach(ev => { totalSponsorPaid += ev.args.amount; });
+            const commissionEl = document.getElementById("stat-direct-commission");
+            if (commissionEl) commissionEl.innerText = `${parseFloat(ethers.formatEther(totalSponsorPaid)).toFixed(2)} POL`;
+        } catch(e) { console.warn("Could not fetch sponsor commission:", e); }
+
         // Update badges
         const founderBadge = document.getElementById("stat-founder-badge");
         if (isFounder) {
