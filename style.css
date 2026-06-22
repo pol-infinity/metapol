@@ -457,7 +457,7 @@ nav.desktop-nav {
 /* Landing Page Features Grid */
 .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 24px;
     padding: 60px 0;
 }
@@ -762,7 +762,7 @@ nav.desktop-nav {
 /* Overview Section Cards */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
@@ -1962,7 +1962,7 @@ table.premium-table tr:hover td {
 }
 
 /* ============================================================
-   REGISTRATION PAGE LAYOUT
+   LAYOUT CLASSES FOR REGISTER & CALCULATOR
    ============================================================ */
 
 .reg-layout-grid {
@@ -1973,10 +1973,6 @@ table.premium-table tr:hover td {
     width: 100%;
 }
 
-/* ============================================================
-   CALCULATOR LAYOUT
-   ============================================================ */
-
 .calc-layout-grid {
     display: grid;
     grid-template-columns: 1fr 1.2fr;
@@ -1984,278 +1980,371 @@ table.premium-table tr:hover td {
 }
 
 /* ============================================================
-   GLOBAL MOBILE BASE — prevents ANY horizontal scroll
+   GLOBAL — prevent all horizontal scroll everywhere
    ============================================================ */
 
-html, body {
-    overflow-x: hidden !important;
+html {
+    overflow-x: hidden;
+}
+
+body {
+    overflow-x: hidden;
     max-width: 100vw;
 }
 
 *, *::before, *::after {
     box-sizing: border-box;
+    max-width: 100%;
+}
+
+img, video, iframe, embed, object {
+    max-width: 100%;
 }
 
 /* ============================================================
-   TABLET — max 768px
+   768px — Tablets and large phones
    ============================================================ */
 
 @media (max-width: 768px) {
 
-    /* --- HEADER --- */
-    .site-header,
-    .main-header .header-container {
-        padding: 0 12px;
-        height: 56px;
+    /* HEADER */
+    header.main-header .header-container {
+        padding: 10px 12px;
+        height: auto;
+        min-height: 54px;
     }
 
-    .logo-text { font-size: 0.9rem; }
+    .logo-img { width: 34px !important; height: 34px !important; }
+    .logo-text { font-size: 0.85rem; }
+    .desktop-nav { display: none !important; }
+    .header-actions { display: none !important; }
+    .hamburger { display: flex !important; }
 
-    .header-actions { display: none; }
-    nav.desktop-nav { display: none; }
-    .hamburger { display: flex; }
-
-    /* Wallet panel in dashboard header */
-    #header-wallet-container { max-width: calc(100vw - 100px); }
-
-    .wallet-info-panel {
-        display: flex !important;
-        gap: 5px;
-        padding: 4px 8px;
-        max-width: 100%;
+    /* Dashboard header wallet */
+    #header-wallet-container {
+        max-width: calc(100vw - 90px);
         overflow: hidden;
     }
+    .wallet-info-panel {
+        display: flex !important;
+        gap: 4px;
+        padding: 4px 7px;
+        font-size: 0.68rem;
+        flex-wrap: nowrap;
+        overflow: hidden;
+        max-width: 100%;
+    }
     .wallet-info-addr {
-        font-size: 0.65rem;
-        max-width: 75px;
+        font-size: 0.62rem;
+        max-width: 70px;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
         font-family: monospace;
     }
-    .wallet-info-bal { font-size: 0.68rem; white-space: nowrap; }
-    .wallet-info-net { font-size: 0.6rem; padding: 2px 5px; white-space: nowrap; }
+    .wallet-info-bal { font-size: 0.66rem; white-space: nowrap; }
+    .wallet-info-net { font-size: 0.58rem; padding: 2px 4px; white-space: nowrap; }
     .btn-sm-icon span { display: none; }
     .btn-sm-icon { padding: 5px 7px; }
 
-    /* --- DASHBOARD CONTAINER & LAYOUT --- */
-    .dashboard-container {
-        padding: 0 10px;
-        margin: 10px auto;
-        grid-template-columns: 1fr;
-        gap: 0;
+    /* GLASS CONTAINER */
+    .glass-container {
+        padding: 0 12px !important;
+        width: 100%;
+        max-width: 100vw;
     }
 
-    .dash-sidebar { display: none; }
+    /* GLASS CARD */
+    .glass-card {
+        padding: 14px 12px;
+        border-radius: 14px;
+    }
+    .glass-card:hover {
+        transform: none; /* prevent hover shift on mobile */
+    }
 
+    /* HERO */
+    .hero-section { padding: 60px 0 30px; }
+    .hero-title { font-size: 1.75rem; line-height: 1.25; }
+    .hero-subtitle { font-size: 0.88rem; padding: 0 4px; }
+    .hero-buttons {
+        flex-direction: column;
+        gap: 10px;
+        padding: 0 8px;
+    }
+    .hero-buttons .btn { width: 100%; justify-content: center; }
+
+    /* FEATURES GRID */
+    .features-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+        padding: 30px 0;
+    }
+
+    /* STATS GRID */
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+    .stat-card { padding: 12px 10px; }
+    .stat-value { font-size: 1.1rem; word-break: break-all; }
+    .stat-label { font-size: 0.68rem; }
+    .stat-footer { font-size: 0.64rem; line-height: 1.4; }
+
+    /* DASHBOARD CONTAINER */
+    .dashboard-container {
+        grid-template-columns: 1fr !important;
+        padding: 0 10px;
+        margin: 10px auto;
+        gap: 0;
+        max-width: 100vw;
+    }
+
+    /* SIDEBAR hide on mobile */
+    .dash-sidebar { display: none !important; }
+
+    /* MOBILE TAB NAV */
     .mobile-tab-navigation {
         display: flex !important;
         padding: 8px 10px 10px;
         gap: 6px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
         position: sticky;
-        top: 56px;
+        top: 54px;
         background: var(--bg-primary);
         z-index: 100;
         border-bottom: 1px solid var(--card-border);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
-
+    .mobile-tab-navigation::-webkit-scrollbar { display: none; }
     .mobile-tab-btn {
-        padding: 6px 11px;
-        font-size: 0.76rem;
+        padding: 6px 12px;
+        font-size: 0.75rem;
         white-space: nowrap;
         flex-shrink: 0;
     }
 
-    /* --- CARDS --- */
-    .glass-card { padding: 14px 12px; border-radius: 14px; }
-    .glass-container { padding: 0 10px; }
-
-    /* --- STATS GRID (home + dashboard) --- */
-    .stats-grid {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 10px;
-        margin-bottom: 14px;
-    }
-    .stat-card { padding: 12px 10px; }
-    .stat-value { font-size: 1.2rem; }
-    .stat-label { font-size: 0.7rem; }
-    .stat-footer { font-size: 0.66rem; }
-
-    /* --- OVERVIEW GRID (dashboard tabs) --- */
+    /* OVERVIEW GRID */
     .overview-grid { grid-template-columns: 1fr !important; gap: 12px; }
 
-    /* --- MINING CARD --- */
-    .mining-ticker-wrapper { padding: 16px 8px; }
-    .mining-ticker-title { font-size: 0.75rem; letter-spacing: 0.05em; }
+    /* MINING CARD */
+    .mining-live-card { padding: 0; }
+    .mining-ticker-wrapper { padding: 16px 10px; }
+    .mining-ticker-title { font-size: 0.72rem; letter-spacing: 0.04em; margin-bottom: 8px; }
     .mining-ticker-value {
-        font-size: 1.6rem !important;
+        font-size: 1.55rem !important;
         word-break: break-all;
         line-height: 1.2;
         margin-bottom: 4px;
     }
-    .mining-ticker-symbol { font-size: 0.9rem; }
-
+    .mining-ticker-symbol { font-size: 0.85rem !important; }
     .live-status-row {
-        gap: 6px;
-        font-size: 0.68rem;
+        gap: 5px;
+        font-size: 0.66rem;
         flex-wrap: wrap;
         justify-content: center;
         margin-top: 6px;
     }
-    .live-badge { font-size: 0.66rem; padding: 3px 8px; }
+    .live-badge { font-size: 0.64rem; padding: 3px 8px; }
     .sync-time-label, .claimable-label,
-    .sync-time-val, .claimable-val { font-size: 0.68rem; }
-
+    .sync-time-val, .claimable-val { font-size: 0.66rem; }
     .mining-stats-row {
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 12px;
+        gap: 8px;
+        margin-top: 10px;
     }
-    .mining-stat-mini { padding: 10px; }
-    .mining-stat-mini-label { font-size: 0.68rem; }
-
+    .mining-stat-mini { padding: 9px 8px; }
+    .mining-stat-mini-label { font-size: 0.66rem; }
     .mining-action-row {
         flex-direction: column;
         gap: 8px;
-        margin-top: 12px;
+        margin-top: 10px;
     }
-    .mining-action-row .btn { width: 100%; justify-content: center; }
+    .mining-action-row .btn { width: 100% !important; justify-content: center; }
 
-    /* --- SLOTS GRID --- */
-    .slots-grid { grid-template-columns: 1fr 1fr !important; gap: 10px; }
+    /* SLOTS GRID */
+    .slots-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px;
+    }
     .slot-card { padding: 12px 10px; gap: 8px; }
-    .slot-number { font-size: 0.8rem; }
-    .slot-price-val { font-size: 0.88rem; }
-    .slot-detail-lbl, .slot-detail-val { font-size: 0.66rem; }
-    .slot-status-label { font-size: 0.66rem; padding: 3px 6px; }
+    .slot-number { font-size: 0.78rem; }
+    .slot-price-label { font-size: 0.64rem; }
+    .slot-price-val { font-size: 0.85rem; }
+    .slot-detail-lbl, .slot-detail-val { font-size: 0.64rem; }
+    .slot-status-label { font-size: 0.64rem; padding: 3px 6px; }
+    .slot-progress-lbl-row span { font-size: 0.64rem; }
 
-    /* --- MATRIX TAB --- */
+    /* MATRIX */
     .matrix-status-header { grid-template-columns: 1fr !important; gap: 10px; }
     .queue-line { padding: 10px 6px; gap: 7px; }
     .queue-node { width: 46px; height: 46px; }
-    .queue-node-id { font-size: 0.7rem; }
-    .queue-node-lbl { font-size: 0.52rem; }
+    .queue-node-id { font-size: 0.68rem; }
+    .queue-node-lbl { font-size: 0.5rem; }
 
-    /* --- TEAM TAB --- */
-    .team-stats-summary { grid-template-columns: 1fr 1fr !important; gap: 10px; margin-bottom: 14px; }
+    /* TEAM */
+    .team-stats-summary {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
     .ref-link-row { flex-direction: column; gap: 8px; }
     .ref-link-row .btn { width: 100%; justify-content: center; }
     .social-share-row { flex-wrap: wrap; gap: 8px; }
-    .team-table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .team-table-wrapper table { min-width: 460px; }
+    .team-table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        max-width: 100%;
+    }
+    .team-table-wrapper table { min-width: 440px; }
 
-    /* --- PROFILE TAB --- */
-    .profile-grid { grid-template-columns: 1fr !important; gap: 12px; }
+    /* PROFILE */
+    .profile-grid { grid-template-columns: 1fr !important; gap: 10px; }
 
-    /* --- FORMS & BUTTONS --- */
-    .form-input { font-size: 0.88rem; padding: 11px 12px; }
-    .btn { font-size: 0.84rem; padding: 10px 14px; }
-    .panel-section-title { font-size: 0.95rem; }
+    /* FORMS */
+    .form-input { font-size: 0.86rem; padding: 10px 11px; }
+    .btn { font-size: 0.82rem; padding: 10px 13px; }
+    .panel-section-title { font-size: 0.92rem; }
 
-    /* --- REGISTRATION PAGE --- */
+    /* REGISTRATION PAGE */
     .reg-layout-grid {
         grid-template-columns: 1fr !important;
-        gap: 24px;
-        padding: 0 4px;
+        gap: 20px;
+        padding: 0;
+        max-width: 100%;
+    }
+    .auth-wrapper { padding: 16px 10px 40px; }
+
+    /* CALCULATOR */
+    .calc-layout-grid {
+        grid-template-columns: 1fr !important;
+        gap: 14px;
     }
 
-    .auth-wrapper { padding: 20px 10px 40px; }
-
-    /* --- CALCULATOR (index.html) --- */
-    .calc-layout-grid { grid-template-columns: 1fr !important; gap: 16px; }
-
-    /* --- HERO --- */
-    .hero-title { font-size: 1.8rem; line-height: 1.25; }
-    .hero-subtitle { font-size: 0.9rem; }
-    .hero-buttons { flex-direction: column; gap: 10px; padding: 0 10px; }
-    .hero-buttons .btn { width: 100%; justify-content: center; }
-
-    /* --- FEATURES GRID --- */
-    .features-grid { grid-template-columns: 1fr !important; gap: 14px; }
-
-    /* --- CONNECT OVERLAY --- */
-    .connect-prompt-inner { padding: 24px 14px; margin: 0 8px; }
+    /* CONNECT OVERLAY */
+    .connect-prompt-inner { padding: 22px 14px; margin: 0 8px; }
     .auth-title { font-size: 1.2rem !important; }
-    .auth-subtitle { font-size: 0.84rem; }
 
-    /* --- FLOATING PDF --- */
-    .floating-pdf-btn { width: 46px; height: 46px; bottom: 16px; right: 16px; }
+    /* FLOATING PDF */
+    .floating-pdf-btn {
+        width: 46px; height: 46px;
+        bottom: 16px; right: 16px;
+    }
 
-    /* --- FOOTER --- */
-    .pro-footer { margin-top: 24px; }
-    .footer-inner { padding: 0 12px 24px; }
-    .footer-top { grid-template-columns: 1fr 1fr; gap: 20px; }
+    /* FOOTER */
+    .pro-footer { margin-top: 20px; }
+    .footer-inner { padding: 0 12px 20px; }
+    .footer-top {
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+    }
     .footer-brand { grid-column: 1 / -1; }
     .footer-community { grid-column: 1 / -1; }
-
-    /* Hide wallet panel in footer context */
-    .wallet-info-panel.in-footer { display: none !important; }
 }
 
 /* ============================================================
-   MOBILE PHONE — max 480px
+   480px — Small phones
    ============================================================ */
 
 @media (max-width: 480px) {
 
-    /* --- HEADER --- */
-    .site-header,
-    .main-header .header-container { padding: 0 8px; }
-    .logo-img { width: 32px; height: 32px; }
+    /* HEADER */
+    header.main-header .header-container {
+        padding: 8px 10px;
+        min-height: 50px;
+    }
+    .logo-img { width: 30px !important; height: 30px !important; }
+    .logo-text { font-size: 0.78rem; }
 
-    /* --- STATS: keep 2-col but tighter --- */
-    .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 8px; }
-    .stat-card { padding: 11px 9px; }
-    .stat-value { font-size: 1.05rem; word-break: break-all; }
-    .stat-label { font-size: 0.64rem; }
-    .stat-footer { font-size: 0.6rem; }
+    /* WALLET PANEL */
+    .wallet-info-panel { gap: 3px; padding: 3px 6px; }
+    .wallet-info-addr { max-width: 60px; font-size: 0.58rem; }
+    .wallet-info-bal { font-size: 0.62rem; }
+    .wallet-info-net { font-size: 0.55rem; }
 
-    /* --- MINING TICKER --- */
-    .mining-ticker-value { font-size: 1.3rem !important; word-break: break-all; }
-    .mining-ticker-symbol { font-size: 0.8rem; }
-    .mining-ticker-title { font-size: 0.7rem; }
+    /* GLASS CONTAINER */
+    .glass-container { padding: 0 8px !important; }
+    .glass-card { padding: 11px 10px; border-radius: 12px; }
 
-    /* --- SLOTS: 1 column --- */
+    /* HERO */
+    .hero-section { padding: 40px 0 20px; }
+    .hero-title { font-size: 1.4rem; }
+    .hero-subtitle { font-size: 0.82rem; }
+    .hero-buttons { padding: 0 4px; }
+    .badge-glow { font-size: 0.72rem; padding: 5px 12px; }
+
+    /* STATS */
+    .stats-grid { grid-template-columns: 1fr 1fr !important; gap: 7px; }
+    .stat-card { padding: 10px 8px; }
+    .stat-value { font-size: 0.95rem; }
+    .stat-label { font-size: 0.62rem; }
+    .stat-footer { font-size: 0.58rem; }
+
+    /* DASHBOARD */
+    .dashboard-container { padding: 0 8px; }
+    .mobile-tab-navigation {
+        top: 50px;
+        padding: 6px 8px 8px;
+        gap: 5px;
+    }
+    .mobile-tab-btn { padding: 5px 9px; font-size: 0.68rem; }
+
+    /* MINING */
+    .mining-ticker-value { font-size: 1.2rem !important; }
+    .mining-ticker-symbol { font-size: 0.76rem !important; }
+    .mining-ticker-title { font-size: 0.66rem; }
+    .mining-stat-mini-label { font-size: 0.62rem; }
+
+    /* SLOTS — 1 column */
     .slots-grid { grid-template-columns: 1fr !important; }
+    .slot-card { padding: 11px 10px; }
 
-    /* --- TEAM STATS: 1 column --- */
+    /* TEAM STATS — 1 column */
     .team-stats-summary { grid-template-columns: 1fr !important; }
 
-    /* --- CARDS --- */
-    .glass-card { padding: 12px 10px; border-radius: 12px; }
-    .glass-container { padding: 0 6px; }
+    /* QUEUE */
+    .queue-node { width: 38px; height: 38px; }
+    .queue-node-id { font-size: 0.62rem; }
 
-    /* --- DASHBOARD --- */
-    .dashboard-container { padding: 0 6px; }
-    .mobile-tab-btn { padding: 5px 9px; font-size: 0.7rem; }
-    .mobile-tab-navigation { top: 56px; padding: 6px 8px 8px; }
+    /* SOCIAL SHARE */
+    .social-share-btn { width: 32px !important; height: 32px !important; font-size: 0.8rem; }
 
-    /* --- HERO --- */
-    .hero-title { font-size: 1.5rem; }
-    .hero-subtitle { font-size: 0.84rem; padding: 0 4px; }
-
-    /* --- QUEUE NODES --- */
-    .queue-node { width: 40px; height: 40px; }
-    .queue-node-id { font-size: 0.64rem; }
-
-    /* --- SOCIAL SHARE --- */
-    .social-share-btn { width: 32px; height: 32px; font-size: 0.82rem; }
-
-    /* --- REGISTRATION --- */
-    .reg-layout-grid { gap: 20px; }
-    .auth-wrapper { padding: 14px 6px 30px; }
-
-    /* --- CALCULATOR --- */
-    .calc-layout-grid { gap: 12px; }
-
-    /* --- FORMS --- */
-    .form-input { font-size: 0.84rem; padding: 10px 10px; }
-    .btn { font-size: 0.8rem; padding: 9px 12px; }
-
-    /* --- FOOTER --- */
+    /* FOOTER */
     .footer-top { grid-template-columns: 1fr; }
     .footer-brand, .footer-community { grid-column: auto; }
-    .pro-footer { margin-top: 16px; }
-    .footer-inner { padding: 0 10px 20px; }
+    .footer-inner { padding: 0 10px 16px; }
+    .pro-footer { margin-top: 14px; }
+    .footer-tg-btn { padding: 10px 14px; font-size: 0.82rem; }
+}
+
+/* Mining slots summary grid in mining tab */
+.mining-slots-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 16px;
+}
+
+/* Mining action row centered variant */
+.mining-action-centered {
+    max-width: 400px;
+    margin: 24px auto 0 auto;
+}
+
+@media (max-width: 768px) {
+    .mining-slots-summary-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px;
+    }
+    .mining-action-centered {
+        max-width: 100%;
+        margin: 10px 0 0 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .mining-slots-summary-grid {
+        grid-template-columns: 1fr !important;
+    }
 }
