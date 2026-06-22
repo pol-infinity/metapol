@@ -99,6 +99,7 @@
                 <div class="sidebar-link" data-tab="team"><i class="fa-solid fa-users"></i> Team & Referrals</div>
                 <div class="sidebar-link" data-tab="activity"><i class="fa-solid fa-clock-rotate-left"></i> Activity Feed</div>
                 <div class="sidebar-link" data-tab="profile"><i class="fa-solid fa-circle-user"></i> Member Profile</div>
+                <div class="sidebar-link" onclick="window.metapolApp.changeWallet()"><i class="fa-solid fa-arrows-rotate" style="color:var(--primary);"></i> Change Wallet</div>
                 <div class="sidebar-link" onclick="window.metapolApp.disconnectWallet()"><i class="fa-solid fa-right-from-bracket text-danger"></i> Disconnect</div>
             </div>
         </aside>
@@ -148,8 +149,15 @@
                         <div class="mining-ticker-wrapper">
                             <span class="mining-ticker-title">Live ROI Mining Rewards</span>
                             <span class="mining-ticker-value" id="live-mining-counter">0.00000000 <span class="mining-ticker-symbol">POL</span></span>
-                            <div class="mining-status-badge">
-                                <span class="ping-dot"></span> Live Blockchain ROI
+                            
+                            <div class="live-status-row">
+                                <div class="live-badge">
+                                    <span class="ping-dot"></span> LIVE
+                                </div>
+                                <span class="sync-time-label">Last Sync:</span>
+                                <span class="sync-time-val" id="overview-last-sync">—</span>
+                                <span class="claimable-label">Claimable:</span>
+                                <span class="claimable-val" id="overview-claimable">0.00 POL</span>
                             </div>
                             
                             <div class="mining-stats-row">
@@ -194,8 +202,15 @@
                     <div class="mining-ticker-wrapper">
                         <span class="mining-ticker-title">Accumulating ROI Rewards</span>
                         <span class="mining-ticker-value" id="live-mining-tab-counter">0.00000000 <span class="mining-ticker-symbol">POL</span></span>
-                        <div class="mining-status-badge">
-                            <span class="ping-dot"></span> Synced
+                        
+                        <div class="live-status-row">
+                            <div class="live-badge">
+                                <span class="ping-dot"></span> LIVE
+                            </div>
+                            <span class="sync-time-label">Last Sync:</span>
+                            <span class="sync-time-val" id="mining-tab-last-sync">—</span>
+                            <span class="claimable-label">Claimable Now:</span>
+                            <span class="claimable-val" id="mining-tab-claimable">0.00 POL</span>
                         </div>
                         
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-top: 30px; width: 100%;">
@@ -426,6 +441,21 @@
                         </div>
 
                         <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+                            <span class="text-muted">POL Balance:</span>
+                            <span id="profile-pol-balance" style="font-weight: 700; color: var(--accent);">—</span>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+                            <span class="text-muted">Network:</span>
+                            <span id="profile-network-status" style="font-weight: 600; color: var(--accent);">Polygon Mainnet</span>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
+                            <span class="text-muted">Connection Status:</span>
+                            <span id="profile-connection-status" style="font-weight: 600; color: var(--accent);">Connected</span>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--card-border); padding-bottom: 12px;">
                             <span class="text-muted">Sponsor Member ID:</span>
                             <span id="profile-sponsor" style="font-weight: 600;">#0</span>
                         </div>
@@ -450,6 +480,16 @@
                             <span id="profile-matrix-eligibility" style="font-weight: 600; color: var(--danger);">Ineligible (Needs 2 Directs)</span>
                         </div>
 
+                    </div>
+
+                    <!-- Wallet Action Buttons -->
+                    <div style="display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap;">
+                        <button class="btn btn-secondary" onclick="window.metapolApp.changeWallet()" style="flex:1; min-width:140px;">
+                            <i class="fa-solid fa-arrows-rotate"></i> Change Wallet
+                        </button>
+                        <button class="btn" onclick="window.metapolApp.disconnectWallet()" style="flex:1; min-width:140px; background: rgba(255,80,80,0.1); border: 1px solid rgba(255,80,80,0.3); color: var(--danger);">
+                            <i class="fa-solid fa-right-from-bracket"></i> Disconnect Wallet
+                        </button>
                     </div>
                 </div>
             </div>
@@ -525,6 +565,53 @@
             </div>
         </div>
     </div>
+
+    <!-- Professional Footer -->
+    <footer class="pro-footer" style="margin-left:0;">
+        <div class="footer-inner">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo-link">
+                        <img src="assets/logo.jpg" alt="MetaPOL Logo" class="logo-img footer-logo-img">
+                        <span class="logo-text">METAPOL</span>
+                    </a>
+                    <p class="footer-tagline">Decentralized Matrix &amp; Passive Mining<br>Ecosystem on Polygon Mainnet</p>
+                </div>
+                <div class="footer-links-col">
+                    <h4 class="footer-col-title">Navigation</h4>
+                    <a href="index.html">Home</a>
+                    <a href="dashboard.html?tab=mining">Mining</a>
+                    <a href="dashboard.html?tab=slots">Slots</a>
+                    <a href="dashboard.html?tab=matrix">Matrix</a>
+                    <a href="dashboard.html?tab=team">Team</a>
+                </div>
+                <div class="footer-links-col">
+                    <h4 class="footer-col-title">Resources</h4>
+                    <a href="assets/MetaPOL.pdf" target="_blank"><i class="fa-regular fa-file-pdf"></i> Whitepaper</a>
+                    <a href="https://polygonscan.com/address/0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Smart Contract</a>
+                    <a href="https://polygon.technology" target="_blank"><i class="fa-solid fa-hexagon-nodes"></i> Polygon Network</a>
+                </div>
+                <div class="footer-community">
+                    <h4 class="footer-col-title">Community</h4>
+                    <a href="https://t.me/metapoldapp" target="_blank" class="footer-tg-btn">
+                        <i class="fa-brands fa-telegram"></i>
+                        <span>Join Telegram</span>
+                        <span class="footer-tg-badge">LIVE</span>
+                    </a>
+                    <div class="footer-socials">
+                        <a href="https://t.me/metapoldapp" target="_blank" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
+                        <a href="https://twitter.com/metapol_system" target="_blank" title="Twitter / X"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="https://polygonscan.com/address/0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab" target="_blank" title="PolygonScan"><i class="fa-solid fa-magnifying-glass-dollar"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-divider"></div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 MetaPOL &mdash; Deployed on Polygon Mainnet. No admin control over user funds.</p>
+                <p class="footer-disclaimer">Participation involves network gas costs and market risk. Always verify parameters on-chain.</p>
+            </div>
+        </div>
+    </footer>
 
     <!-- Web3 Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>

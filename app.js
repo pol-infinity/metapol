@@ -342,9 +342,11 @@ class MetaPOLApp {
                 headerWalletIcon.className = "fa-solid fa-wallet-arrow-left text-accent";
             }
             if (this.btnConnectWallet) {
-                this.btnConnectWallet.innerHTML = `<i class="fa-solid fa-wallet"></i> ${shortAddr}`;
-                this.btnConnectWallet.className = "btn btn-primary";
+                this.btnConnectWallet.style.display = "none";
             }
+
+            // Build or update wallet panel in header
+            this._renderWalletPanel();
             
             // If in Dashboard prompt overlay, hide it
             const promptOverlay = document.getElementById("connect-prompt-overlay");
@@ -360,9 +362,14 @@ class MetaPOLApp {
                 headerWalletIcon.className = "fa-solid fa-wallet";
             }
             if (this.btnConnectWallet) {
+                this.btnConnectWallet.style.display = "";
                 this.btnConnectWallet.innerHTML = `<i class="fa-solid fa-link"></i> Connect Wallet`;
                 this.btnConnectWallet.className = "btn btn-primary btn-glow";
             }
+
+            // Remove wallet panel if exists
+            const existing = document.getElementById("wallet-info-panel-header");
+            if (existing) existing.remove();
             
             // If on dashboard, show prompt overlay and hide main container
             const promptOverlay = document.getElementById("connect-prompt-overlay");
@@ -370,6 +377,77 @@ class MetaPOLApp {
 
             const dashLayout = document.getElementById("dashboard-layout-wrapper");
             if (dashLayout) dashLayout.style.display = "none";
+        }
+    }
+
+    _renderWalletPanel() {
+        const headerActions = document.querySelector(".header-actions");
+        if (!headerActions) return;
+
+        let panel = document.getElementById("wallet-info-panel-header");
+        if (!panel) {
+            panel = document.createElement("div");
+            panel.id = "wallet-info-panel-header";
+            panel.className = "wallet-info-panel";
+            headerActions.appendChild(panel);
+        }
+
+        const shortAddr = this.shortenAddress(this.userAddress);
+
+        panel.innerHTML = `
+            <span class="wallet-info-net" id="wp-network-badge">Polygon</span>
+            <span class="wallet-info-addr" title="${this.userAddress}">${shortAddr}</span>
+            <span class="wallet-info-bal" id="wp-pol-balance">… POL</span>
+            <div class="header-wallet-btns">
+                <button class="btn-sm-icon" title="Change Wallet" onclick="window.metapolApp.changeWallet()">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                </button>
+                <button class="btn-sm-icon btn-danger" title="Disconnect Wallet" onclick="window.metapolApp.disconnectWallet()">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        `;
+
+        // Async-fetch POL balance
+        this._fetchAndShowBalance();
+    }
+
+    async _fetchAndShowBalance() {
+        try {
+            const bal = await this.provider.getBalance(this.userAddress);
+            const balEth = parseFloat(ethers.formatEther(bal)).toFixed(3);
+            const el = document.getElementById("wp-pol-balance");
+            if (el) el.innerText = `${balEth} POL`;
+
+            // Check network
+            const network = await this.provider.getNetwork();
+            const chainId = Number(network.chainId);
+            const netBadge = document.getElementById("wp-network-badge");
+            if (netBadge) {
+                if (chainId === window.CONFIG.CHAIN_ID_DECIMAL) {
+                    netBadge.className = "wallet-info-net";
+                    netBadge.innerText = "Polygon";
+                } else {
+                    netBadge.className = "wallet-info-net net-wrong";
+                    netBadge.innerText = "Wrong Net";
+                }
+            }
+        } catch(e) {
+            console.warn("Balance fetch failed", e);
+        }
+    }
+
+    async changeWallet() {
+        try {
+            // Request permissions to let user pick a different account
+            await window.ethereum.request({
+                method: "wallet_requestPermissions",
+                params: [{ eth_accounts: {} }]
+            });
+            // After permission granted, reconnect
+            await this.connectWallet(false);
+        } catch(e) {
+            this.showToast("Change wallet cancelled.", "warning");
         }
     }
 

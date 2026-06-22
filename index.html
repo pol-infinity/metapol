@@ -64,7 +64,7 @@
                 <a href="dashboard.html?tab=matrix" class="nav-item">Matrix</a>
                 <a href="dashboard.html?tab=team" class="nav-item">Team</a>
                 <a href="#" class="nav-item trigger-pdf-modal"><i class="fa-regular fa-file-pdf"></i> Presentation</a>
-                <a href="https://t.me/metapol_support" target="_blank" class="nav-item">Support</a>
+                <a href="https://t.me/metapoldapp" target="_blank" class="nav-item">Support</a>
             </nav>
 
             <div class="header-actions">
@@ -93,7 +93,7 @@
             <a href="dashboard.html?tab=matrix" class="nav-item">Matrix</a>
             <a href="dashboard.html?tab=team" class="nav-item">Team</a>
             <a href="#" class="nav-item trigger-pdf-modal"><i class="fa-regular fa-file-pdf"></i> Presentation</a>
-            <a href="https://t.me/metapol_support" target="_blank" class="nav-item">Support</a>
+            <a href="https://t.me/metapoldapp" target="_blank" class="nav-item">Support</a>
         </div>
         <div class="mobile-actions">
             <button class="btn btn-primary" onclick="window.metapolApp.connectWallet()">
@@ -294,27 +294,51 @@
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer style="background-color: #03050f; border-top: 1px solid var(--card-border); padding: 40px 0;">
-        <div class="glass-container" style="display: flex; flex-direction: column; align-items: center; gap: 24px; text-align: center;">
-            <a href="index.html" class="logo-link">
-                <img src="assets/logo.jpg" alt="MetaPOL Logo" class="logo-img" style="height: 36px;">
-                <span class="logo-text" style="font-size: 1.25rem;">METAPOL</span>
-            </a>
-            
-            <p style="color: var(--text-muted); font-size: 0.85rem; max-width: 600px;">
-                MetaPOL is a fully decentralized community-driven protocol. Participation in cryptocurrency matrices and mining pools involves network gas costs and market changes. Always verify parameters directly on the blockchain explorer.
-            </p>
-            
-            <div style="display: flex; gap: 20px; font-size: 1.25rem; color: var(--text-muted);">
-                <a href="https://t.me/metapol_channel" target="_blank" style="transition: color var(--transition-fast);" onmouseover="this.style.color='#0088cc'" onmouseout="this.style.color=''"><i class="fa-brands fa-telegram"></i></a>
-                <a href="https://twitter.com/metapol_system" target="_blank" style="transition: color var(--transition-fast);" onmouseover="this.style.color='#1DA1F2'" onmouseout="this.style.color=''"><i class="fa-brands fa-twitter"></i></a>
-                <a href="https://polygonscan.com/address/0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab" target="_blank" style="transition: color var(--transition-fast);" onmouseover="this.style.color='#8A2BE2'" onmouseout="this.style.color=''"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+    <!-- Professional Footer -->
+    <footer class="pro-footer">
+        <div class="footer-inner">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <a href="index.html" class="logo-link">
+                        <img src="assets/logo.jpg" alt="MetaPOL Logo" class="logo-img footer-logo-img">
+                        <span class="logo-text">METAPOL</span>
+                    </a>
+                    <p class="footer-tagline">Decentralized Matrix &amp; Passive Mining<br>Ecosystem on Polygon Mainnet</p>
+                </div>
+                <div class="footer-links-col">
+                    <h4 class="footer-col-title">Platform</h4>
+                    <a href="index.html">Home</a>
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="dashboard.html?tab=mining">Mining</a>
+                    <a href="dashboard.html?tab=slots">Slots</a>
+                    <a href="dashboard.html?tab=matrix">Matrix</a>
+                    <a href="register.html">Register</a>
+                </div>
+                <div class="footer-links-col">
+                    <h4 class="footer-col-title">Resources</h4>
+                    <a href="assets/MetaPOL.pdf" target="_blank"><i class="fa-regular fa-file-pdf"></i> Whitepaper</a>
+                    <a href="https://polygonscan.com/address/0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square"></i> Smart Contract</a>
+                    <a href="https://polygon.technology" target="_blank"><i class="fa-solid fa-hexagon-nodes"></i> Polygon Network</a>
+                </div>
+                <div class="footer-community">
+                    <h4 class="footer-col-title">Community</h4>
+                    <a href="https://t.me/metapoldapp" target="_blank" class="footer-tg-btn">
+                        <i class="fa-brands fa-telegram"></i>
+                        <span>Join Telegram</span>
+                        <span class="footer-tg-badge">LIVE</span>
+                    </a>
+                    <div class="footer-socials">
+                        <a href="https://t.me/metapoldapp" target="_blank" title="Telegram"><i class="fa-brands fa-telegram"></i></a>
+                        <a href="https://twitter.com/metapol_system" target="_blank" title="Twitter / X"><i class="fa-brands fa-x-twitter"></i></a>
+                        <a href="https://polygonscan.com/address/0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab" target="_blank" title="PolygonScan"><i class="fa-solid fa-magnifying-glass-dollar"></i></a>
+                    </div>
+                </div>
             </div>
-
-            <p style="color: rgba(255,255,255,0.3); font-size: 0.75rem;">
-                &copy; 2026 MetaPOL. Ecosystem deployed on Polygon Mainnet.
-            </p>
+            <div class="footer-divider"></div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 MetaPOL &mdash; Deployed on Polygon Mainnet. No admin control over user funds.</p>
+                <p class="footer-disclaimer">Participation involves network gas costs and market risk. Always verify parameters on-chain.</p>
+            </div>
         </div>
     </footer>
 

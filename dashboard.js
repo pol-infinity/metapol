@@ -139,6 +139,32 @@ async function syncDashboardData() {
         document.getElementById("profile-id").innerText = `#${userMemberId}`;
         document.getElementById("profile-wallet").innerText = address;
         document.getElementById("profile-sponsor").innerText = referrerID > 0 ? `#${referrerID}` : "None";
+
+        // Populate wallet status fields
+        try {
+            const bal = await window.metapolApp.provider.getBalance(address);
+            const balFmt = parseFloat(ethers.formatEther(bal)).toFixed(4);
+            const polBalEl = document.getElementById("profile-pol-balance");
+            if (polBalEl) polBalEl.innerText = `${balFmt} POL`;
+
+            const network = await window.metapolApp.provider.getNetwork();
+            const chainId = Number(network.chainId);
+            const netEl = document.getElementById("profile-network-status");
+            const connEl = document.getElementById("profile-connection-status");
+            if (netEl) {
+                if (chainId === window.CONFIG.CHAIN_ID_DECIMAL) {
+                    netEl.innerText = "Polygon Mainnet ✓";
+                    netEl.style.color = "var(--accent)";
+                } else {
+                    netEl.innerText = `Wrong Network (Chain ${chainId})`;
+                    netEl.style.color = "var(--danger)";
+                }
+            }
+            if (connEl) {
+                connEl.innerText = "Connected ✓";
+                connEl.style.color = "var(--accent)";
+            }
+        } catch(e) { console.warn("Profile wallet info fetch failed", e); }
         document.getElementById("profile-referred-count").innerText = Number(referredUsers);
 
         // 2. Fetch and synchronize Mining Entries
@@ -234,6 +260,25 @@ async function syncMiningData() {
 function startMiningTimer() {
     stopMiningTimer();
     
+    // Set Last Sync Time
+    const now = new Date();
+    const syncStr = now.toLocaleTimeString();
+    const syncEl1 = document.getElementById("overview-last-sync");
+    const syncEl2 = document.getElementById("mining-tab-last-sync");
+    if (syncEl1) syncEl1.innerText = syncStr;
+    if (syncEl2) syncEl2.innerText = syncStr;
+
+    // Fetch claimable from chain
+    if (window.metapolApp && window.metapolApp.contract && window.metapolApp.userAddress) {
+        window.metapolApp.contract.getPendingMining(window.metapolApp.userAddress).then(pendingWei => {
+            const claimableVal = parseFloat(ethers.formatEther(pendingWei)).toFixed(4);
+            const cl1 = document.getElementById("overview-claimable");
+            const cl2 = document.getElementById("mining-tab-claimable");
+            if (cl1) cl1.innerText = `${claimableVal} POL`;
+            if (cl2) cl2.innerText = `${claimableVal} POL`;
+        }).catch(() => {});
+    }
+
     // Set 100ms interval for ticking
     miningTimer = setInterval(() => {
         if (miningEntries.length === 0) return;
@@ -261,6 +306,25 @@ function startMiningTimer() {
 
         if (liveCounter) liveCounter.innerHTML = `${displayVal} <span class="mining-ticker-symbol">POL</span>`;
         if (tabLiveCounter) tabLiveCounter.innerHTML = `${displayVal} <span class="mining-ticker-symbol">POL</span>`;
+
+        // Update claimable display every ~30 seconds (every 300 ticks)
+        miningTimer._tick = (miningTimer._tick || 0) + 1;
+        if (miningTimer._tick % 300 === 0) {
+            if (window.metapolApp && window.metapolApp.contract && window.metapolApp.userAddress) {
+                window.metapolApp.contract.getPendingMining(window.metapolApp.userAddress).then(pendingWei => {
+                    const claimableVal = parseFloat(ethers.formatEther(pendingWei)).toFixed(4);
+                    const cl1 = document.getElementById("overview-claimable");
+                    const cl2 = document.getElementById("mining-tab-claimable");
+                    if (cl1) cl1.innerText = `${claimableVal} POL`;
+                    if (cl2) cl2.innerText = `${claimableVal} POL`;
+                    const ts = new Date().toLocaleTimeString();
+                    const s1 = document.getElementById("overview-last-sync");
+                    const s2 = document.getElementById("mining-tab-last-sync");
+                    if (s1) s1.innerText = ts;
+                    if (s2) s2.innerText = ts;
+                }).catch(() => {});
+            }
+        }
     }, 100);
 }
 
