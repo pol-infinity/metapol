@@ -74,7 +74,8 @@
             <div class="glass-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
                 <div>
                     <h2 style="font-size: 1.75rem; font-family: var(--font-heading);"><i class="fa-solid fa-user-gear text-primary"></i> Contract Back-Office Control</h2>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Smart Contract Address: <a href="https://polygonscan.com/address/0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab" target="_blank" style="color: var(--primary); text-decoration: underline; font-family: monospace;">0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab</a></p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Smart Contract: <a href="https://polygonscan.com/address/0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab" target="_blank" style="color: var(--primary); text-decoration: underline; font-family: monospace;">0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab</a></p>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-shield-check text-secondary"></i> Owner Wallet: <span id="admin-owner-wallet" style="font-family: monospace; color: var(--accent);">—</span></p>
                 </div>
                 <div style="display: flex; gap: 12px;">
                     <button class="btn btn-secondary" onclick="syncAdminData()"><i class="fa-solid fa-rotate"></i> Refresh Stats</button>
@@ -102,7 +103,7 @@
                 <div class="glass-card">
                     <span class="stat-label">Total Admin Fees Collected</span>
                     <span class="stat-value" id="admin-total-fees">0.00 POL</span>
-                    <span class="stat-footer"><i class="fa-solid fa-circle-dollar-to-slot text-secondary"></i> Direct Owner Share (8%)</span>
+                    <span class="stat-footer"><i class="fa-solid fa-circle-dollar-to-slot text-secondary"></i> Direct Owner Share</span>
                 </div>
             </div>
 

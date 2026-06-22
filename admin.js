@@ -8,18 +8,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const originalUpdateWalletUI = window.metapolApp.updateWalletUI;
     window.metapolApp.updateWalletUI = async function() {
         originalUpdateWalletUI.apply(this);
-        
+
+        const promptOverlay = document.getElementById("connect-prompt-overlay");
+        const dashLayout = document.getElementById("dashboard-layout-wrapper");
+
         if (this.isConnected) {
+            // Immediately hide the dashboard until owner is confirmed
+            if (dashLayout) dashLayout.style.display = "none";
+
             try {
                 const owner = await this.contract.ownerWallet();
                 const isOwner = this.userAddress.toLowerCase() === owner.toLowerCase();
-                
-                const promptOverlay = document.getElementById("connect-prompt-overlay");
-                const dashLayout = document.getElementById("dashboard-layout-wrapper");
 
                 if (isOwner) {
                     if (promptOverlay) promptOverlay.style.display = "none";
                     if (dashLayout) dashLayout.style.display = "grid";
+
+                    // Show owner wallet address in admin header
+                    const ownerBadge = document.getElementById("admin-owner-wallet");
+                    if (ownerBadge) ownerBadge.innerText = this.userAddress;
+
                     syncAdminData();
                 } else {
                     if (promptOverlay) {
@@ -32,10 +40,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             } catch (err) {
                 console.error("Owner validation failed:", err);
+                // On error keep dashboard hidden
+                if (dashLayout) dashLayout.style.display = "none";
+                if (promptOverlay) promptOverlay.style.display = "flex";
             }
         } else {
-            const promptOverlay = document.getElementById("connect-prompt-overlay");
-            const dashLayout = document.getElementById("dashboard-layout-wrapper");
             if (promptOverlay) promptOverlay.style.display = "flex";
             if (dashLayout) dashLayout.style.display = "none";
         }

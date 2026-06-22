@@ -119,9 +119,16 @@ async function syncDashboardData() {
             document.getElementById("profile-founder-status").innerText = "Standard Member";
         }
 
+        const ownerWallet = await window.metapolApp.contract.ownerWallet();
+        const isOwner = address.toLowerCase() === ownerWallet.toLowerCase();
+
+        // Show Admin Panel link in sidebar only for owner wallet
+        const adminSidebarLink = document.getElementById("sidebar-admin-link");
+        if (adminSidebarLink) adminSidebarLink.style.display = isOwner ? "flex" : "none";
+
         const eligibilityBadge = document.getElementById("stat-eligibility-badge");
         const eligibilityProfile = document.getElementById("profile-matrix-eligibility");
-        if (incomeEligible || isFounder || address.toLowerCase() === (await window.metapolApp.contract.ownerWallet()).toLowerCase()) {
+        if (incomeEligible || isFounder || isOwner) {
             eligibilityBadge.innerHTML = `<i class="fa-solid fa-circle-check text-accent"></i> Matrix Eligible`;
             eligibilityProfile.innerHTML = `<span style="color: var(--accent); font-weight: 700;">Eligible</span>`;
         } else {
