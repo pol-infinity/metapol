@@ -129,11 +129,13 @@ async function syncDashboardData() {
             eligibilityProfile.innerHTML = `<span style="color: var(--danger); font-weight: 700;">Ineligible (Needs 2 Direct Referrals, current: ${referredUsers})</span>`;
         }
 
-        // Setup referral UI inputs
-        const referralLink = `${window.location.origin}/register.html?ref=${userMemberId}`;
-        document.getElementById("referral-link-input").value = referralLink;
-        document.getElementById("profile-ref-link").innerText = referralLink;
-        document.getElementById("profile-ref-link").href = referralLink;
+        // Referral link: use origin root with ?ref=USER_ID (auto-detects domain)
+        const referralBase = window.location.origin;
+        const referralLink = `${referralBase}/?ref=${userMemberId}`;
+        const refInputEl = document.getElementById("referral-link-input");
+        const refProfileEl = document.getElementById("profile-ref-link");
+        if (refInputEl) refInputEl.value = referralLink;
+        if (refProfileEl) { refProfileEl.innerText = referralLink; refProfileEl.href = referralLink; }
 
         // Populate profile tab values
         document.getElementById("profile-id").innerText = `#${userMemberId}`;
