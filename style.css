@@ -82,8 +82,8 @@ a {
 
 .ambient-glow {
     position: fixed;
-    width: 600px;
-    height: 600px;
+    width: min(600px, 100vw);
+    height: min(600px, 100vw);
     border-radius: 50%;
     filter: blur(150px);
     opacity: 0.15;
@@ -457,7 +457,7 @@ nav.desktop-nav {
 /* Landing Page Features Grid */
 .features-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
     gap: 24px;
     padding: 60px 0;
 }
@@ -762,7 +762,7 @@ nav.desktop-nav {
 /* Overview Section Cards */
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(140px, 47%), 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
@@ -951,7 +951,7 @@ nav.desktop-nav {
 /* Slots Page Grid */
 .slots-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
     gap: 20px;
 }
 
@@ -1091,7 +1091,7 @@ nav.desktop-nav {
 /* Matrix UI */
 .matrix-status-header {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
@@ -1174,7 +1174,7 @@ nav.desktop-nav {
 /* Team section tree representation */
 .team-stats-summary {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
@@ -1373,7 +1373,7 @@ table.premium-table tr:hover td {
 /* Admin Panel layout specific styles */
 .admin-card-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
     gap: 20px;
     margin-bottom: 30px;
 }
@@ -1459,7 +1459,7 @@ table.premium-table tr:hover td {
     position: fixed;
     top: 0;
     right: -100%;
-    width: 300px;
+    width: min(300px, 85vw);
     height: 100%;
     background: rgba(5, 8, 22, 0.98);
     backdrop-filter: blur(20px);
@@ -2322,7 +2322,7 @@ img, video, iframe, embed, object {
 /* Mining slots summary grid in mining tab */
 .mining-slots-summary-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(140px, 47%), 1fr));
     gap: 16px;
 }
 
@@ -2346,5 +2346,80 @@ img, video, iframe, embed, object {
 @media (max-width: 480px) {
     .mining-slots-summary-grid {
         grid-template-columns: 1fr !important;
+    }
+}
+
+/* ============================================================
+   CRITICAL OVERFLOW PREVENTION — no element exceeds screen
+   ============================================================ */
+
+/* Modals must never exceed viewport */
+.modal-content {
+    max-width: min(450px, calc(100vw - 24px)) !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.pdf-modal {
+    max-width: min(900px, calc(100vw - 24px)) !important;
+}
+
+/* All containers max at 100vw */
+.glass-container,
+.dashboard-container,
+.auth-wrapper > * {
+    max-width: 100%;
+}
+
+/* Tables scroll inside wrapper, never push layout */
+table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+}
+
+/* Any element with a fixed width gets capped */
+[style*="width:"] {
+    max-width: 100%;
+}
+
+@media (max-width: 768px) {
+    /* Modal content padding tighter */
+    .modal-content {
+        padding: 20px 16px !important;
+        max-width: calc(100vw - 20px) !important;
+        margin: 0 10px;
+    }
+
+    /* Buttons inside modals */
+    .modal-content .btn {
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    /* Team table scrollable */
+    .team-table-wrapper table {
+        min-width: 400px;
+        max-width: none;
+    }
+
+    /* Admin table */
+    .admin-table-wrapper,
+    .admin-table-wrapper table {
+        display: block;
+        overflow-x: auto;
+        max-width: 100%;
+    }
+
+    /* Profile section any inner grids */
+    .profile-info-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Withdraw / income rows */
+    .income-row, .withdraw-row {
+        flex-wrap: wrap;
+        gap: 8px;
     }
 }
