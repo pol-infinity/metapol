@@ -680,7 +680,7 @@ nav.desktop-nav {
 /* Premium Dashboard UI */
 .dashboard-container {
     max-width: 1400px;
-    margin: 30px auto;
+    margin: 12px auto;
     padding: 0 24px;
     display: grid;
     grid-template-columns: 280px 1fr;
@@ -2910,4 +2910,295 @@ table {
         padding: 5px 9px !important;
         font-size: 0.68rem !important;
     }
+}
+
+/* ============================================================
+   PREMIUM REDESIGN — June 2026 v3
+   1. Claimable ROI prominent widget
+   2. Premium color & button system
+   3. Gap fix between header & tabs
+   4. Mobile tab nav polish
+   ============================================================ */
+
+/* ---- CLAIMABLE ROI WIDGET ---- */
+.claimable-widget {
+    width: 100%;
+    margin: 14px 0 10px;
+    background: linear-gradient(135deg,
+        rgba(0, 212, 255, 0.08) 0%,
+        rgba(0, 255, 179, 0.12) 100%);
+    border: 1px solid rgba(0, 255, 179, 0.35);
+    border-radius: 16px;
+    padding: 14px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.claimable-widget::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%,
+        rgba(0,255,179,0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.claimable-widget-label {
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.claimable-widget-value {
+    font-family: var(--font-heading);
+    font-size: 1.9rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, var(--accent) 0%, var(--primary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    word-break: break-all;
+}
+
+/* ---- PREMIUM BUTTON SYSTEM ---- */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, #0099BB 100%);
+    color: #000;
+    border: none;
+    box-shadow: 0 4px 20px rgba(0,212,255,0.25);
+}
+.btn-primary:hover {
+    background: linear-gradient(135deg, #33DDFF 0%, var(--primary) 100%);
+    box-shadow: 0 6px 28px rgba(0,212,255,0.4);
+    transform: translateY(-1px);
+}
+
+.btn-secondary {
+    background: rgba(138, 43, 226, 0.15);
+    border: 1px solid rgba(138, 43, 226, 0.4);
+    color: #C080FF;
+}
+.btn-secondary:hover {
+    background: rgba(138, 43, 226, 0.25);
+    border-color: rgba(138, 43, 226, 0.7);
+    box-shadow: 0 4px 20px rgba(138,43,226,0.25);
+    transform: translateY(-1px);
+}
+
+.btn-outline {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-muted);
+}
+.btn-outline:hover {
+    background: rgba(255,255,255,0.08);
+    border-color: rgba(255,255,255,0.3);
+    color: white;
+}
+
+.btn-glow {
+    box-shadow: 0 0 20px rgba(0,212,255,0.3), 0 4px 15px rgba(0,0,0,0.3);
+}
+.btn-glow:hover {
+    box-shadow: 0 0 30px rgba(0,212,255,0.5), 0 6px 20px rgba(0,0,0,0.3);
+}
+
+/* ---- MOBILE TAB BUTTON PREMIUM COLORS ---- */
+.mobile-tab-btn {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.55);
+    border-radius: 22px;
+    font-family: var(--font-heading);
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.mobile-tab-btn:hover {
+    background: rgba(0,212,255,0.08);
+    border-color: rgba(0,212,255,0.3);
+    color: var(--primary);
+}
+
+.mobile-tab-btn.active {
+    background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,255,179,0.12));
+    border-color: var(--primary);
+    color: white;
+    box-shadow: 0 0 12px rgba(0,212,255,0.25), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+/* ---- STAT CARDS PREMIUM UPGRADE ---- */
+.stat-card {
+    background: linear-gradient(135deg,
+        rgba(255,255,255,0.06) 0%,
+        rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.09);
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    border-color: rgba(0,212,255,0.2);
+    box-shadow: 0 4px 24px rgba(0,212,255,0.06);
+}
+
+/* ---- GAP FIX: header → tab nav → content ---- */
+/* Use CSS custom property so it adjusts automatically */
+:root {
+    --header-h: 54px; /* matches min-height on mobile */
+}
+
+/* Desktop header */
+@media (min-width: 1025px) {
+    :root { --header-h: 73px; }
+    .dashboard-container { margin-top: 12px; }
+}
+
+/* Remove ALL top spacing on mobile so tabs glue to header */
+@media (max-width: 1024px) {
+    .dashboard-container {
+        margin-top: 0 !important;
+        margin-bottom: 12px;
+        padding: 0 10px;
+        gap: 0;
+    }
+
+    .dash-main {
+        gap: 10px;
+        padding-top: 0;
+    }
+
+    .mobile-tab-navigation {
+        display: flex !important;
+        position: sticky;
+        top: var(--header-h);
+        z-index: 200;
+        background: var(--bg-primary);
+        border-bottom: 1px solid rgba(0,212,255,0.1);
+        padding: 7px 10px 9px;
+        margin: 0 0 10px 0;
+        gap: 7px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    }
+    .mobile-tab-navigation::-webkit-scrollbar { display: none; }
+
+    .mobile-tab-btn {
+        padding: 7px 13px;
+        font-size: 0.76rem;
+    }
+}
+
+@media (max-width: 768px) {
+    :root { --header-h: 50px; }
+
+    .dashboard-container {
+        margin-top: 0 !important;
+        padding: 0 8px;
+        gap: 0;
+    }
+
+    .mobile-tab-navigation {
+        top: var(--header-h) !important;
+        padding: 6px 8px 8px;
+        margin-bottom: 8px;
+        gap: 5px;
+    }
+
+    .mobile-tab-btn {
+        padding: 6px 11px;
+        font-size: 0.72rem;
+    }
+}
+
+@media (max-width: 480px) {
+    :root { --header-h: 46px; }
+
+    .dashboard-container {
+        margin-top: 0 !important;
+        padding: 0 6px;
+    }
+
+    .mobile-tab-navigation {
+        top: var(--header-h) !important;
+        padding: 5px 6px 7px;
+        gap: 4px;
+    }
+
+    .mobile-tab-btn {
+        padding: 5px 9px !important;
+        font-size: 0.67rem !important;
+    }
+
+    .claimable-widget-value { font-size: 1.5rem; }
+}
+
+/* ---- GLASS CARD PREMIUM ---- */
+.glass-card {
+    background: linear-gradient(145deg,
+        rgba(255,255,255,0.06) 0%,
+        rgba(255,255,255,0.02) 100%);
+    border: 1px solid rgba(255,255,255,0.08);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+/* ---- MINING CARD ACCENT BORDER ---- */
+.mining-live-card {
+    border-color: rgba(0,212,255,0.15) !important;
+    background: linear-gradient(145deg,
+        rgba(0,212,255,0.05) 0%,
+        rgba(0,255,179,0.03) 50%,
+        rgba(255,255,255,0.02) 100%) !important;
+}
+
+/* ---- SIDEBAR LINKS PREMIUM ---- */
+.sidebar-link {
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.sidebar-link:hover {
+    background: rgba(0,212,255,0.06);
+    color: var(--primary);
+    box-shadow: inset 3px 0 0 var(--primary);
+}
+
+.sidebar-link.active {
+    background: linear-gradient(90deg, rgba(0,212,255,0.1), rgba(0,212,255,0.03));
+    color: white;
+    box-shadow: inset 3px 0 0 var(--primary);
+}
+
+/* ---- BADGE PREMIUM ---- */
+.badge-role-founder {
+    background: linear-gradient(135deg, rgba(255,204,0,0.15), rgba(255,140,0,0.1));
+    border: 1px solid rgba(255,204,0,0.4);
+    color: #FFCC00;
+    border-radius: 8px;
+    padding: 3px 10px;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.badge-role-user {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: var(--text-muted);
+    border-radius: 8px;
+    padding: 3px 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
 }
