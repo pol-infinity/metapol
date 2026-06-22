@@ -2746,3 +2746,168 @@ table {
     0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,255,0); }
     50% { box-shadow: 0 0 12px 2px rgba(0,212,255,0.12); }
 }
+
+/* ============================================================
+   CRITICAL UI FIXES — June 2026 v2
+   1. Reduce gap between header & dashboard content on mobile
+   2. Show wallet connect/disconnect in header on mobile
+   3. Fix mobile tab nav alignment
+   ============================================================ */
+
+/* ---- Desktop: tighter dashboard top margin ---- */
+.dashboard-container {
+    margin-top: 16px;
+}
+
+/* ---- Mobile tab navigation: reduce top gap ---- */
+@media (max-width: 1024px) {
+
+    /* Show header-actions on mobile (wallet panel + disconnect) */
+    .header-actions {
+        display: flex !important;
+        align-items: center;
+        gap: 6px;
+    }
+
+    /* Remove hamburger — we use tab bar instead */
+    .hamburger { display: none !important; }
+
+    /* Tighter header on mobile */
+    header.main-header .header-container {
+        padding: 8px 12px;
+        min-height: 50px;
+    }
+
+    /* Dashboard: zero top margin, all tabs start right below header */
+    .dashboard-container {
+        margin-top: 0 !important;
+        margin-bottom: 16px;
+        padding: 0 8px;
+        gap: 0;
+    }
+
+    /* Mobile tab nav: stick directly under header */
+    .mobile-tab-navigation {
+        display: flex !important;
+        position: sticky;
+        top: 50px;
+        z-index: 200;
+        background: var(--bg-primary);
+        border-bottom: 1px solid var(--card-border);
+        padding: 6px 8px 8px;
+        margin-bottom: 10px;
+        gap: 6px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .mobile-tab-navigation::-webkit-scrollbar { display: none; }
+
+    /* Main content area: no extra gap at top */
+    .dash-main {
+        gap: 12px;
+        padding-top: 0;
+    }
+}
+
+@media (max-width: 768px) {
+
+    /* Header: show wallet panel, hide just desktop text nav */
+    .header-actions {
+        display: flex !important;
+        gap: 5px;
+    }
+    .desktop-nav { display: none !important; }
+    .hamburger { display: none !important; }
+
+    /* Wallet panel: compact for mobile */
+    .wallet-info-panel {
+        display: flex !important;
+        gap: 4px !important;
+        padding: 4px 7px !important;
+        font-size: 0.65rem !important;
+    }
+
+    .wallet-info-addr {
+        max-width: 64px !important;
+        font-size: 0.6rem !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .wallet-info-bal {
+        font-size: 0.62rem !important;
+        white-space: nowrap;
+    }
+
+    .wallet-info-net {
+        font-size: 0.55rem !important;
+        padding: 2px 4px !important;
+    }
+
+    /* Disconnect / change wallet icon buttons: always visible */
+    .btn-sm-icon {
+        display: flex !important;
+        padding: 5px 7px !important;
+        font-size: 0.75rem !important;
+    }
+    .btn-sm-icon span { display: none !important; }
+
+    /* Connect wallet button (when not connected): compact */
+    #btn-connect-wallet {
+        font-size: 0.72rem !important;
+        padding: 7px 10px !important;
+        border-radius: 8px !important;
+    }
+
+    /* Dashboard layout: zero gap between header & content */
+    .dashboard-container {
+        margin-top: 0 !important;
+        padding: 0 8px;
+        gap: 0;
+    }
+
+    /* Mobile tab nav directly under header */
+    .mobile-tab-navigation {
+        top: 50px !important;
+        padding: 5px 8px 7px;
+        margin-bottom: 8px;
+    }
+
+    .dash-main { gap: 10px; }
+}
+
+@media (max-width: 480px) {
+
+    header.main-header .header-container {
+        padding: 7px 8px;
+        min-height: 46px;
+    }
+
+    .wallet-info-panel {
+        gap: 3px !important;
+        padding: 3px 5px !important;
+    }
+
+    .wallet-info-addr { max-width: 52px !important; font-size: 0.56rem !important; }
+    .wallet-info-bal { display: none !important; } /* hide balance on tiny screens to save space */
+    .wallet-info-net { font-size: 0.5rem !important; }
+
+    .btn-sm-icon { padding: 4px 6px !important; font-size: 0.7rem !important; }
+
+    .dashboard-container {
+        margin-top: 0 !important;
+        padding: 0 6px;
+    }
+
+    .mobile-tab-navigation {
+        top: 46px !important;
+        padding: 4px 6px 6px;
+        gap: 4px;
+    }
+
+    .mobile-tab-btn {
+        padding: 5px 9px !important;
+        font-size: 0.68rem !important;
+    }
+}
