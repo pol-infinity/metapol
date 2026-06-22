@@ -2423,3 +2423,206 @@ table {
         gap: 8px;
     }
 }
+
+/* ============================================================
+   MOBILE OVERFLOW FIX — June 2026
+   Fixes text overflow, card clipping on small screens
+   ============================================================ */
+
+/* ---- Stat cards: prevent value overflow ---- */
+.stat-value {
+    word-break: break-word;
+    overflow-wrap: break-word;
+    min-width: 0;
+}
+
+/* ---- Mining ticker: prevent horizontal bleed ---- */
+.mining-ticker-value {
+    width: 100%;
+    word-break: break-all;
+    overflow-wrap: break-word;
+    white-space: normal;
+    min-width: 0;
+}
+
+/* The POL symbol next to the big number */
+.mining-ticker-value .mining-ticker-symbol {
+    display: inline;
+}
+
+/* ---- Live status row: proper wrapping ---- */
+.live-status-row {
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    justify-content: center;
+    row-gap: 4px;
+}
+
+/* ---- Glass container must never overflow ---- */
+.glass-container {
+    box-sizing: border-box;
+    width: 100%;
+    overflow: hidden;
+}
+
+/* ---- All tab panels constrained ---- */
+.tab-panel {
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* ---- Dash main must never overflow ---- */
+.dash-main {
+    min-width: 0;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+
+    /* Stats grid: force 2 columns, never overflow */
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 8px !important;
+        margin-bottom: 16px;
+    }
+
+    .stat-card {
+        min-width: 0;
+        overflow: hidden;
+        padding: 12px 10px;
+    }
+
+    .stat-value {
+        font-size: 1rem !important;
+        word-break: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+        line-height: 1.2;
+    }
+
+    .stat-label {
+        font-size: 0.65rem !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .stat-footer {
+        font-size: 0.6rem !important;
+        flex-wrap: wrap;
+        gap: 3px;
+    }
+
+    /* Mining ticker: tighter on mobile */
+    .mining-ticker-value {
+        font-size: 1.4rem !important;
+        line-height: 1.25;
+        text-align: center;
+    }
+
+    .mining-ticker-symbol {
+        font-size: 0.8rem !important;
+    }
+
+    /* Live status row: stack neatly */
+    .live-status-row {
+        font-size: 0.62rem;
+        gap: 4px 8px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .sync-time-label,
+    .sync-time-val,
+    .claimable-label,
+    .claimable-val {
+        font-size: 0.62rem !important;
+        white-space: nowrap;
+    }
+
+    .live-badge {
+        font-size: 0.6rem;
+        padding: 3px 7px;
+    }
+
+    /* Overview grid: always single column */
+    .overview-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px;
+    }
+
+    /* Mining stats row inside overview */
+    .mining-stats-row {
+        gap: 8px;
+    }
+
+    .mining-stat-mini-val {
+        font-size: 0.95rem !important;
+        word-break: break-word;
+    }
+
+    /* Mining action row full width */
+    .mining-action-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .mining-action-row .btn {
+        width: 100% !important;
+        justify-content: center;
+    }
+
+    /* Matrix queue status */
+    .matrix-status-header {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .stats-grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 6px !important;
+    }
+
+    .stat-card {
+        padding: 9px 8px;
+        min-height: auto;
+    }
+
+    .stat-value {
+        font-size: 0.88rem !important;
+        margin-top: 5px;
+    }
+
+    .stat-label {
+        font-size: 0.58rem !important;
+    }
+
+    .stat-footer {
+        font-size: 0.55rem !important;
+        margin-top: 4px;
+    }
+
+    /* Mining ticker even smaller on tiny screens */
+    .mining-ticker-value {
+        font-size: 1.15rem !important;
+    }
+
+    .mining-ticker-title {
+        font-size: 0.6rem;
+        letter-spacing: 0.03em;
+    }
+
+    /* Live row: very compact */
+    .live-status-row {
+        gap: 3px 6px;
+    }
+
+    .sync-time-label,
+    .sync-time-val,
+    .claimable-label,
+    .claimable-val {
+        font-size: 0.58rem !important;
+    }
+}
