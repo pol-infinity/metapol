@@ -167,29 +167,34 @@ class MetaPOLApp {
             });
         }
 
-        // PDF Modals Action
+        // PDF Modals Action — load PDF only when user opens, clear on close
         const pdfTriggers = document.querySelectorAll(".trigger-pdf-modal");
         const pdfModal = document.getElementById("pdf-modal");
         if (pdfModal) {
-            pdfTriggers.forEach(btn => {
-                btn.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    pdfModal.classList.add("active");
-                });
-            });
+            const pdfIframe = document.getElementById("pdf-iframe");
+
+            const openPdf = (e) => {
+                e.preventDefault();
+                // Only set src when user intentionally opens — prevents auto-download on mobile
+                if (pdfIframe && !pdfIframe.src.includes("MetaPOL.pdf")) {
+                    pdfIframe.src = "assets/MetaPOL.pdf";
+                }
+                pdfModal.classList.add("active");
+            };
+
+            const closePdf = () => {
+                pdfModal.classList.remove("active");
+                // Clear iframe src so PDF doesn't keep loading/playing in background
+                if (pdfIframe) pdfIframe.src = "";
+            };
+
+            pdfTriggers.forEach(btn => btn.addEventListener("click", openPdf));
 
             const closeBtn = pdfModal.querySelector(".modal-close-btn");
-            if (closeBtn) {
-                closeBtn.addEventListener("click", () => {
-                    pdfModal.classList.remove("active");
-                });
-            }
+            if (closeBtn) closeBtn.addEventListener("click", closePdf);
 
-            // Close on overlay click
             pdfModal.addEventListener("click", (e) => {
-                if (e.target === pdfModal) {
-                    pdfModal.classList.remove("active");
-                }
+                if (e.target === pdfModal) closePdf();
             });
         }
     }
