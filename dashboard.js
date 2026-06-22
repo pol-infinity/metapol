@@ -287,10 +287,12 @@ function startMiningTimer() {
     if (syncEl1) syncEl1.innerText = syncStr;
     if (syncEl2) syncEl2.innerText = syncStr;
 
-    // Fetch claimable from chain
+    // Fetch claimable from chain — getPendingMining returns [gross, adminFee, net]
     if (window.metapolApp && window.metapolApp.contract && window.metapolApp.userAddress) {
-        window.metapolApp.contract.getPendingMining(window.metapolApp.userAddress).then(pendingWei => {
-            const claimableVal = parseFloat(ethers.formatEther(pendingWei)).toFixed(4);
+        window.metapolApp.contract.getPendingMining(window.metapolApp.userAddress).then(result => {
+            // result[0]=gross, result[1]=adminFee, result[2]=net (what user receives)
+            const netWei = result[2] !== undefined ? result[2] : result;
+            const claimableVal = parseFloat(ethers.formatEther(netWei)).toFixed(4);
             const cl1 = document.getElementById("overview-claimable");
             const cl2 = document.getElementById("mining-tab-claimable");
             if (cl1) cl1.innerText = `${claimableVal} POL`;
@@ -330,8 +332,9 @@ function startMiningTimer() {
         miningTimer._tick = (miningTimer._tick || 0) + 1;
         if (miningTimer._tick % 300 === 0) {
             if (window.metapolApp && window.metapolApp.contract && window.metapolApp.userAddress) {
-                window.metapolApp.contract.getPendingMining(window.metapolApp.userAddress).then(pendingWei => {
-                    const claimableVal = parseFloat(ethers.formatEther(pendingWei)).toFixed(4);
+                window.metapolApp.contract.getPendingMining(window.metapolApp.userAddress).then(result => {
+                    const netWei = result[2] !== undefined ? result[2] : result;
+                    const claimableVal = parseFloat(ethers.formatEther(netWei)).toFixed(4);
                     const cl1 = document.getElementById("overview-claimable");
                     const cl2 = document.getElementById("mining-tab-claimable");
                     if (cl1) cl1.innerText = `${claimableVal} POL`;
