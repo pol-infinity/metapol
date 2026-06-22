@@ -256,49 +256,53 @@
     </footer>
 
     <!-- Web3 Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <script src="config.js"></script>
+    <script src="abi.js"></script>
+    <script src="app.js"></script>
+
     <script>
         let maxUserIds = 1;
 
         // Custom router interception for registration page
         const originalRoutePage = window.metapolApp.routePage;
         window.metapolApp.routePage = async function() {
-            const currentPath = window.location.pathname;
-            const pageName = currentPath.substring(currentPath.lastIndexOf("/") + 1);
+            try {
+                if (this.isConnected && this.userAddress) {
+                    document.getElementById("reg-connect-prompt").style.display = "none";
+                    document.getElementById("reg-form-container").style.display = "block";
+                    document.getElementById("display-wallet-address").value = this.userAddress;
 
-            if (this.isConnected && this.userAddress) {
-                document.getElementById("reg-connect-prompt").style.display = "none";
-                document.getElementById("reg-form-container").style.display = "block";
-                document.getElementById("display-wallet-address").value = this.userAddress;
+                    try {
+                        // Fetch profile to see if already registered
+                        const userInfo = await this.contract.getUserInfo(this.userAddress);
+                        const isRegistered = userInfo[0];
 
-                try {
-                    // Fetch profile to see if already registered
-                    const userInfo = await this.contract.getUserInfo(this.userAddress);
-                    const isRegistered = userInfo[0];
+                        if (isRegistered) {
+                            this.showToast("Address already registered. Redirecting...", "success");
+                            setTimeout(() => { window.location.href = "dashboard.html"; }, 1000);
+                            return; // hideLoader runs in finally below
+                        }
 
-                    if (isRegistered) {
-                        this.showToast("Address already registered. Redirecting...", "success");
-                        setTimeout(() => {
-                            window.location.href = "dashboard.html";
-                        }, 1000);
-                        return;
+                        // Get current max userID from contract
+                        maxUserIds = Number(await this.contract.currUserID());
+                        console.log("Current registered users on contract:", maxUserIds);
+
+                        // Setup sponsor values
+                        setupSponsorField();
+
+                    } catch (err) {
+                        console.error("Failed to load registration details from contract:", err);
+                        this.showToast("Failed to connect to Polygon network parameters.", "error");
                     }
-
-                    // Get current max userID from contract
-                    maxUserIds = Number(await this.contract.currUserID());
-                    console.log("Current registered users on contract:", maxUserIds);
-
-                    // Setup sponsor values
-                    setupSponsorField();
-
-                } catch (err) {
-                    console.error("Failed to load registration details from contract:", err);
-                    this.showToast("Failed to connect to Polygon network parameters.", "error");
+                } else {
+                    document.getElementById("reg-connect-prompt").style.display = "block";
+                    document.getElementById("reg-form-container").style.display = "none";
                 }
-            } else {
-                document.getElementById("reg-connect-prompt").style.display = "block";
-                document.getElementById("reg-form-container").style.display = "none";
+            } finally {
+                // Always hide loader — no matter what happens above
+                this.hideLoader();
             }
-            this.hideLoader();
         };
 
         // Sponsor field setting and input listener
