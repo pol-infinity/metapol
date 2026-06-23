@@ -208,6 +208,59 @@
                 </div>
             </div>
 
+            <!-- ==================== INCOME SUMMARY (FutureTon style) ==================== -->
+            <div id="tab-overview-income" style="display:block;">
+                <div class="glass-card" style="margin-bottom: 14px; padding: 20px;">
+                    <h3 class="panel-section-title" style="font-size:0.8rem; margin-bottom:14px;">
+                        <i class="fa-solid fa-chart-pie"></i> Income Breakdown
+                    </h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Mining Income -->
+                        <div class="income-type-row">
+                            <div class="income-type-icon mining">
+                                <i class="fa-solid fa-microchip"></i>
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <div class="income-type-label">Passive Mining</div>
+                                <div class="income-type-val" id="income-mining-val">0.00 POL</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:0.6rem; color:rgba(0,255,209,0.5); font-family:var(--font-display); letter-spacing:0.06em; text-transform:uppercase; font-weight:700;">LIVE ROI</div>
+                                <div style="font-size:0.75rem; color:var(--income-mining); font-family:var(--font-display); font-weight:700;" id="income-mining-daily">~0.00/day</div>
+                            </div>
+                        </div>
+                        <!-- Matrix Income -->
+                        <div class="income-type-row">
+                            <div class="income-type-icon matrix">
+                                <i class="fa-solid fa-diagram-next"></i>
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <div class="income-type-label">Matrix Payouts</div>
+                                <div class="income-type-val" id="income-matrix-val">0.00 POL</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:0.6rem; color:rgba(0,200,255,0.5); font-family:var(--font-display); letter-spacing:0.06em; text-transform:uppercase; font-weight:700;">TOTAL EARNED</div>
+                                <div style="font-size:0.75rem; color:var(--income-matrix); font-family:var(--font-display); font-weight:700;" id="income-matrix-slots">—</div>
+                            </div>
+                        </div>
+                        <!-- Direct Commission -->
+                        <div class="income-type-row">
+                            <div class="income-type-icon direct">
+                                <i class="fa-solid fa-hand-holding-dollar"></i>
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <div class="income-type-label">Direct Commission</div>
+                                <div class="income-type-val" id="income-direct-val">0.00 POL</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:0.6rem; color:rgba(255,170,0,0.5); font-family:var(--font-display); letter-spacing:0.06em; text-transform:uppercase; font-weight:700;">REFERRALS</div>
+                                <div style="font-size:0.75rem; color:var(--income-direct); font-family:var(--font-display); font-weight:700;" id="income-direct-count">0 users</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- ==================== MINING TAB ==================== -->
             <div id="tab-mining" class="tab-panel">
                 <div class="glass-card mining-live-card" style="margin-bottom: 30px;">
@@ -622,6 +675,34 @@
             </div>
         </div>
     </footer>
+
+    <!-- ===== BOTTOM TAB BAR (mobile, FutureTon style) ===== -->
+    <nav class="bottom-tab-bar" id="bottom-tab-bar">
+        <button class="btab-btn active" data-tab="overview">
+            <i class="fa-solid fa-gauge-high"></i>
+            <span>Dashboard</span>
+        </button>
+        <button class="btab-btn" data-tab="mining">
+            <i class="fa-solid fa-microchip"></i>
+            <span>Mining</span>
+        </button>
+        <button class="btab-btn" data-tab="slots">
+            <i class="fa-solid fa-layer-group"></i>
+            <span>Packages</span>
+        </button>
+        <button class="btab-btn" data-tab="matrix">
+            <i class="fa-solid fa-diagram-next"></i>
+            <span>Structure</span>
+        </button>
+        <button class="btab-btn" data-tab="team">
+            <i class="fa-solid fa-users"></i>
+            <span>Team</span>
+        </button>
+        <button class="btab-btn" data-tab="activity">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+            <span>History</span>
+        </button>
+    </nav>
 
     <!-- Web3 Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>

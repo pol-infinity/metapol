@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setupTabs(document.querySelectorAll(".sidebar-link"));
     setupTabs(document.querySelectorAll(".mobile-tab-btn"));
+    setupTabs(document.querySelectorAll(".btab-btn"));
 
     // Matrix Selector handler
     const selectMatrix = document.getElementById("matrix-level-select");
@@ -66,6 +67,21 @@ function switchTab(tabId) {
             btn.classList.remove("active");
         }
     });
+
+    // Update Bottom Tab Bar active state
+    document.querySelectorAll(".btab-btn").forEach(btn => {
+        if (btn.getAttribute("data-tab") === tabId) {
+            btn.classList.add("active");
+        } else {
+            btn.classList.remove("active");
+        }
+    });
+
+    // Scroll to top of content on mobile tab switch
+    if (window.innerWidth <= 1024) {
+        const dashMain = document.querySelector(".dash-main");
+        if (dashMain) dashMain.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 
     // Toggle panels
     document.querySelectorAll(".tab-panel").forEach(panel => {
@@ -107,15 +123,44 @@ async function syncDashboardData() {
         document.getElementById("stat-mining-capital").innerText = `${parseFloat(ethers.formatEther(totalMiningDep)).toFixed(2)} POL`;
         document.getElementById("stat-direct-referrals").innerText = Number(referredUsers);
 
-        // Fetch direct commission (SponsorPaid events) for overview stat card
+        // Fetch direct commission (SponsorPaid events) for overview stat card + income breakdown
+        let totalSponsorPaid = 0n;
+        let directCount = Number(referredUsers);
         try {
             const sponsorFilter = window.metapolApp.contract.filters.SponsorPaid(address);
             const sponsorEvents = await window.metapolApp.contract.queryFilter(sponsorFilter, 0, "latest");
-            let totalSponsorPaid = 0n;
             sponsorEvents.forEach(ev => { totalSponsorPaid += ev.args.amount; });
             const commissionEl = document.getElementById("stat-direct-commission");
             if (commissionEl) commissionEl.innerText = `${parseFloat(ethers.formatEther(totalSponsorPaid)).toFixed(2)} POL`;
         } catch(e) { console.warn("Could not fetch sponsor commission:", e); }
+
+        // ── Income Breakdown Rows (FutureTon style) ──
+        const miningWithdrawnPOL = parseFloat(ethers.formatEther(totalMiningWith || 0n)).toFixed(2);
+        const miningCapPOL       = parseFloat(ethers.formatEther(totalMiningDep)).toFixed(2);
+        const matrixEarningsPOL  = parseFloat(ethers.formatEther(totalEarnings)).toFixed(2);
+        const directCommPOL      = parseFloat(ethers.formatEther(totalSponsorPaid)).toFixed(2);
+
+        // Mining row
+        const incMining = document.getElementById("income-mining-val");
+        const incMiningDay = document.getElementById("income-mining-daily");
+        if (incMining) incMining.innerText = `${miningWithdrawnPOL} POL`;
+        if (incMiningDay) {
+            // Estimate daily = 1% of capital
+            const dailyEst = (parseFloat(miningCapPOL) * 0.01).toFixed(2);
+            incMiningDay.innerText = `~${dailyEst}/day`;
+        }
+
+        // Matrix row
+        const incMatrix = document.getElementById("income-matrix-val");
+        const incMatrixSlots = document.getElementById("income-matrix-slots");
+        if (incMatrix) incMatrix.innerText = `${matrixEarningsPOL} POL`;
+        if (incMatrixSlots) incMatrixSlots.innerText = `Slot earnings`;
+
+        // Direct commission row
+        const incDirect = document.getElementById("income-direct-val");
+        const incDirectCount = document.getElementById("income-direct-count");
+        if (incDirect) incDirect.innerText = `${directCommPOL} POL`;
+        if (incDirectCount) incDirectCount.innerText = `${directCount} user${directCount !== 1 ? 's' : ''}`;
 
         // Update badges
         const founderBadge = document.getElementById("stat-founder-badge");
