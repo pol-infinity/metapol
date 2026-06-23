@@ -724,6 +724,174 @@
         </div>
     </div>
 
+    <!-- ═══════════════════════════════════════════════════
+         REFERRAL SHARE CENTER + TEAM MILESTONES + SLOT PROGRESS
+         Shown above footer on all dashboard pages
+    ══════════════════════════════════════════════════════ -->
+    <section class="pre-footer-section" id="pre-footer-section">
+      <div class="glass-container pfs-inner">
+
+        <!-- ── 1. REFERRAL SHARE CENTER ── -->
+        <div class="pfs-card pfs-share-center">
+          <div class="pfs-card-glow pfs-glow-blue"></div>
+          <div class="pfs-share-left">
+            <div class="pfs-badge"><span class="pfs-badge-dot"></span> Referral Portal</div>
+            <h2 class="pfs-title">Share &amp; Earn Together</h2>
+            <p class="pfs-desc">Invite your network and earn sponsor rewards on every slot they activate. One link, unlimited potential.</p>
+            <div class="pfs-link-row">
+              <div class="input-glow-wrapper pfs-link-input-wrap">
+                <i class="fa-solid fa-link input-prefix-icon"></i>
+                <input type="text" id="pfs-referral-input" class="form-input" readonly placeholder="Connect wallet to generate link">
+              </div>
+              <button class="btn btn-primary pfs-copy-btn" onclick="pfsShareCenter.copyLink()" id="pfs-copy-btn">
+                <i class="fa-solid fa-copy"></i>
+                <span id="pfs-copy-label">Copy</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="pfs-share-right">
+            <p class="pfs-share-label">Share instantly on</p>
+            <div class="pfs-share-grid">
+              <button class="pfs-share-btn pfs-wa" onclick="pfsShareCenter.share('whatsapp')">
+                <i class="fa-brands fa-whatsapp"></i>
+                <span>WhatsApp</span>
+              </button>
+              <button class="pfs-share-btn pfs-tg" onclick="pfsShareCenter.share('telegram')">
+                <i class="fa-brands fa-telegram"></i>
+                <span>Telegram</span>
+              </button>
+              <button class="pfs-share-btn pfs-fb" onclick="pfsShareCenter.share('facebook')">
+                <i class="fa-brands fa-facebook-f"></i>
+                <span>Facebook</span>
+              </button>
+              <button class="pfs-share-btn pfs-tw" onclick="pfsShareCenter.share('twitter')">
+                <i class="fa-brands fa-x-twitter"></i>
+                <span>X (Twitter)</span>
+              </button>
+            </div>
+
+            <div class="pfs-share-stats">
+              <div class="pfs-share-stat">
+                <span class="pfs-share-stat-val" id="pfs-directs-count">0</span>
+                <span class="pfs-share-stat-lbl">Direct Refs</span>
+              </div>
+              <div class="pfs-share-stat-divider"></div>
+              <div class="pfs-share-stat">
+                <span class="pfs-share-stat-val" id="pfs-team-count">0</span>
+                <span class="pfs-share-stat-lbl">Total Team</span>
+              </div>
+              <div class="pfs-share-stat-divider"></div>
+              <div class="pfs-share-stat">
+                <span class="pfs-share-stat-val text-accent" id="pfs-ref-earnings">0.00</span>
+                <span class="pfs-share-stat-lbl">Ref Earnings (POL)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── 2 & 3. MILESTONE + SLOT PROGRESS (side by side) ── -->
+        <div class="pfs-bottom-row">
+
+          <!-- Team Milestone Progress -->
+          <div class="pfs-card pfs-milestone-card">
+            <div class="pfs-card-glow pfs-glow-purple"></div>
+            <h3 class="pfs-section-title"><i class="fa-solid fa-trophy"></i> Team Milestones</h3>
+            <div class="pfs-milestone-list" id="pfs-milestone-list">
+              <div class="pfs-milestone-item">
+                <div class="pfs-ms-left">
+                  <div class="pfs-ms-icon pfs-ms-locked"><i class="fa-solid fa-lock"></i></div>
+                  <div>
+                    <div class="pfs-ms-title">5 Direct Referrals</div>
+                    <div class="pfs-ms-sub">Connect wallet to track progress</div>
+                  </div>
+                </div>
+                <div class="pfs-ms-badge pfs-ms-badge-locked">Locked</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Next Slot Progress -->
+          <div class="pfs-card pfs-slot-progress-card">
+            <div class="pfs-card-glow pfs-glow-cyan"></div>
+            <h3 class="pfs-section-title"><i class="fa-solid fa-chart-line"></i> Slot Progress</h3>
+
+            <div class="pfs-slot-badges-row">
+              <div class="pfs-slot-chip pfs-slot-current">
+                <span class="pfs-slot-chip-lbl">Current</span>
+                <span class="pfs-slot-chip-val" id="pfs-current-slot">—</span>
+              </div>
+              <i class="fa-solid fa-arrow-right pfs-slot-arrow"></i>
+              <div class="pfs-slot-chip pfs-slot-next">
+                <span class="pfs-slot-chip-lbl">Next</span>
+                <span class="pfs-slot-chip-val" id="pfs-next-slot">—</span>
+              </div>
+            </div>
+
+            <div class="pfs-progress-section">
+              <div class="pfs-progress-label-row">
+                <span id="pfs-progress-msg">Connect wallet to view progress</span>
+                <span class="pfs-progress-pct" id="pfs-progress-pct">—</span>
+              </div>
+              <div class="pfs-progress-track">
+                <div class="pfs-progress-fill" id="pfs-progress-fill" style="width:0%"></div>
+              </div>
+            </div>
+
+            <div class="pfs-slot-detail-row">
+              <div class="pfs-slot-detail">
+                <span class="pfs-slot-detail-lbl">Cost to upgrade</span>
+                <span class="pfs-slot-detail-val" id="pfs-upgrade-cost">—</span>
+              </div>
+              <div class="pfs-slot-detail">
+                <span class="pfs-slot-detail-lbl">Est. daily increase</span>
+                <span class="pfs-slot-detail-val text-accent" id="pfs-daily-increase">—</span>
+              </div>
+            </div>
+
+            <div id="pfs-upgrade-cta-wrap" style="display:none;">
+              <div class="pfs-fire-msg" id="pfs-fire-msg">
+                <span class="pfs-fire-icon">🔥</span>
+                <span id="pfs-fire-text">You're very close to the next level!</span>
+              </div>
+              <button class="btn btn-primary btn-glow pfs-upgrade-btn" onclick="pfsSlotProgress.clickUpgrade()">
+                Upgrade Now <i class="fa-solid fa-bolt"></i>
+              </button>
+            </div>
+
+            <div id="pfs-max-slot-msg" style="display:none;" class="pfs-max-msg">
+              <i class="fa-solid fa-crown text-warning"></i>
+              <span>You've reached the top slot! Maximum earning level active.</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TEAM MILESTONE POPUP ── -->
+    <div class="pfs-milestone-overlay" id="pfs-milestone-overlay">
+      <div class="pfs-milestone-modal">
+        <button class="pfs-milestone-close" onclick="pfsMilestonePopup.dismiss()">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="pfs-confetti" id="pfs-confetti"></div>
+        <div class="pfs-milestone-emoji" id="pfs-modal-emoji">🎉</div>
+        <h2 class="pfs-milestone-modal-title" id="pfs-modal-title">Congratulations!</h2>
+        <p class="pfs-milestone-modal-sub" id="pfs-modal-sub">You have reached 10 Direct Referrals.</p>
+        <p class="pfs-milestone-modal-body">Keep growing your team to unlock greater earning opportunities and stronger reward pools.</p>
+        <div class="pfs-milestone-modal-badge" id="pfs-modal-badge">
+          <i class="fa-solid fa-users"></i>
+          <span id="pfs-modal-badge-text">10 Referrals</span>
+        </div>
+        <button class="btn btn-primary btn-glow pfs-milestone-modal-cta" onclick="pfsMilestonePopup.dismiss()">
+          Keep Growing <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <div class="pfs-milestone-modal-glow"></div>
+      </div>
+    </div>
+
+
     <!-- Professional Footer -->
     <footer class="pro-footer" style="margin-left:0;">
         <div class="footer-inner">
@@ -803,6 +971,8 @@
     <script src="abi.js"></script>
     <script src="app.js"></script>
     <script src="dashboard.js"></script>
+    <!-- Pre-Footer: Share Center + Milestones + Slot Progress -->
+    <script src="pre-footer.js"></script>
     <!-- Upgrade Conversion System -->
     <script src="upgrade-system.js"></script>
 </body>
