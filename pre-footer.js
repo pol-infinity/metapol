@@ -246,7 +246,7 @@
       if (pct >= 80) {
         document.getElementById("pfs-progress-msg").textContent = "🔥 You're very close to the next level!";
         if (fireWrap) fireWrap.style.display = "flex";
-        if (fireMsg)  fireMsg.textContent    = `Only ${(next.price - claimableEarnings).toFixed(2)} POL away from Slot ${next.level}!`;
+        if (fireMsg)  fireMsg.style.display = 'none';
       } else if (pct >= 50) {
         document.getElementById("pfs-progress-msg").textContent = "⚡ Good momentum — keep growing!";
         if (fireWrap) fireWrap.style.display = "none";
