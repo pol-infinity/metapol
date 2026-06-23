@@ -123,6 +123,13 @@ async function syncDashboardData() {
         document.getElementById("stat-mining-capital").innerText = `${parseFloat(ethers.formatEther(totalMiningDep)).toFixed(2)} POL`;
         document.getElementById("stat-direct-referrals").innerText = Number(referredUsers);
 
+        // Team size card
+        const teamCount = Number(referredUsers);
+        const teamSizeEl = document.getElementById("stat-team-size");
+        const teamFooterEl = document.getElementById("stat-team-footer");
+        if (teamSizeEl) teamSizeEl.innerText = teamCount;
+        if (teamFooterEl) teamFooterEl.innerText = teamCount === 1 ? "Direct member" : "Direct members";
+
         // Fetch direct commission (SponsorPaid events) for overview stat card + income breakdown
         let totalSponsorPaid = 0n;
         let directCount = Number(referredUsers);

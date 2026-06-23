@@ -4409,3 +4409,12 @@ header.main-header {
 @media (max-width: 360px) {
     .referral-quick-label { display: none; }
 }
+
+/* Team size stat card */
+.stat-card--team {
+    border-color: rgba(0,200,255,0.2) !important;
+    background: linear-gradient(145deg, var(--navy-card), rgba(0,30,60,0.7)) !important;
+}
+.stat-card--team::before {
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent) !important;
+}
