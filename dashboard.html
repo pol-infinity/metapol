@@ -37,6 +37,11 @@
             </a>
             
             <div class="header-actions">
+                <button id="sidebar-toggle-btn" class="btn-sidebar-toggle" onclick="toggleSidebar()" title="Toggle Menu">
+                    <span class="sidebar-toggle-bar"></span>
+                    <span class="sidebar-toggle-bar"></span>
+                    <span class="sidebar-toggle-bar"></span>
+                </button>
                 <button id="btn-connect-wallet" class="btn btn-primary" onclick="window.metapolApp.connectWallet()">
                     <i id="header-wallet-icon" class="fa-solid fa-wallet text-accent"></i> 
                     <span id="header-connect-text">Connect Wallet</span>
@@ -85,11 +90,17 @@
     <!-- Main Dashboard Grid Layout (Hidden until wallet is connected) -->
     <div id="dashboard-layout-wrapper" class="dashboard-container" style="display: none;">
         
+        <!-- Sidebar backdrop -->
+        <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
+
         <!-- Left Sidebar Navigation -->
-        <aside class="glass-card dash-sidebar">
-            <div class="sidebar-brand">
-                <img src="assets/logo.jpg" alt="MetaPOL Logo" style="height: 38px; width: 38px; object-fit: cover; border-radius: 50%; mix-blend-mode: lighten; filter: brightness(1.1) saturate(1.2)">
-                <span class="logo-text" style="font-size: 1.15rem;">DASHBOARD</span>
+        <aside class="glass-card dash-sidebar" id="dash-sidebar">
+            <div class="sidebar-header-row">
+                <div class="sidebar-brand">
+                    <img src="assets/logo.jpg" alt="MetaPOL Logo" style="height: 38px; width: 38px; object-fit: cover; border-radius: 50%; mix-blend-mode: lighten; filter: brightness(1.1) saturate(1.2)">
+                    <span class="logo-text" style="font-size: 1.15rem;">DASHBOARD</span>
+                </div>
+                <button class="sidebar-close-btn" onclick="closeSidebar()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="sidebar-menu">
                 <div class="sidebar-link active" data-tab="overview"><i class="fa-solid fa-gauge"></i> Overview</div>

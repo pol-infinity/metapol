@@ -1186,3 +1186,59 @@ function shareReferral(platform) {
 function closeTxModal() {
     document.getElementById("tx-modal").classList.remove("active");
 }
+
+/* ============================================================
+   SIDEBAR TOGGLE — hideable drawer, all screen sizes
+   ============================================================ */
+function toggleSidebar() {
+    const sidebar  = document.getElementById("dash-sidebar");
+    const backdrop = document.getElementById("sidebar-backdrop");
+    const btn      = document.getElementById("sidebar-toggle-btn");
+    const layout   = document.getElementById("dashboard-layout-wrapper");
+    if (!sidebar) return;
+    const isOpen = sidebar.classList.contains("sidebar-open");
+    if (isOpen) { closeSidebar(); } else {
+        sidebar.classList.add("sidebar-open");
+        if (backdrop) backdrop.classList.add("visible");
+        if (btn) btn.classList.add("toggled");
+        if (layout) layout.classList.add("sidebar-visible");
+        localStorage.setItem("metapol_sidebar", "open");
+    }
+}
+
+function closeSidebar() {
+    const sidebar  = document.getElementById("dash-sidebar");
+    const backdrop = document.getElementById("sidebar-backdrop");
+    const btn      = document.getElementById("sidebar-toggle-btn");
+    const layout   = document.getElementById("dashboard-layout-wrapper");
+    if (!sidebar) return;
+    sidebar.classList.remove("sidebar-open");
+    if (backdrop) backdrop.classList.remove("visible");
+    if (btn) btn.classList.remove("toggled");
+    if (layout) layout.classList.remove("sidebar-visible");
+    localStorage.setItem("metapol_sidebar", "closed");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    // Desktop: open by default; mobile: closed
+    const saved = localStorage.getItem("metapol_sidebar");
+    if (window.innerWidth >= 1024 && saved !== "closed") {
+        const s = document.getElementById("dash-sidebar");
+        const b = document.getElementById("sidebar-toggle-btn");
+        const l = document.getElementById("dashboard-layout-wrapper");
+        if (s) s.classList.add("sidebar-open");
+        if (b) b.classList.add("toggled");
+        if (l) l.classList.add("sidebar-visible");
+    }
+    // Close on mobile when nav link clicked
+    document.querySelectorAll(".sidebar-link").forEach(link => {
+        link.addEventListener("click", () => { if (window.innerWidth < 1024) closeSidebar(); });
+    });
+});
+
+window.addEventListener("resize", () => {
+    if (window.innerWidth >= 1024) {
+        const backdrop = document.getElementById("sidebar-backdrop");
+        if (backdrop) backdrop.classList.remove("visible");
+    }
+});
