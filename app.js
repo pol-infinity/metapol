@@ -361,6 +361,10 @@ class MetaPOLApp {
             const dashLayout = document.getElementById("dashboard-layout-wrapper");
             if (dashLayout) dashLayout.style.display = "grid";
 
+            // Show pre-footer section
+            const preFtr = document.getElementById("pre-footer-section");
+            if (preFtr) preFtr.style.display = "block";
+
         } else {
             if (headerConnectText) headerConnectText.innerText = "Connect Wallet";
             if (headerWalletIcon) {
@@ -382,6 +386,10 @@ class MetaPOLApp {
 
             const dashLayout = document.getElementById("dashboard-layout-wrapper");
             if (dashLayout) dashLayout.style.display = "none";
+
+            // Hide pre-footer section
+            const preFtr = document.getElementById("pre-footer-section");
+            if (preFtr) preFtr.style.display = "none";
         }
     }
 

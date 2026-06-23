@@ -4418,3 +4418,14 @@ header.main-header {
 .stat-card--team::before {
     background: linear-gradient(90deg, transparent, var(--cyan), transparent) !important;
 }
+
+/* ── Pre-footer section visibility ── */
+#pre-footer-section {
+    display: none; /* shown via JS after wallet connect */
+}
+
+/* Fix glass-container overflow clipping pfs cards */
+.pfs-inner.glass-container,
+.pfs-inner {
+    overflow: visible !important;
+}
