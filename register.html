@@ -369,7 +369,9 @@
                 verifyText.innerHTML = `<i class="fa-solid fa-circle-check text-accent"></i> Sponsor verified &mdash; Referral Code <strong>${pubCode || '✓'}</strong>`;
             } else {
                 inputSponsor.disabled = false;
-                validateSponsorInput(inputSponsor.value);
+                // For default sponsor, auto-validate and show public code
+                const defaultPubCode = window.MetapolRef ? window.MetapolRef.idToCode(parseInt(sponsorId)) : null;
+                verifyText.innerHTML = `<i class="fa-solid fa-circle-check text-accent"></i> Default Sponsor &mdash; Member Code <strong style="color:var(--cyan);">#${defaultPubCode || '✓'}</strong>`;
             }
 
             inputSponsor.addEventListener("input", (e) => {
@@ -402,7 +404,9 @@
                     verifyText.innerHTML = `<i class="fa-solid fa-circle-xmark text-danger"></i> Sponsor ID is invalid`;
                     btnRegister.disabled = true;
                 } else {
-                    verifyText.innerHTML = `<i class="fa-solid fa-circle-check text-accent"></i> Valid Sponsor (Wallet: ${window.metapolApp.shortenAddress(sponsorAddress)})`;
+                    // Show public member code, never the real contract ID or wallet
+                    const pubCode = window.MetapolRef ? window.MetapolRef.idToCode(id) : null;
+                    verifyText.innerHTML = `<i class="fa-solid fa-circle-check text-accent"></i> Sponsor verified &mdash; Member Code <strong style="color:var(--cyan);">#${pubCode || '✓'}</strong>`;
                     btnRegister.disabled = false;
                 }
             } catch (err) {
