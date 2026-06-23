@@ -1220,17 +1220,14 @@ function closeSidebar() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Desktop: open by default; mobile: closed
-    const saved = localStorage.getItem("metapol_sidebar");
-    if (window.innerWidth >= 1024 && saved !== "closed") {
-        const s = document.getElementById("dash-sidebar");
-        const b = document.getElementById("sidebar-toggle-btn");
+    const isDesktop = window.innerWidth >= 1024;
+    if (isDesktop) {
+        // Desktop: sidebar always visible via CSS, no JS needed
         const l = document.getElementById("dashboard-layout-wrapper");
-        if (s) s.classList.add("sidebar-open");
-        if (b) b.classList.add("toggled");
         if (l) l.classList.add("sidebar-visible");
     }
-    // Close on mobile when nav link clicked
+    // Mobile: always starts closed, hamburger opens it
+    // Close sidebar when nav link clicked on mobile
     document.querySelectorAll(".sidebar-link").forEach(link => {
         link.addEventListener("click", () => { if (window.innerWidth < 1024) closeSidebar(); });
     });
