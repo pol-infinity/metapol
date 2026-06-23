@@ -2101,8 +2101,8 @@ img, video, iframe, embed, object {
         max-width: 100vw;
     }
 
-    /* SIDEBAR hide on mobile */
-    .dash-sidebar { display: none !important; }
+    /* SIDEBAR — handled by drawer transform, not display:none */
+    .dash-sidebar { display: flex !important; }
 
     /* MOBILE TAB NAV */
     .mobile-tab-navigation {
