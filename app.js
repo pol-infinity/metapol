@@ -137,13 +137,13 @@ class MetaPOLApp {
         animate();
     }
 
-    // Check URL parameters for Referral ID
+    // Check URL parameters for Referral Code (public 6-digit code OR legacy ID)
     parseReferral() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const refId = urlParams.get("ref");
-        if (refId && !isNaN(refId)) {
-            localStorage.setItem("metapol_ref", refId);
-            console.log(`Referral sponsor stored in memory: Sponsor ID ${refId}`);
+        // Use MetapolRef engine to decode ?ref= parameter
+        const contractId = window.MetapolRef ? window.MetapolRef.parseUrlRef() : null;
+        if (contractId && contractId > 0) {
+            localStorage.setItem("metapol_ref", contractId);
+            console.log(`Referral sponsor decoded: Contract ID ${contractId}`);
         }
     }
 

@@ -117,8 +117,11 @@ async function syncDashboardData() {
         userMemberId = Number(id);
         userTotalMiningDeposited = totalMiningDep;
 
-        // Populate Overview Data
-        document.getElementById("stat-member-id").innerText = `#${userMemberId}`;
+        // ── Public Member Code (hides real contract ID) ──
+        const publicCode = window.MetapolRef ? window.MetapolRef.getMyCode(userMemberId) : userMemberId;
+
+        // Display public code instead of real contract ID
+        document.getElementById("stat-member-id").innerText = `#${publicCode}`;
         document.getElementById("stat-total-earnings").innerText = `${parseFloat(ethers.formatEther(totalEarnings)).toFixed(2)} POL`;
         document.getElementById("stat-mining-capital").innerText = `${parseFloat(ethers.formatEther(totalMiningDep)).toFixed(2)} POL`;
         document.getElementById("stat-direct-referrals").innerText = Number(referredUsers);
@@ -200,7 +203,9 @@ async function syncDashboardData() {
 
         // Referral link: use origin root with ?ref=USER_ID (auto-detects domain)
         const referralBase = window.location.origin;
-        const referralLink = `${referralBase}/?ref=${userMemberId}`;
+        const referralLink = window.MetapolRef
+            ? `${referralBase}/?ref=${publicCode}`
+            : `${referralBase}/?ref=${userMemberId}`;
         const refInputEl = document.getElementById("referral-link-input");
         const refProfileEl = document.getElementById("profile-ref-link");
         if (refInputEl) refInputEl.value = referralLink;
@@ -211,7 +216,7 @@ async function syncDashboardData() {
         window._cachedReferralLink = referralLink;
 
         // Populate profile tab values
-        document.getElementById("profile-id").innerText = `#${userMemberId}`;
+        document.getElementById("profile-id").innerText = `#${publicCode}`;
         document.getElementById("profile-wallet").innerText = address;
         document.getElementById("profile-sponsor").innerText = referrerID > 0 ? `#${referrerID}` : "None";
 

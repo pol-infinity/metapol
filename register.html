@@ -9,6 +9,7 @@
     <link rel="icon" type="image/jpg" href="assets/logo.jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <script src="refcode.js"></script>
 </head>
 <body>
 
@@ -117,14 +118,18 @@
 
                 <!-- Registration Form Inputs -->
                 <div id="reg-form-container" style="display: none;">
-                    <div class="form-group">
-                        <label class="form-label">Sponsor/Referrer Member ID</label>
-                        <div class="input-glow-wrapper">
-                            <input type="number" id="input-sponsor-id" class="form-input" placeholder="Enter Sponsor ID (e.g. 1)">
+                    <!-- Sponsor field: hidden from user, auto-filled internally -->
+                    <input type="hidden" id="input-sponsor-id">
+
+                    <!-- Sponsor status badge (auto-detected) -->
+                    <div class="sponsor-status-badge" id="sponsor-status-badge">
+                        <div class="sponsor-badge-inner">
+                            <i class="fa-solid fa-shield-halved" style="color:var(--teal);"></i>
+                            <div>
+                                <div style="font-family:var(--font-display); font-size:0.78rem; font-weight:700; color:#fff;">Sponsor Auto-Detected</div>
+                                <div id="sponsor-verify-text" style="font-size:0.7rem; color:var(--text-muted); margin-top:2px;">Validating referral...</div>
+                            </div>
                         </div>
-                        <span id="sponsor-verify-text" style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 6px;">
-                            Validating referral ID...
-                        </span>
                     </div>
 
                     <div class="form-group" style="margin-top: 15px;">
@@ -359,7 +364,9 @@
             // If referral parameter was used, lock field so they can't change the referral structure
             if (localStorage.getItem("metapol_ref")) {
                 inputSponsor.disabled = true;
-                verifyText.innerHTML = `<i class="fa-solid fa-circle-check text-accent"></i> Sponsored via Referral ID ${sponsorId}`;
+                // Show public code, never the real contract ID
+                const pubCode = window.MetapolRef ? window.MetapolRef.idToCode(parseInt(sponsorId)) : null;
+                verifyText.innerHTML = `<i class="fa-solid fa-circle-check text-accent"></i> Sponsor verified &mdash; Referral Code <strong>${pubCode || '✓'}</strong>`;
             } else {
                 inputSponsor.disabled = false;
                 validateSponsorInput(inputSponsor.value);

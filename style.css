@@ -4681,3 +4681,18 @@ header.main-header {
     .header-container { padding: 8px 10px; }
     .btn-sidebar-toggle { width: 34px !important; height: 34px !important; }
 }
+
+/* ── SPONSOR AUTO-DETECT BADGE (register page) ── */
+.sponsor-status-badge {
+    background: linear-gradient(135deg, rgba(0,255,209,0.07), rgba(0,200,255,0.05));
+    border: 1px solid rgba(0,255,209,0.25);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+}
+.sponsor-badge-inner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.sponsor-badge-inner i { font-size: 1.3rem; flex-shrink: 0; }
