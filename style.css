@@ -4261,3 +4261,151 @@ header.main-header {
     .leader-rank-badge-icon { font-size: 2rem; }
     .leader-rank-title { font-size: 0.95rem; }
 }
+
+/* ============================================================
+   REFERRAL QUICK BAR — sticky banner below mobile tab nav
+   ============================================================ */
+
+.referral-quick-bar {
+    background: linear-gradient(90deg,
+        rgba(0,200,255,0.08) 0%,
+        rgba(0,30,60,0.7) 40%,
+        rgba(0,255,209,0.06) 100%);
+    border: 1px solid rgba(0,200,255,0.18);
+    border-radius: 14px;
+    margin-bottom: 14px;
+    padding: 10px 14px;
+    position: relative;
+    overflow: hidden;
+}
+
+.referral-quick-bar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), var(--teal), transparent);
+    opacity: 0.6;
+}
+
+.referral-quick-inner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
+    min-width: 0;
+}
+
+.referral-quick-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--cyan);
+    white-space: nowrap;
+}
+
+.referral-quick-label i {
+    font-size: 0.85rem;
+    filter: drop-shadow(0 0 6px var(--cyan-glow));
+}
+
+.referral-quick-link-wrap {
+    flex: 1;
+    min-width: 0;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(0,200,255,0.12);
+    border-radius: 8px;
+    padding: 6px 10px;
+    overflow: hidden;
+}
+
+.referral-quick-link-text {
+    font-family: monospace;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    max-width: 100%;
+}
+
+.referral-quick-copy-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: linear-gradient(135deg, var(--cyan), #007AAA);
+    border: none;
+    border-radius: 8px;
+    padding: 7px 12px;
+    color: #000;
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    flex-shrink: 0;
+    white-space: nowrap;
+    transition: all 0.2s;
+    box-shadow: 0 2px 12px rgba(0,200,255,0.3);
+}
+
+.referral-quick-copy-btn:hover {
+    box-shadow: 0 4px 20px rgba(0,200,255,0.5);
+    transform: translateY(-1px);
+}
+
+.referral-quick-copy-btn:active {
+    transform: translateY(0);
+}
+
+.referral-quick-share-btns {
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+}
+
+.referral-quick-share {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid rgba(0,200,255,0.18);
+    background: rgba(0,200,255,0.07);
+    color: rgba(255,255,255,0.55);
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.referral-quick-share:hover {
+    background: rgba(0,200,255,0.16);
+    border-color: var(--cyan);
+    color: var(--cyan);
+    transform: translateY(-1px);
+}
+
+/* WhatsApp / Telegram tint */
+.referral-quick-share:nth-child(1):hover { color: #25D366; border-color: #25D366; background: rgba(37,211,102,0.1); }
+.referral-quick-share:nth-child(2):hover { color: #2AABEE; border-color: #2AABEE; background: rgba(42,171,238,0.1); }
+.referral-quick-share:nth-child(3):hover { color: #fff;    border-color: #fff;    background: rgba(255,255,255,0.08); }
+
+/* Mobile: hide share icons on very small screens to save space */
+@media (max-width: 480px) {
+    .referral-quick-label span { display: none; }  /* hide text, keep icon */
+    .referral-quick-share-btns { display: none; }  /* hide share on tiny screen */
+    .referral-quick-copy-btn span { display: none; } /* icon only */
+    .referral-quick-copy-btn { padding: 7px 9px; }
+    .referral-quick-link-text { font-size: 0.65rem; }
+}
+
+@media (max-width: 360px) {
+    .referral-quick-label { display: none; }
+}

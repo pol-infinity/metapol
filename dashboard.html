@@ -119,6 +119,28 @@
                 <button class="mobile-tab-btn" data-tab="profile"><i class="fa-solid fa-circle-user"></i> Profile</button>
             </div>
 
+            <!-- ==================== REFERRAL QUICK BAR ==================== -->
+            <div class="referral-quick-bar">
+                <div class="referral-quick-inner">
+                    <div class="referral-quick-label">
+                        <i class="fa-solid fa-share-nodes"></i>
+                        <span>Your Referral Link</span>
+                    </div>
+                    <div class="referral-quick-link-wrap">
+                        <span class="referral-quick-link-text" id="referral-quick-display">Connect wallet to generate</span>
+                    </div>
+                    <button class="referral-quick-copy-btn" onclick="copyReferralLinkQuick()" title="Copy link">
+                        <i class="fa-solid fa-copy" id="referral-quick-copy-icon"></i>
+                        <span id="referral-quick-copy-text">Copy</span>
+                    </button>
+                    <div class="referral-quick-share-btns">
+                        <button class="referral-quick-share" onclick="shareReferral('whatsapp')" title="WhatsApp"><i class="fa-brands fa-whatsapp"></i></button>
+                        <button class="referral-quick-share" onclick="shareReferral('telegram')" title="Telegram"><i class="fa-brands fa-telegram"></i></button>
+                        <button class="referral-quick-share" onclick="shareReferral('twitter')" title="Twitter/X"><i class="fa-brands fa-x-twitter"></i></button>
+                    </div>
+                </div>
+            </div>
+
             <!-- ==================== OVERVIEW TAB ==================== -->
             <div id="tab-overview" class="tab-panel active">
                 <div class="stats-grid">

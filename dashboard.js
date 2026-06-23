@@ -198,6 +198,10 @@ async function syncDashboardData() {
         const refProfileEl = document.getElementById("profile-ref-link");
         if (refInputEl) refInputEl.value = referralLink;
         if (refProfileEl) { refProfileEl.innerText = referralLink; refProfileEl.href = referralLink; }
+        // Update quick referral bar
+        const quickDisplay = document.getElementById("referral-quick-display");
+        if (quickDisplay) quickDisplay.textContent = referralLink;
+        window._cachedReferralLink = referralLink;
 
         // Populate profile tab values
         document.getElementById("profile-id").innerText = `#${userMemberId}`;
@@ -1124,6 +1128,26 @@ function copyReferralLink() {
     navigator.clipboard.writeText(input.value);
 
     window.metapolApp.showToast("Referral link copied to clipboard!", "success");
+}
+
+// Quick bar copy (header referral strip)
+function copyReferralLinkQuick() {
+    const link = window._cachedReferralLink || document.getElementById("referral-link-input")?.value;
+    if (!link || !window.metapolApp.isConnected || userMemberId === 0) {
+        window.metapolApp.showToast("Connect wallet to generate referral link", "warning");
+        return;
+    }
+    navigator.clipboard.writeText(link).then(() => {
+        const icon = document.getElementById("referral-quick-copy-icon");
+        const txt  = document.getElementById("referral-quick-copy-text");
+        if (icon) { icon.className = "fa-solid fa-check"; }
+        if (txt)  { txt.textContent = "Copied!"; }
+        window.metapolApp.showToast("Referral link copied!", "success");
+        setTimeout(() => {
+            if (icon) icon.className = "fa-solid fa-copy";
+            if (txt)  txt.textContent = "Copy";
+        }, 2000);
+    });
 }
 
 // Share referral link to social chats
