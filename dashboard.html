@@ -31,17 +31,20 @@
     <!-- Sticky Header -->
     <header class="main-header">
         <div class="header-container">
-            <a href="index.html" class="logo-link">
-                <img src="assets/logo.jpg" alt="MetaPOL Logo" class="logo-img">
-                <span class="logo-text">METAPOL</span>
-            </a>
-            
-            <div class="header-actions">
+            <!-- Left: hamburger + logo -->
+            <div class="header-left">
                 <button id="sidebar-toggle-btn" class="btn-sidebar-toggle" onclick="toggleSidebar()" title="Toggle Menu">
                     <span class="sidebar-toggle-bar"></span>
                     <span class="sidebar-toggle-bar"></span>
                     <span class="sidebar-toggle-bar"></span>
                 </button>
+                <a href="index.html" class="logo-link">
+                    <img src="assets/logo.jpg" alt="MetaPOL Logo" class="logo-img">
+                    <span class="logo-text">METAPOL</span>
+                </a>
+            </div>
+            <!-- Right: wallet actions -->
+            <div class="header-actions">
                 <button id="btn-connect-wallet" class="btn btn-primary" onclick="window.metapolApp.connectWallet()">
                     <i id="header-wallet-icon" class="fa-solid fa-wallet text-accent"></i> 
                     <span id="header-connect-text">Connect Wallet</span>

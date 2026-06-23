@@ -4648,3 +4648,36 @@ header.main-header {
     /* Backdrop */
     .sidebar-backdrop { display: block !important; }
 }
+
+/* ============================================================
+   HEADER LEFT — hamburger + logo group
+   ============================================================ */
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Desktop: hide hamburger */
+@media (min-width: 1024px) {
+    .btn-sidebar-toggle { display: none !important; }
+}
+
+/* Mobile: show hamburger, shrink logo text if needed */
+@media (max-width: 480px) {
+    .logo-text { font-size: 1.1rem !important; }
+    .header-container { padding: 8px 10px; }
+    .btn-sidebar-toggle { width: 34px !important; height: 34px !important; }
+}
