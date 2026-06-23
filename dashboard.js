@@ -674,97 +674,182 @@ async function syncOverviewMatrixList() {
 async function syncTeamTab() {
     if (!window.metapolApp.isConnected) return;
     window.metapolApp.showLoader();
-
     try {
         const address = window.metapolApp.userAddress;
 
-        // Query RegUser events where referrer is current user
-        const filter = window.metapolApp.contract.filters.RegUser(null, address);
-        const events = await window.metapolApp.contract.queryFilter(filter, 0, "latest");
+        // ── Parallel event fetches ──
+        const filterReg      = window.metapolApp.contract.filters.RegUser(null, address);
+        const filterSponsor  = window.metapolApp.contract.filters.SponsorPaid(address);
+        const filterUpgrade  = window.metapolApp.contract.filters.AutoUpgrade(address);
+        const filterRepurch  = window.metapolApp.contract.filters.AutoRepurchase(address);
+        const filterSkipped  = window.metapolApp.contract.filters.IncomeSkipped(null, null, address);
 
-        const directsCount = events.length;
-        document.getElementById("team-directs-count").innerText = directsCount;
+        const [regEvents, sponsorEvents, upgradeEvents, repurchEvents, skippedEvents] = await Promise.all([
+            window.metapolApp.contract.queryFilter(filterReg, 0, "latest"),
+            window.metapolApp.contract.queryFilter(filterSponsor, 0, "latest"),
+            window.metapolApp.contract.queryFilter(filterUpgrade, 0, "latest"),
+            window.metapolApp.contract.queryFilter(filterRepurch, 0, "latest").catch(() => []),
+            window.metapolApp.contract.queryFilter(filterSkipped, 0, "latest").catch(() => [])
+        ]);
 
-        // Query SponsorPaid events to calculate total referral earnings
-        const sponsorFilter = window.metapolApp.contract.filters.SponsorPaid(address);
-        const sponsorEvents = await window.metapolApp.contract.queryFilter(sponsorFilter, 0, "latest");
+        const directsCount  = regEvents.length;
+        const autoUpgrades  = upgradeEvents.length;
+        const autoRepurch   = repurchEvents.length;
+        const incomeSkips   = skippedEvents.length;
 
         let totalSponsorPaid = 0n;
-        sponsorEvents.forEach(ev => {
-            totalSponsorPaid += ev.args.amount;
-        });
-        document.getElementById("team-total-earnings").innerText = `${parseFloat(ethers.formatEther(totalSponsorPaid)).toFixed(2)} POL`;
+        sponsorEvents.forEach(ev => { totalSponsorPaid += ev.args.amount; });
 
-        // Calculate Team Volume (Sum of slot purchases made by direct referrals)
-        // Note: For matrix, users pay prices. We can approximate volume of direct team purchases by summing their slot buys.
-        // Let's filter GetPoolPayment events where payer is one of direct referrers, or just calculate a clean metric
-        let totalTeamVolume = 0n;
-        const tableBody = document.getElementById("team-referrals-table-body");
-        tableBody.innerHTML = "";
-
-        const batchSize = 10; // Process in batches to avoid overwhelming RPC nodes
+        // ── Per-member details ──
         const referralDetails = [];
+        let totalTeamVolume = 0n;
+        let totalTeamMining = 0n;
+        let foundersCount = 0;
+        const slotCounts = {}; // slot level => count of members who own it
 
-        for (let i = 0; i < events.length; i += batchSize) {
-            const batch = events.slice(i, i + batchSize);
-            const batchPromises = batch.map(async (ev) => {
+        const SLOT_PRICES = [10,20,40,80,160,320,640,1280,2560,5120,10240,20480];
+
+        for (let i = 0; i < regEvents.length; i += 8) {
+            const batch = regEvents.slice(i, i + 8);
+            const results = await Promise.all(batch.map(async ev => {
                 const refAddr = ev.args.user;
-                const refId = Number(ev.args.userId);
+                const refId   = Number(ev.args.userId);
                 const regTime = Number(ev.args.time);
-                
-                // Get referral info to check slots count
-                const info = await window.metapolApp.contract.getUserInfo(refAddr);
-                const isFounder = info[7];
-                const totalMiningDep = info[5]; // represents 20% of slot investments
+                const info    = await window.metapolApp.contract.getUserInfo(refAddr);
+                const isFounder    = info[7];
+                const miningDep    = info[5];
+                const slotsInvested = miningDep * 5n;
 
-                // Calculate volume: Mining Dep represents 20% of slot prices bought. So Slots investment = Mining Dep * 5!
-                const slotsInvested = totalMiningDep * 5n;
+                // Estimate highest slot from mining deposit
+                const miningNum = parseFloat(ethers.formatEther(miningDep));
+                // 20% of slot price goes to mining
+                let highestSlot = 0;
+                for (let s = SLOT_PRICES.length - 1; s >= 0; s--) {
+                    if (miningNum >= SLOT_PRICES[s] * 0.2) { highestSlot = s + 1; break; }
+                }
+                if (highestSlot > 0) slotCounts[highestSlot] = (slotCounts[highestSlot] || 0) + 1;
 
-                return {
-                    id: refId,
-                    address: refAddr,
-                    date: new Date(regTime * 1000).toLocaleDateString(),
-                    invested: slotsInvested,
-                    isFounder: isFounder
-                };
-            });
+                if (isFounder) foundersCount++;
+                totalTeamMining += miningDep;
 
-            const resolvedBatch = await Promise.all(batchPromises);
-            referralDetails.push(...resolvedBatch);
+                return { id: refId, address: refAddr, date: new Date(regTime*1000).toLocaleDateString(), invested: slotsInvested, mining: miningDep, isFounder, highestSlot };
+            }));
+            results.forEach(r => { referralDetails.push(r); totalTeamVolume += r.invested; });
         }
 
-        // Render Referrals table
-        referralDetails.forEach(ref => {
-            totalTeamVolume += ref.invested;
+        const commPOL   = parseFloat(ethers.formatEther(totalSponsorPaid)).toFixed(2);
+        const volPOL    = parseFloat(ethers.formatEther(totalTeamVolume)).toFixed(2);
+        const avgMining = directsCount > 0
+            ? (parseFloat(ethers.formatEther(totalTeamMining)) / directsCount).toFixed(1)
+            : "0";
 
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>#${ref.id}</td>
-                <td><span class="wallet-badge">${window.metapolApp.shortenAddress(ref.address)}</span></td>
-                <td>${ref.date}</td>
-                <td>${parseFloat(ethers.formatEther(ref.invested)).toFixed(2)} POL</td>
-                <td>
-                    <span class="slot-status-label ${ref.isFounder ? 'slot-status-active' : 'slot-status-locked'}">
-                        ${ref.isFounder ? 'Founder' : 'Standard'}
-                    </span>
-                </td>
-            `;
-            tableBody.appendChild(row);
-        });
+        // ── Hero cards ──
+        const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+        set("lhero-team-size",    directsCount);
+        set("lhero-volume",       `${volPOL} POL`);
+        set("lhero-earned",       `${commPOL} POL`);
+        set("lhero-auto-upgrades", autoUpgrades);
+        set("lhero-team-sub",     `${directsCount} direct member${directsCount !== 1 ? "s" : ""}`);
 
-        document.getElementById("team-total-volume").innerText = `${parseFloat(ethers.formatEther(totalTeamVolume)).toFixed(2)} POL`;
-        document.getElementById("team-total-count").innerText = directsCount; // simple downline count
+        // ── Performance stats ──
+        set("lp-directs",     directsCount);
+        set("lp-founders",    foundersCount);
+        set("lp-upgrades",    autoUpgrades);
+        set("lp-repurchases", autoRepurch);
+        set("lp-avg-mining",  `${avgMining} POL`);
+        set("lp-skipped",     incomeSkips);
 
-        if (events.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No direct referrals found. Invite members using link.</td></tr>`;
+        // ── Legacy IDs ──
+        set("team-directs-count",  directsCount);
+        set("team-total-count",    directsCount);
+        set("team-total-earnings", `${commPOL} POL`);
+        set("team-total-volume",   `${volPOL} POL`);
+
+        // ── Leader Rank ──
+        const ranks = [
+            { min:0,  max:4,  icon:"🥉", title:"Building Leader",   color:"#CD7F32", next:"Silver Leader",   nextAt:5  },
+            { min:5,  max:14, icon:"🥈", title:"Silver Leader",     color:"#C0C0C0", next:"Gold Leader",     nextAt:15 },
+            { min:15, max:29, icon:"🥇", title:"Gold Leader",       color:"#FFD700", next:"Platinum Leader", nextAt:30 },
+            { min:30, max:49, icon:"💎", title:"Platinum Leader",   color:"#00E5FF", next:"Diamond Leader",  nextAt:50 },
+            { min:50, max:99, icon:"👑", title:"Diamond Leader",    color:"#FF00FF", next:"Crown Leader",    nextAt:100 },
+            { min:100,max:Infinity, icon:"🌟", title:"Crown Leader",color:"#FFD700", next:"Max Rank",        nextAt:100 },
+        ];
+        const rank = ranks.find(r => directsCount >= r.min && directsCount <= r.max) || ranks[0];
+        const pct  = rank.max === Infinity ? 100 : Math.min(100, Math.round(((directsCount - rank.min) / (rank.nextAt - rank.min)) * 100));
+        set("leader-rank-icon",           rank.icon);
+        set("leader-rank-title",          rank.title);
+        set("leader-rank-desc",           `${rank.icon} ${rank.title} — keep growing!`);
+        set("leader-rank-progress-label", `Next: ${rank.next}`);
+        set("leader-rank-progress-pct",   `${pct}%`);
+        set("leader-rank-hint",           rank.max === Infinity
+            ? "You have reached the top rank! 🌟"
+            : `Invite ${rank.nextAt - directsCount} more member${(rank.nextAt - directsCount) !== 1 ? "s" : ""} to reach ${rank.next}`);
+        const fillEl = document.getElementById("leader-rank-fill");
+        if (fillEl) { fillEl.style.width = pct + "%"; fillEl.style.background = `linear-gradient(90deg, ${rank.color}, ${rank.color}AA)`; }
+
+        // ── Slot Distribution Bars ──
+        const distEl = document.getElementById("slot-distribution-bars");
+        if (distEl && Object.keys(slotCounts).length > 0) {
+            const maxCount = Math.max(...Object.values(slotCounts));
+            const barColors = ["#00FFD1","#00C8FF","#FFAA00","#A066FF","#FF6B6B","#00FF88","#FFD700","#FF69B4","#7FFFD4","#FF8C00","#DA70D6","#00BFFF"];
+            distEl.innerHTML = Object.entries(slotCounts).sort((a,b)=>Number(a[0])-Number(b[0])).map(([slot, cnt]) => {
+                const w = Math.max(6, Math.round((cnt / maxCount) * 100));
+                const col = barColors[(Number(slot)-1) % barColors.length];
+                return `<div style="display:flex; align-items:center; gap:8px; font-size:0.76rem;">
+                    <span style="min-width:52px; color:rgba(255,255,255,0.5); font-family:var(--font-display); font-size:0.7rem;">Slot ${slot}</span>
+                    <div style="flex:1; background:rgba(255,255,255,0.06); border-radius:6px; height:18px; overflow:hidden; position:relative;">
+                        <div style="width:${w}%; height:100%; background:linear-gradient(90deg,${col}88,${col}); border-radius:6px; transition:width 0.8s ease;"></div>
+                    </div>
+                    <span style="min-width:22px; text-align:right; font-family:var(--font-display); font-weight:700; color:${col};">${cnt}</span>
+                </div>`;
+            }).join("");
+        } else if (distEl) {
+            distEl.innerHTML = `<div style="color:var(--text-muted); font-size:0.8rem; text-align:center; padding:16px 0;">No slot data yet</div>`;
         }
 
-    } catch (err) {
-        console.error("Failed to sync team metrics:", err);
+        // ── Table render ──
+        window._teamData = referralDetails;
+        renderTeamTable(referralDetails);
+
+    } catch(err) {
+        console.error("Team tab error:", err);
     } finally {
         window.metapolApp.hideLoader();
     }
 }
+
+function renderTeamTable(data) {
+    const tbody = document.getElementById("team-referrals-table-body");
+    if (!tbody) return;
+    if (!data || data.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:24px 0;">No direct referrals yet. Share your link!</td></tr>`;
+        return;
+    }
+    tbody.innerHTML = data.map(ref => `
+        <tr>
+            <td style="font-family:var(--font-display); font-weight:700; color:var(--cyan);">#${ref.id}</td>
+            <td><span class="wallet-badge" style="font-size:0.72rem;">${window.metapolApp.shortenAddress(ref.address)}</span></td>
+            <td style="color:var(--text-muted); font-size:0.78rem;">${ref.date}</td>
+            <td style="font-weight:700;">${parseFloat(ethers.formatEther(ref.invested)).toFixed(1)} POL</td>
+            <td style="color:var(--teal); font-weight:700;">${parseFloat(ethers.formatEther(ref.mining)).toFixed(1)} POL</td>
+            <td>
+                ${ref.isFounder
+                    ? '<span class="slot-status-label slot-status-active" style="font-size:0.65rem;"><i class="fa-solid fa-crown"></i> Founder</span>'
+                    : '<span class="slot-status-label slot-status-locked" style="font-size:0.65rem;">Standard</span>'}
+            </td>
+        </tr>`).join("");
+}
+
+function sortTeamTable(by) {
+    const data = window._teamData || [];
+    if (!data.length) return;
+    const sorted = [...data];
+    if (by === "volume") sorted.sort((a,b) => Number(b.invested - a.invested));
+    else if (by === "founder") sorted.sort((a,b) => (b.isFounder ? 1 : 0) - (a.isFounder ? 1 : 0));
+    else sorted.sort((a,b) => a.id - b.id);
+    renderTeamTable(sorted);
+}
+
 
 // Synchronize Activity timeline
 async function syncActivityTab() {

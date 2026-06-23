@@ -406,72 +406,150 @@
 
             <!-- ==================== TEAM TAB ==================== -->
             <div id="tab-team" class="tab-panel">
-                <!-- Referral Link Card -->
-                <div class="glass-card referral-link-card">
-                    <h3 class="panel-section-title"><i class="fa-solid fa-share-nodes"></i> Share Referral Link</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted);">
-                        Invite your friends and earn direct referral commission instantly on Polygon. 
-                        Referral link uses your Member ID to maintain wallet privacy.
-                    </p>
-                    
+
+                <!-- ── REFERRAL LINK ── -->
+                <div class="glass-card referral-link-card" style="margin-bottom:14px;">
+                    <h3 class="panel-section-title"><i class="fa-solid fa-share-nodes"></i> Your Referral Portal</h3>
                     <div class="ref-link-row">
                         <div class="input-glow-wrapper ref-link-input-wrapper">
                             <input type="text" id="referral-link-input" class="form-input" readonly value="Connect wallet to generate link">
                         </div>
                         <button class="btn btn-primary" onclick="copyReferralLink()"><i class="fa-solid fa-copy"></i> Copy</button>
                     </div>
-
-                    <!-- Social Sharing -->
-                    <div class="social-share-row">
-                        <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center; margin-right: 10px;">Share Link:</span>
-                        <div class="social-share-btn share-wa" onclick="shareReferral('whatsapp')" title="Share on WhatsApp"><i class="fa-brands fa-whatsapp"></i></div>
-                        <div class="social-share-btn share-tg" onclick="shareReferral('telegram')" title="Share on Telegram"><i class="fa-brands fa-telegram"></i></div>
-                        <div class="social-share-btn share-tw" onclick="shareReferral('twitter')" title="Share on Twitter"><i class="fa-brands fa-twitter"></i></div>
-                        <div class="social-share-btn share-fb" onclick="shareReferral('facebook')" title="Share on Facebook"><i class="fa-brands fa-facebook-f"></i></div>
+                    <div class="social-share-row" style="margin-top:12px;">
+                        <span style="font-size:0.75rem; color:var(--text-muted); align-self:center; margin-right:8px;">Share:</span>
+                        <div class="social-share-btn share-wa" onclick="shareReferral('whatsapp')"><i class="fa-brands fa-whatsapp"></i></div>
+                        <div class="social-share-btn share-tg" onclick="shareReferral('telegram')"><i class="fa-brands fa-telegram"></i></div>
+                        <div class="social-share-btn share-tw" onclick="shareReferral('twitter')"><i class="fa-brands fa-twitter"></i></div>
+                        <div class="social-share-btn share-fb" onclick="shareReferral('facebook')"><i class="fa-brands fa-facebook-f"></i></div>
                     </div>
                 </div>
 
-                <div class="team-stats-summary">
-                    <div class="glass-card" style="padding: 16px;">
-                        <span class="stat-label" style="font-size: 0.75rem;">Direct Referrals</span>
-                        <div style="font-size: 1.5rem; font-weight: 700; margin-top: 8px;" id="team-directs-count">0</div>
+                <!-- ── LEADER HERO STATS ── -->
+                <div class="leader-hero-grid" style="margin-bottom:14px;">
+                    <div class="leader-hero-card leader-hero-team">
+                        <div class="leader-hero-icon"><i class="fa-solid fa-users"></i></div>
+                        <div class="leader-hero-val" id="lhero-team-size">0</div>
+                        <div class="leader-hero-label">Total Team Size</div>
+                        <div class="leader-hero-sub" id="lhero-team-sub">Direct members</div>
                     </div>
-                    <div class="glass-card" style="padding: 16px;">
-                        <span class="stat-label" style="font-size: 0.75rem;">Team Size</span>
-                        <div style="font-size: 1.5rem; font-weight: 700; margin-top: 8px;" id="team-total-count">0</div>
+                    <div class="leader-hero-card leader-hero-volume">
+                        <div class="leader-hero-icon"><i class="fa-solid fa-chart-line"></i></div>
+                        <div class="leader-hero-val" id="lhero-volume">0 POL</div>
+                        <div class="leader-hero-label">Team Volume</div>
+                        <div class="leader-hero-sub">Total slot investments</div>
                     </div>
-                    <div class="glass-card" style="padding: 16px;">
-                        <span class="stat-label" style="font-size: 0.75rem;">Direct referral rewards</span>
-                        <div style="font-size: 1.5rem; font-weight: 700; margin-top: 8px; color: var(--accent);" id="team-total-earnings">0.00 POL</div>
+                    <div class="leader-hero-card leader-hero-earned">
+                        <div class="leader-hero-icon"><i class="fa-solid fa-coins"></i></div>
+                        <div class="leader-hero-val" id="lhero-earned">0 POL</div>
+                        <div class="leader-hero-label">Commission Earned</div>
+                        <div class="leader-hero-sub">Sponsor referral income</div>
                     </div>
-                    <div class="glass-card" style="padding: 16px;">
-                        <span class="stat-label" style="font-size: 0.75rem;">Team Volume</span>
-                        <div style="font-size: 1.5rem; font-weight: 700; margin-top: 8px;" id="team-total-volume">0.00 POL</div>
+                    <div class="leader-hero-card leader-hero-upgrade">
+                        <div class="leader-hero-icon"><i class="fa-solid fa-bolt"></i></div>
+                        <div class="leader-hero-val" id="lhero-auto-upgrades">0</div>
+                        <div class="leader-hero-label">Auto Upgrades</div>
+                        <div class="leader-hero-sub">Contract auto-upgrades fired</div>
                     </div>
                 </div>
 
+                <!-- ── LEADER RANK BADGE ── -->
+                <div class="glass-card leader-rank-card" style="margin-bottom:14px;">
+                    <div class="leader-rank-left">
+                        <div class="leader-rank-badge-icon" id="leader-rank-icon">🥉</div>
+                        <div>
+                            <div class="leader-rank-title" id="leader-rank-title">Building Leader</div>
+                            <div class="leader-rank-desc" id="leader-rank-desc">Grow your team to unlock higher ranks</div>
+                        </div>
+                    </div>
+                    <div class="leader-rank-progress-wrap">
+                        <div class="leader-rank-progress-label">
+                            <span id="leader-rank-progress-label">Next: Silver Leader</span>
+                            <span id="leader-rank-progress-pct">0%</span>
+                        </div>
+                        <div class="leader-rank-progress-bar">
+                            <div class="leader-rank-progress-fill" id="leader-rank-fill" style="width:0%"></div>
+                        </div>
+                        <div class="leader-rank-progress-hint" id="leader-rank-hint">Invite 5 members to reach Silver Leader</div>
+                    </div>
+                </div>
+
+                <!-- ── ANALYTICS ROW ── -->
+                <div class="leader-analytics-grid" style="margin-bottom:14px;">
+                    <!-- Slot Distribution -->
+                    <div class="glass-card">
+                        <h3 class="panel-section-title" style="font-size:0.78rem;"><i class="fa-solid fa-layer-group"></i> Team Slot Distribution</h3>
+                        <div id="slot-distribution-bars" style="display:flex; flex-direction:column; gap:8px; min-height:80px;">
+                            <div style="color:var(--text-muted); font-size:0.8rem; text-align:center; padding:20px 0;">Load team to see distribution</div>
+                        </div>
+                    </div>
+                    <!-- Performance Stats -->
+                    <div class="glass-card">
+                        <h3 class="panel-section-title" style="font-size:0.78rem;"><i class="fa-solid fa-rocket"></i> Leader Performance</h3>
+                        <div style="display:flex; flex-direction:column; gap:9px;">
+                            <div class="leader-perf-row">
+                                <div class="leader-perf-icon" style="background:rgba(0,255,209,0.1); color:var(--teal);"><i class="fa-solid fa-user-plus"></i></div>
+                                <div class="leader-perf-info"><div class="leader-perf-label">Direct Referrals</div><div class="leader-perf-val" id="lp-directs">0</div></div>
+                            </div>
+                            <div class="leader-perf-row">
+                                <div class="leader-perf-icon" style="background:rgba(255,170,0,0.1); color:var(--income-direct);"><i class="fa-solid fa-crown"></i></div>
+                                <div class="leader-perf-info"><div class="leader-perf-label">Founders in Team</div><div class="leader-perf-val" id="lp-founders">0</div></div>
+                            </div>
+                            <div class="leader-perf-row">
+                                <div class="leader-perf-icon" style="background:rgba(0,200,255,0.1); color:var(--cyan);"><i class="fa-solid fa-bolt"></i></div>
+                                <div class="leader-perf-info"><div class="leader-perf-label">Auto Upgrades Fired</div><div class="leader-perf-val" id="lp-upgrades">0</div></div>
+                            </div>
+                            <div class="leader-perf-row">
+                                <div class="leader-perf-icon" style="background:rgba(160,102,255,0.1); color:var(--income-hold);"><i class="fa-solid fa-repeat"></i></div>
+                                <div class="leader-perf-info"><div class="leader-perf-label">Auto Repurchases</div><div class="leader-perf-val" id="lp-repurchases">0</div></div>
+                            </div>
+                            <div class="leader-perf-row">
+                                <div class="leader-perf-icon" style="background:rgba(0,255,100,0.1); color:#00FF88;"><i class="fa-solid fa-microchip"></i></div>
+                                <div class="leader-perf-info"><div class="leader-perf-label">Avg Mining Capital / Member</div><div class="leader-perf-val" id="lp-avg-mining">0 POL</div></div>
+                            </div>
+                            <div class="leader-perf-row">
+                                <div class="leader-perf-icon" style="background:rgba(255,60,60,0.08); color:#FF5555;"><i class="fa-solid fa-forward-fast"></i></div>
+                                <div class="leader-perf-info"><div class="leader-perf-label">Income Skips (your team)</div><div class="leader-perf-val" id="lp-skipped">0</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── DIRECT MEMBERS TABLE ── -->
                 <div class="glass-card">
-                    <h3 class="panel-section-title"><i class="fa-solid fa-users"></i> Direct Referral Tree</h3>
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+                        <h3 class="panel-section-title" style="margin:0; border:none; padding:0;"><i class="fa-solid fa-table-list"></i> Direct Team Members</h3>
+                        <select id="team-sort-select" class="form-input" style="padding:5px 9px; font-size:0.72rem; height:auto; border-radius:8px; cursor:pointer; width:auto;"
+                            onchange="sortTeamTable(this.value)">
+                            <option value="date">Sort: Join Date</option>
+                            <option value="volume">Sort: Volume</option>
+                            <option value="founder">Sort: Founders First</option>
+                        </select>
+                    </div>
                     <div class="table-responsive-wrapper">
                         <table class="premium-table">
-                            <thead>
-                                <tr>
-                                    <th>Member ID</th>
-                                    <th>Wallet Address</th>
-                                    <th>Join Date</th>
-                                    <th>Active Slots</th>
-                                    <th>Founder Status</th>
-                                </tr>
-                            </thead>
+                            <thead><tr>
+                                <th>#ID</th>
+                                <th>Wallet</th>
+                                <th>Joined</th>
+                                <th>Slot Volume</th>
+                                <th>Mining Cap</th>
+                                <th>Status</th>
+                            </tr></thead>
                             <tbody id="team-referrals-table-body">
-                                <tr>
-                                    <td colspan="5" style="text-align: center; color: var(--text-muted);">No direct referrals registered. Invite users using your link above!</td>
-                                </tr>
+                                <tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:24px 0;">Connect wallet to load team data</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
+
+                <!-- legacy IDs kept for JS compat -->
+                <span id="team-directs-count" style="display:none">0</span>
+                <span id="team-total-count" style="display:none">0</span>
+                <span id="team-total-earnings" style="display:none">0</span>
+                <span id="team-total-volume" style="display:none">0</span>
             </div>
+
 
             <!-- ==================== ACTIVITY TAB ==================== -->
             <div id="tab-activity" class="tab-panel">

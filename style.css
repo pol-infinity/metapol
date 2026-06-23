@@ -3995,3 +3995,269 @@ header.main-header {
     .stat-value { font-size: 1.2rem !important; }
     .dash-main { padding-bottom: 62px; }
 }
+
+/* ============================================================
+   LEADER DASHBOARD — Premium Team Statistics
+   ============================================================ */
+
+/* ── HERO STATS GRID ── */
+.leader-hero-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.leader-hero-card {
+    border-radius: 16px;
+    padding: 18px 14px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid transparent;
+    transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.leader-hero-card:hover {
+    transform: translateY(-2px);
+}
+
+.leader-hero-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(255,255,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.leader-hero-team {
+    background: linear-gradient(145deg, rgba(0,200,255,0.12), rgba(0,50,100,0.4));
+    border-color: rgba(0,200,255,0.25);
+    box-shadow: 0 4px 24px rgba(0,200,255,0.1);
+}
+
+.leader-hero-volume {
+    background: linear-gradient(145deg, rgba(0,255,209,0.1), rgba(0,80,60,0.4));
+    border-color: rgba(0,255,209,0.22);
+    box-shadow: 0 4px 24px rgba(0,255,209,0.08);
+}
+
+.leader-hero-earned {
+    background: linear-gradient(145deg, rgba(255,170,0,0.12), rgba(80,40,0,0.4));
+    border-color: rgba(255,170,0,0.25);
+    box-shadow: 0 4px 24px rgba(255,170,0,0.08);
+}
+
+.leader-hero-upgrade {
+    background: linear-gradient(145deg, rgba(160,102,255,0.12), rgba(50,20,100,0.4));
+    border-color: rgba(160,102,255,0.25);
+    box-shadow: 0 4px 24px rgba(160,102,255,0.08);
+}
+
+.leader-hero-icon {
+    font-size: 1.4rem;
+    margin-bottom: 10px;
+    opacity: 0.85;
+}
+
+.leader-hero-team .leader-hero-icon    { color: var(--cyan); }
+.leader-hero-volume .leader-hero-icon  { color: var(--teal); }
+.leader-hero-earned .leader-hero-icon  { color: var(--income-direct); }
+.leader-hero-upgrade .leader-hero-icon { color: var(--income-hold); }
+
+.leader-hero-val {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    line-height: 1.1;
+    word-break: break-word;
+    filter: drop-shadow(0 0 10px rgba(0,200,255,0.2));
+}
+
+.leader-hero-label {
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-top: 5px;
+}
+
+.leader-hero-sub {
+    font-size: 0.6rem;
+    color: rgba(255,255,255,0.3);
+    margin-top: 3px;
+}
+
+/* ── RANK BADGE CARD ── */
+.leader-rank-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 20px 22px;
+    background: linear-gradient(135deg,
+        rgba(0,200,255,0.06) 0%,
+        rgba(11,30,62,0.9) 50%,
+        rgba(160,102,255,0.06) 100%);
+    border-color: rgba(0,200,255,0.2);
+    position: relative;
+    overflow: hidden;
+}
+
+.leader-rank-card::before {
+    content: '';
+    position: absolute;
+    top: -30%; right: -5%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(0,200,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.leader-rank-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+}
+
+.leader-rank-badge-icon {
+    font-size: 2.4rem;
+    filter: drop-shadow(0 0 12px rgba(255,200,0,0.4));
+    line-height: 1;
+}
+
+.leader-rank-title {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.04em;
+}
+
+.leader-rank-desc {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.45);
+    margin-top: 2px;
+}
+
+.leader-rank-progress-wrap {
+    flex: 1;
+    min-width: 180px;
+}
+
+.leader-rank-progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.55);
+    margin-bottom: 7px;
+}
+
+.leader-rank-progress-bar {
+    height: 8px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.leader-rank-progress-fill {
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--cyan), var(--teal));
+    transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 0 10px rgba(0,200,255,0.4);
+}
+
+.leader-rank-progress-hint {
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.35);
+    margin-top: 6px;
+}
+
+/* ── ANALYTICS GRID ── */
+.leader-analytics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* ── PERFORMANCE ROWS ── */
+.leader-perf-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.leader-perf-row:last-child { border-bottom: none; }
+
+.leader-perf-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.leader-perf-label {
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.45);
+    font-family: var(--font-display);
+    letter-spacing: 0.04em;
+}
+
+.leader-perf-val {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    margin-top: 1px;
+}
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+    .leader-hero-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .leader-hero-val { font-size: 1.3rem; }
+    .leader-hero-label { font-size: 0.58rem; }
+    .leader-hero-card { padding: 14px 10px; }
+
+    .leader-rank-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px;
+        padding: 16px;
+    }
+
+    .leader-rank-progress-wrap { width: 100%; }
+
+    .leader-analytics-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .leader-hero-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+
+    .leader-hero-val { font-size: 1.1rem; }
+    .leader-hero-icon { font-size: 1.15rem; }
+    .leader-hero-card { padding: 12px 8px; }
+    .leader-rank-badge-icon { font-size: 2rem; }
+    .leader-rank-title { font-size: 0.95rem; }
+}
