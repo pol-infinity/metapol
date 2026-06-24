@@ -5502,3 +5502,770 @@ header.main-header {
     .reg-layout-grid .auth-card { order: 1; }
     .reg-layout-grid > div:not(.auth-card) { order: 2; }
 }
+
+/* ============================================================
+   PREMIUM UPGRADE — FutureTon/BTitan Inspired
+   Deep navy · 3D Characters · Bold typography · Infographics
+   ============================================================ */
+
+/* ── FONT UPGRADE ── */
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Rajdhani:wght@500;600;700&display=swap');
+
+:root {
+    --font-display:  'Exo 2', sans-serif;
+    --font-heading:  'Exo 2', sans-serif;
+    --font-caption:  'Rajdhani', sans-serif;
+
+    /* Richer dark palette */
+    --navy-900: #05061A;
+    --navy-800: #080B28;
+    --navy-700: #0D1035;
+    --navy-600: #111540;
+    --purple-vivid: #7B3FFF;
+    --gold:   #FFD700;
+    --gold-glow: rgba(255,215,0,0.35);
+}
+
+/* ── BODY UPGRADE ── */
+body {
+    background: radial-gradient(ellipse 130% 60% at 50% -10%,
+        rgba(80,40,200,0.22) 0%, var(--navy-900) 55%) !important;
+    background-color: var(--navy-900) !important;
+    font-family: var(--font-display) !important;
+}
+
+/* ── GLOBAL HEADING UPGRADE ── */
+h1,h2,h3,h4,h5,h6 {
+    font-family: var(--font-display) !important;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+}
+
+/* ============================================================
+   HERO SECTION — 3D Character + Big Bold Title
+   ============================================================ */
+.hero-section {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 120px 0 80px;
+}
+
+/* Deep purple radial bg */
+.hero-section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 80% 60% at 30% 50%, rgba(80,30,200,0.2) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 70% 60%, rgba(0,180,255,0.1) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Floating orbs */
+.hero-section::after {
+    content: '';
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(120,60,255,0.12) 0%, transparent 70%);
+    top: 10%; right: -100px;
+    pointer-events: none;
+    animation: heroOrb 8s ease-in-out infinite alternate;
+}
+
+@keyframes heroOrb {
+    from { transform: translateY(0) scale(1); }
+    to   { transform: translateY(40px) scale(1.1); }
+}
+
+.glass-container {
+    position: relative;
+    z-index: 2;
+}
+
+/* Hero title massive upgrade */
+.hero-title {
+    font-family: var(--font-display) !important;
+    font-size: clamp(2.4rem, 6vw, 5rem) !important;
+    font-weight: 900 !important;
+    line-height: 1.05 !important;
+    background: linear-gradient(135deg, #fff 0%, #C0A0FF 40%, #00C8FF 70%, #00FFD1 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    letter-spacing: -0.02em !important;
+    margin-bottom: 20px !important;
+    filter: drop-shadow(0 0 30px rgba(120,60,255,0.3));
+}
+
+/* Hero subtitle */
+.hero-subtitle {
+    font-family: var(--font-display);
+    font-size: 1.05rem !important;
+    color: rgba(255,255,255,0.55) !important;
+    max-width: 560px;
+    line-height: 1.7;
+}
+
+/* Badge upgrade */
+.badge-glow {
+    background: linear-gradient(90deg, rgba(120,60,255,0.2), rgba(0,200,255,0.15)) !important;
+    border: 1px solid rgba(120,60,255,0.5) !important;
+    color: #C0A0FF !important;
+    font-family: var(--font-caption) !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    border-radius: 100px !important;
+    padding: 6px 18px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-bottom: 22px !important;
+}
+
+.badge-glow .dot {
+    background: #00FFD1 !important;
+    box-shadow: 0 0 8px #00FFD1 !important;
+    width: 7px !important;
+    height: 7px !important;
+}
+
+/* ── 3D CHARACTER WIDGET ── */
+.hero-3d-character {
+    position: absolute;
+    right: 5%;
+    bottom: 0;
+    width: min(420px, 45vw);
+    height: min(520px, 60vw);
+    pointer-events: none;
+    z-index: 3;
+    animation: charFloat 6s ease-in-out infinite;
+}
+
+@keyframes charFloat {
+    0%,100% { transform: translateY(0) rotate(-1deg); }
+    50%      { transform: translateY(-18px) rotate(1deg); }
+}
+
+/* Glow under character */
+.hero-3d-character::after {
+    content: '';
+    position: absolute;
+    bottom: -10px; left: 10%;
+    width: 80%; height: 40px;
+    background: radial-gradient(ellipse, rgba(120,60,255,0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(8px);
+    animation: shadowPulse 6s ease-in-out infinite;
+}
+
+@keyframes shadowPulse {
+    0%,100% { opacity: 0.6; transform: scaleX(1); }
+    50%      { opacity: 0.3; transform: scaleX(0.8); }
+}
+
+/* ── HERO BUTTONS ── */
+.hero-buttons .btn {
+    font-family: var(--font-display) !important;
+    font-weight: 700 !important;
+    font-size: 1rem !important;
+    letter-spacing: 0.04em !important;
+    padding: 14px 32px !important;
+    border-radius: 14px !important;
+}
+
+.hero-buttons .btn-primary {
+    background: linear-gradient(135deg, var(--purple-vivid) 0%, #00C8FF 100%) !important;
+    box-shadow: 0 8px 32px rgba(120,60,255,0.45), 0 0 0 1px rgba(120,60,255,0.3) !important;
+    border: none !important;
+    color: #fff !important;
+}
+
+.hero-buttons .btn-primary:hover {
+    box-shadow: 0 12px 40px rgba(120,60,255,0.65) !important;
+    transform: translateY(-2px) !important;
+}
+
+.hero-buttons .btn-secondary {
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    color: rgba(255,255,255,0.8) !important;
+}
+
+/* ============================================================
+   STAT CARDS — Landing Page
+   ============================================================ */
+.stats-section .stat-card {
+    background: linear-gradient(145deg, rgba(11,16,53,0.95), rgba(8,11,40,0.9)) !important;
+    border: 1px solid rgba(0,200,255,0.15) !important;
+    border-radius: 18px !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.stats-section .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00C8FF, #00FFD1, transparent);
+}
+
+.stats-section .stat-value {
+    font-family: var(--font-display) !important;
+    font-size: 2rem !important;
+    font-weight: 800 !important;
+    background: linear-gradient(90deg, #fff 40%, #00C8FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stats-section .stat-label {
+    font-family: var(--font-caption) !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+}
+
+/* ============================================================
+   FEATURE CARDS — How It Works
+   ============================================================ */
+.feature-icon-wrapper {
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 16px !important;
+    background: linear-gradient(135deg, rgba(120,60,255,0.2), rgba(0,200,255,0.1)) !important;
+    border: 1px solid rgba(120,60,255,0.3) !important;
+    font-size: 1.6rem !important;
+    box-shadow: 0 8px 24px rgba(120,60,255,0.2) !important;
+}
+
+.feature-title {
+    font-family: var(--font-display) !important;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: #fff !important;
+    margin: 14px 0 10px !important;
+}
+
+.feature-desc {
+    font-family: var(--font-display) !important;
+    font-size: 0.88rem !important;
+    color: rgba(255,255,255,0.45) !important;
+    line-height: 1.65 !important;
+}
+
+.glass-card {
+    border-radius: 20px !important;
+    transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s !important;
+}
+
+.glass-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 16px 48px rgba(0,200,255,0.1) !important;
+}
+
+/* ============================================================
+   INFOGRAPHIC SECTION — 3 Steps
+   ============================================================ */
+.infographic-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-top: 40px;
+}
+
+.infographic-step {
+    background: linear-gradient(145deg, rgba(11,16,53,0.95), rgba(8,11,40,0.9));
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 30px 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.25s;
+}
+
+.infographic-step:nth-child(1) { border-top: 2px solid var(--purple-vivid); }
+.infographic-step:nth-child(2) { border-top: 2px solid #00C8FF; }
+.infographic-step:nth-child(3) { border-top: 2px solid #00FFD1; }
+
+.infographic-step:hover {
+    transform: translateY(-6px);
+    border-color: rgba(0,200,255,0.3);
+}
+
+.infographic-step-num {
+    font-family: var(--font-display);
+    font-size: 5rem;
+    font-weight: 900;
+    line-height: 1;
+    position: absolute;
+    top: 10px; right: 14px;
+    opacity: 0.07;
+}
+
+.infographic-step:nth-child(1) .infographic-step-num { color: var(--purple-vivid); }
+.infographic-step:nth-child(2) .infographic-step-num { color: #00C8FF; }
+.infographic-step:nth-child(3) .infographic-step-num { color: #00FFD1; }
+
+.infographic-step-icon {
+    width: 64px; height: 64px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin: 0 auto 18px;
+}
+
+.infographic-step:nth-child(1) .infographic-step-icon {
+    background: rgba(123,63,255,0.15);
+    border: 1px solid rgba(123,63,255,0.3);
+}
+.infographic-step:nth-child(2) .infographic-step-icon {
+    background: rgba(0,200,255,0.12);
+    border: 1px solid rgba(0,200,255,0.25);
+}
+.infographic-step:nth-child(3) .infographic-step-icon {
+    background: rgba(0,255,209,0.10);
+    border: 1px solid rgba(0,255,209,0.22);
+}
+
+.infographic-step-title {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+.infographic-step-desc {
+    font-family: var(--font-display);
+    font-size: 0.84rem;
+    color: rgba(255,255,255,0.42);
+    line-height: 1.65;
+}
+
+/* ============================================================
+   INCOME BREAKDOWN INFOGRAPHIC
+   ============================================================ */
+.income-infographic-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 28px;
+}
+
+.income-infographic-item {
+    border-radius: 18px;
+    padding: 24px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.income-infographic-item:hover {
+    transform: translateY(-3px);
+}
+
+.income-infographic-item:nth-child(1) {
+    background: linear-gradient(135deg, rgba(0,255,209,0.07), rgba(0,200,255,0.03));
+    border: 1px solid rgba(0,255,209,0.18);
+}
+.income-infographic-item:nth-child(2) {
+    background: linear-gradient(135deg, rgba(0,200,255,0.07), rgba(100,60,255,0.03));
+    border: 1px solid rgba(0,200,255,0.18);
+}
+.income-infographic-item:nth-child(3) {
+    background: linear-gradient(135deg, rgba(255,170,0,0.07), rgba(255,100,0,0.03));
+    border: 1px solid rgba(255,170,0,0.18);
+}
+.income-infographic-item:nth-child(4) {
+    background: linear-gradient(135deg, rgba(160,102,255,0.07), rgba(100,60,255,0.03));
+    border: 1px solid rgba(160,102,255,0.18);
+}
+
+.income-infographic-icon {
+    width: 50px; height: 50px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.income-infographic-item:nth-child(1) .income-infographic-icon { background: rgba(0,255,209,0.12); }
+.income-infographic-item:nth-child(2) .income-infographic-icon { background: rgba(0,200,255,0.12); }
+.income-infographic-item:nth-child(3) .income-infographic-icon { background: rgba(255,170,0,0.12); }
+.income-infographic-item:nth-child(4) .income-infographic-icon { background: rgba(160,102,255,0.12); }
+
+.income-infographic-name {
+    font-family: var(--font-caption);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.income-infographic-item:nth-child(1) .income-infographic-name { color: #00FFD1; }
+.income-infographic-item:nth-child(2) .income-infographic-name { color: #00C8FF; }
+.income-infographic-item:nth-child(3) .income-infographic-name { color: #FFAA00; }
+.income-infographic-item:nth-child(4) .income-infographic-name { color: #A066FF; }
+
+.income-infographic-val {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+    margin-bottom: 5px;
+}
+
+.income-infographic-desc {
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.35);
+    line-height: 1.5;
+}
+
+/* ============================================================
+   CALCULATOR SECTION PREMIUM
+   ============================================================ */
+.calculator-section .panel-section-title {
+    font-family: var(--font-display) !important;
+    font-size: 1.2rem !important;
+    font-weight: 800 !important;
+}
+
+.calculator-section .form-label {
+    font-family: var(--font-caption) !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+    color: rgba(255,255,255,0.45) !important;
+    font-weight: 700 !important;
+}
+
+/* ============================================================
+   HEADER PREMIUM
+   ============================================================ */
+.logo-text {
+    font-family: var(--font-display) !important;
+    font-weight: 900 !important;
+    font-size: 1.4rem !important;
+    letter-spacing: 0.06em !important;
+    background: linear-gradient(90deg, #fff 30%, #00C8FF 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+}
+
+.nav-item {
+    font-family: var(--font-display) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.04em !important;
+}
+
+/* ============================================================
+   SECTION TITLES — Global
+   ============================================================ */
+.panel-section-title {
+    font-family: var(--font-display) !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.03em !important;
+}
+
+/* Section label (caption above title) */
+.section-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-caption);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #00C8FF;
+    margin-bottom: 10px;
+}
+
+.section-eyebrow::before {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: #00C8FF;
+    border-radius: 2px;
+}
+
+/* ============================================================
+   TRUST BADGE STRIP
+   ============================================================ */
+.trust-badge-strip {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 20px 0;
+}
+
+.trust-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 100px;
+    padding: 8px 18px;
+    font-family: var(--font-caption);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+}
+
+.trust-badge .badge-ico { font-size: 1rem; }
+
+/* ============================================================
+   FOOTER PREMIUM
+   ============================================================ */
+.pro-footer {
+    background: linear-gradient(0deg, #030412 0%, var(--navy-900) 100%) !important;
+    border-top: 1px solid rgba(0,200,255,0.1) !important;
+}
+
+.footer-col-title {
+    font-family: var(--font-display) !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    color: rgba(255,255,255,0.35) !important;
+}
+
+/* ============================================================
+   REGISTRATION PAGE PREMIUM
+   ============================================================ */
+.auth-title {
+    font-family: var(--font-display) !important;
+    font-size: 1.6rem !important;
+    font-weight: 900 !important;
+    background: linear-gradient(90deg, #fff 30%, #00C8FF 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 6px !important;
+}
+
+.auth-card {
+    background: linear-gradient(145deg, rgba(11,16,53,0.98), rgba(8,11,40,0.95)) !important;
+    border: 1px solid rgba(0,200,255,0.18) !important;
+    border-radius: 24px !important;
+    position: relative;
+    overflow: hidden;
+}
+
+.auth-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--purple-vivid), #00C8FF, transparent);
+}
+
+.form-label {
+    font-family: var(--font-caption) !important;
+    font-size: 0.7rem !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    font-weight: 700 !important;
+    color: rgba(255,255,255,0.4) !important;
+}
+
+.form-input {
+    font-family: var(--font-display) !important;
+    font-weight: 500 !important;
+}
+
+/* ============================================================
+   DASHBOARD PREMIUM TYPOGRAPHY
+   ============================================================ */
+.mining-ticker-title {
+    font-family: var(--font-caption) !important;
+    font-size: 0.72rem !important;
+    letter-spacing: 0.16em !important;
+    text-transform: uppercase !important;
+    font-weight: 700 !important;
+}
+
+.mining-ticker-value {
+    font-family: var(--font-display) !important;
+    font-weight: 900 !important;
+}
+
+.stat-label {
+    font-family: var(--font-caption) !important;
+    font-size: 0.68rem !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    font-weight: 700 !important;
+}
+
+.stat-value {
+    font-family: var(--font-display) !important;
+    font-weight: 800 !important;
+}
+
+.stat-footer {
+    font-family: var(--font-display) !important;
+    font-size: 0.67rem !important;
+}
+
+/* Sidebar links */
+.sidebar-link {
+    font-family: var(--font-display) !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    letter-spacing: 0.03em !important;
+}
+
+/* Bottom tab bar */
+.btab-btn span {
+    font-family: var(--font-caption) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+}
+
+/* Mobile tab nav */
+.mobile-tab-btn {
+    font-family: var(--font-display) !important;
+    font-weight: 700 !important;
+}
+
+/* Table headers */
+.premium-table thead th {
+    font-family: var(--font-caption) !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    font-weight: 700 !important;
+}
+
+/* Leader rank */
+.leader-rank-title {
+    font-family: var(--font-display) !important;
+    font-weight: 800 !important;
+}
+
+.leader-hero-val {
+    font-family: var(--font-display) !important;
+    font-weight: 900 !important;
+}
+
+.leader-hero-label {
+    font-family: var(--font-caption) !important;
+    letter-spacing: 0.1em !important;
+    text-transform: uppercase !important;
+}
+
+/* Leaderboard */
+.lb-hero-title {
+    font-family: var(--font-display) !important;
+    font-weight: 900 !important;
+}
+
+.lb-row-code {
+    font-family: var(--font-display) !important;
+    font-weight: 800 !important;
+}
+
+.lb-podium-code {
+    font-family: var(--font-display) !important;
+    font-weight: 800 !important;
+}
+
+/* Claimable widget */
+.claimable-widget-value {
+    font-family: var(--font-display) !important;
+    font-weight: 900 !important;
+}
+
+/* Invite tracker */
+.itrack-member-code {
+    font-family: var(--font-display) !important;
+    font-weight: 800 !important;
+}
+
+.itrack-amount {
+    font-family: var(--font-display) !important;
+    font-weight: 800 !important;
+}
+
+.invite-tracker-title {
+    font-family: var(--font-display) !important;
+    font-weight: 800 !important;
+}
+
+/* ============================================================
+   3D CHARACTER SVG STYLES
+   ============================================================ */
+.char-3d-wrap {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+}
+
+.char-glow-ring {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70%;
+    height: 30px;
+    background: radial-gradient(ellipse, rgba(120,60,255,0.5) 0%, transparent 70%);
+    filter: blur(10px);
+    border-radius: 50%;
+    animation: charGlowPulse 3s ease-in-out infinite;
+}
+
+@keyframes charGlowPulse {
+    0%,100% { opacity: 0.6; transform: translateX(-50%) scaleX(1); }
+    50%      { opacity: 0.3; transform: translateX(-50%) scaleX(0.8); }
+}
+
+/* Gold coin float animation */
+.gold-coin-float {
+    animation: coinFloat 4s ease-in-out infinite;
+}
+
+@keyframes coinFloat {
+    0%,100% { transform: translateY(0) rotate(-5deg); }
+    50%      { transform: translateY(-12px) rotate(5deg); }
+}
+
+/* ============================================================
+   MOBILE RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .hero-title { font-size: clamp(2rem, 8vw, 3rem) !important; }
+    .infographic-steps { grid-template-columns: 1fr !important; gap: 10px; }
+    .income-infographic-grid { grid-template-columns: 1fr !important; gap: 10px; }
+    .hero-3d-character { display: none; }
+}
+
+@media (max-width: 480px) {
+    .hero-title { font-size: 2rem !important; }
+    .stats-section .stat-value { font-size: 1.5rem !important; }
+}

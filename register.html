@@ -100,7 +100,122 @@
             </div>
 
             <!-- Information Panel (Benefits) -->
-            <div style="display: flex; flex-direction: column; justify-content: center; text-align: left;">
+            <div style="display: flex; flex-direction: column; justify-content: center; text-align: left; position:relative;">
+
+            <!-- 3D Character for registration page -->
+            <div class="char-3d-wrap" style="margin-bottom:20px;">
+                <div class="char-glow-ring"></div>
+                <svg viewBox="0 0 320 360" xmlns="http://www.w3.org/2000/svg" style="width:min(280px,80%); height:auto; overflow:visible; margin:0 auto; display:block;">
+                    <defs>
+                        <radialGradient id="rSkinGrad" cx="50%" cy="30%" r="60%">
+                            <stop offset="0%" stop-color="#FFCC99"/>
+                            <stop offset="100%" stop-color="#E8935A"/>
+                        </radialGradient>
+                        <radialGradient id="rCoinGold" cx="35%" cy="30%" r="60%">
+                            <stop offset="0%" stop-color="#FFE566"/>
+                            <stop offset="60%" stop-color="#FFB800"/>
+                            <stop offset="100%" stop-color="#CC7700"/>
+                        </radialGradient>
+                        <radialGradient id="rShirtGrad" cx="50%" cy="20%" r="70%">
+                            <stop offset="0%" stop-color="#9966FF"/>
+                            <stop offset="100%" stop-color="#5500BB"/>
+                        </radialGradient>
+                        <radialGradient id="rHairGrad" cx="50%" cy="0%" r="80%">
+                            <stop offset="0%" stop-color="#4A3010"/>
+                            <stop offset="100%" stop-color="#1A0A00"/>
+                        </radialGradient>
+                        <filter id="rGlow">
+                            <feGaussianBlur stdDeviation="5" result="blur"/>
+                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                        <linearGradient id="rPantsGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#223355"/>
+                            <stop offset="100%" stop-color="#111827"/>
+                        </linearGradient>
+                        <linearGradient id="rPolBg" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stop-color="#0A1060"/>
+                            <stop offset="100%" stop-color="#200850"/>
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Big glowing POL coin held up -->
+                    <g class="gold-coin-float" filter="url(#rGlow)">
+                        <ellipse cx="100" cy="100" rx="70" ry="70" fill="url(#rCoinGold)"/>
+                        <ellipse cx="100" cy="100" rx="70" ry="70" fill="none" stroke="#FFE566" stroke-width="3" opacity="0.5"/>
+                        <ellipse cx="100" cy="100" rx="60" ry="60" fill="none" stroke="#CC9900" stroke-width="1" opacity="0.3"/>
+                        <!-- Circuit rings -->
+                        <circle cx="100" cy="100" r="52" fill="none" stroke="#FFE566" stroke-width="0.6" stroke-dasharray="4,6" opacity="0.3"/>
+                        <text x="100" y="124" text-anchor="middle" font-size="56" font-weight="900" fill="#996600" font-family="Georgia" opacity="0.9">₿</text>
+                        <ellipse cx="80" cy="72" rx="20" ry="12" fill="rgba(255,255,255,0.2)" transform="rotate(-30,80,72)"/>
+                    </g>
+
+                    <!-- Floating sparkles -->
+                    <g filter="url(#rGlow)">
+                        <path d="M188,55 L191,45 L194,55 L204,58 L194,61 L191,71 L188,61 L178,58 Z" fill="#FFD700" opacity="0.8"/>
+                        <path d="M20,120 L22,114 L24,120 L30,122 L24,124 L22,130 L20,124 L14,122 Z" fill="#00FFD1" opacity="0.7"/>
+                        <path d="M210,160 L212,155 L214,160 L219,162 L214,164 L212,169 L210,164 L205,162 Z" fill="#A066FF" opacity="0.6"/>
+                    </g>
+
+                    <!-- Legs -->
+                    <rect x="135" y="265" width="24" height="70" rx="9" fill="url(#rPantsGrad)"/>
+                    <rect x="172" y="265" width="24" height="70" rx="9" fill="url(#rPantsGrad)"/>
+                    <!-- Shoes -->
+                    <ellipse cx="147" cy="337" rx="20" ry="9" fill="#222"/>
+                    <ellipse cx="184" cy="337" rx="20" ry="9" fill="#222"/>
+
+                    <!-- Torso -->
+                    <path d="M120,185 Q130,176 162,175 Q194,176 204,185 L208,268 Q162,282 118,268 Z" fill="url(#rShirtGrad)"/>
+
+                    <!-- Right arm reaching up to coin -->
+                    <path d="M120,193 Q98,200 90,162 Q86,140 100,132" fill="none" stroke="url(#rSkinGrad)" stroke-width="22" stroke-linecap="round"/>
+                    <ellipse cx="100" cy="130" rx="13" ry="11" fill="url(#rSkinGrad)"/>
+
+                    <!-- Left arm down -->
+                    <path d="M205,193 Q228,200 232,218 Q236,236 228,245" fill="none" stroke="url(#rSkinGrad)" stroke-width="22" stroke-linecap="round"/>
+                    <ellipse cx="228" cy="246" rx="12" ry="11" fill="url(#rSkinGrad)"/>
+
+                    <!-- Neck -->
+                    <rect x="153" y="166" width="22" height="18" rx="6" fill="url(#rSkinGrad)"/>
+
+                    <!-- Head -->
+                    <ellipse cx="164" cy="142" rx="44" ry="48" fill="url(#rSkinGrad)"/>
+
+                    <!-- Hair -->
+                    <path d="M122,132 Q125,96 164,89 Q203,96 206,132 Q198,114 164,112 Q130,114 122,132 Z" fill="url(#rHairGrad)"/>
+                    <path d="M122,132 Q117,122 120,109 Q125,94 138,88 Q128,105 129,122 Z" fill="url(#rHairGrad)"/>
+                    <path d="M158,89 Q164,76 172,82 Q168,91 164,89 Z" fill="url(#rHairGrad)"/>
+
+                    <!-- Eyes — winking/smiling -->
+                    <ellipse cx="151" cy="148" rx="8" ry="9" fill="white"/>
+                    <ellipse cx="151" cy="149" rx="5.5" ry="6.5" fill="#3A2010"/>
+                    <ellipse cx="151" cy="149" rx="3" ry="3.5" fill="#000"/>
+                    <ellipse cx="153" cy="146" rx="1.8" ry="1.8" fill="white"/>
+                    <ellipse cx="177" cy="148" rx="8" ry="9" fill="white"/>
+                    <ellipse cx="177" cy="149" rx="5.5" ry="6.5" fill="#3A2010"/>
+                    <ellipse cx="177" cy="149" rx="3" ry="3.5" fill="#000"/>
+                    <ellipse cx="179" cy="146" rx="1.8" ry="1.8" fill="white"/>
+
+                    <!-- Eyebrows -->
+                    <path d="M143,136 Q151,132 160,135" fill="none" stroke="#3A2010" stroke-width="2.2" stroke-linecap="round"/>
+                    <path d="M168,135 Q177,132 186,136" fill="none" stroke="#3A2010" stroke-width="2.2" stroke-linecap="round"/>
+
+                    <!-- Big smile -->
+                    <path d="M150,164 Q164,178 178,164" fill="none" stroke="#C0603A" stroke-width="2.5" stroke-linecap="round"/>
+
+                    <!-- Cheeks -->
+                    <ellipse cx="140" cy="158" rx="9" ry="6" fill="rgba(255,120,100,0.18)"/>
+                    <ellipse cx="188" cy="158" rx="9" ry="6" fill="rgba(255,120,100,0.18)"/>
+
+                    <!-- Ears -->
+                    <ellipse cx="120" cy="148" rx="7" ry="9" fill="url(#rSkinGrad)"/>
+                    <ellipse cx="208" cy="148" rx="7" ry="9" fill="url(#rSkinGrad)"/>
+
+                    <!-- Coin pile at feet -->
+                    <ellipse cx="148" cy="346" rx="26" ry="7" fill="url(#rCoinGold)" opacity="0.5"/>
+                    <ellipse cx="182" cy="348" rx="22" ry="6" fill="url(#rCoinGold)" opacity="0.4"/>
+                    <ellipse cx="164" cy="351" rx="34" ry="8" fill="url(#rCoinGold)" opacity="0.35"/>
+                </svg>
+            </div>
                 <div class="badge-glow" style="align-self: flex-start;">
                     <span class="dot"></span> Active Ecosystem Onboarding
                 </div>

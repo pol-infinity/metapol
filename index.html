@@ -108,23 +108,194 @@
         <div class="glass-container">
             <div class="badge-glow">
                 <span class="dot"></span>
-                Polygon Mainnet Live
+                Live on Polygon Mainnet ⬡
             </div>
             
-            <h1 class="hero-title">Decentralized Matrix &<br>Passive Mining Ecosystem</h1>
+            <h1 class="hero-title">Decentralized Matrix<br>&amp; Passive Mining<br>Ecosystem</h1>
             
             <p class="hero-subtitle">
                 MetaPOL combines an auto-filling matrix queue with real-time passive mining. 
-                Earn 1.5% daily passive returns on your slots allocations with 100% security on-chain.
+                Earn 1.5% daily passive returns with 100% on-chain security.
             </p>
+
+            <!-- Trust badges -->
+            <div class="trust-badge-strip" style="justify-content:flex-start; padding:14px 0 22px;">
+                <div class="trust-badge"><span class="badge-ico">🛡️</span> No Admin Control</div>
+                <div class="trust-badge"><span class="badge-ico">⛓️</span> 100% On-Chain</div>
+                <div class="trust-badge"><span class="badge-ico">⚡</span> Auto Payouts</div>
+                <div class="trust-badge"><span class="badge-ico">🔒</span> Private Codes</div>
+            </div>
             
             <div class="hero-buttons">
                 <a href="dashboard.html" class="btn btn-primary btn-glow">
-                    <i class="fa-solid fa-gauge"></i> Enter Dashboard
+                    <i class="fa-solid fa-rocket"></i> Launch Dashboard
                 </a>
-                <a href="#" class="btn btn-secondary trigger-pdf-modal">
-                    <i class="fa-solid fa-circle-play"></i> View Presentation
+                <a href="register.html" class="btn btn-secondary">
+                    <i class="fa-solid fa-user-plus"></i> Join Now
                 </a>
+                <a href="#" class="btn btn-outline trigger-pdf-modal" style="background:transparent; border:1px solid rgba(255,255,255,0.15); color:rgba(255,255,255,0.6);">
+                    <i class="fa-solid fa-file-pdf"></i> Whitepaper
+                </a>
+            </div>
+        </div>
+
+        <!-- 3D Character SVG -->
+        <div class="hero-3d-character">
+            <div class="char-3d-wrap">
+                <div class="char-glow-ring"></div>
+                <svg viewBox="0 0 380 480" xmlns="http://www.w3.org/2000/svg" style="width:100%; height:100%; overflow:visible;">
+                    <defs>
+                        <radialGradient id="skinGrad" cx="50%" cy="30%" r="60%">
+                            <stop offset="0%" stop-color="#FFCC99"/>
+                            <stop offset="100%" stop-color="#E8935A"/>
+                        </radialGradient>
+                        <radialGradient id="coinGold" cx="35%" cy="30%" r="60%">
+                            <stop offset="0%" stop-color="#FFE566"/>
+                            <stop offset="50%" stop-color="#FFB800"/>
+                            <stop offset="100%" stop-color="#CC7700"/>
+                        </radialGradient>
+                        <radialGradient id="coinEdge" cx="50%" cy="50%" r="50%">
+                            <stop offset="0%" stop-color="#FFD700"/>
+                            <stop offset="100%" stop-color="#996600"/>
+                        </radialGradient>
+                        <radialGradient id="shirtGrad" cx="50%" cy="20%" r="70%">
+                            <stop offset="0%" stop-color="#9966FF"/>
+                            <stop offset="100%" stop-color="#5500BB"/>
+                        </radialGradient>
+                        <radialGradient id="hairGrad" cx="50%" cy="0%" r="80%">
+                            <stop offset="0%" stop-color="#4A3010"/>
+                            <stop offset="100%" stop-color="#1A0A00"/>
+                        </radialGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="4" result="blur"/>
+                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                        <filter id="coinGlow">
+                            <feGaussianBlur stdDeviation="8" result="blur"/>
+                            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                        <linearGradient id="pantsGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#223355"/>
+                            <stop offset="100%" stop-color="#111827"/>
+                        </linearGradient>
+                        <linearGradient id="shoeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#333"/>
+                            <stop offset="100%" stop-color="#111"/>
+                        </linearGradient>
+                    </defs>
+
+                    <!-- Floating coins background -->
+                    <g class="gold-coin-float" style="animation-delay:-2s; opacity:0.5;">
+                        <ellipse cx="310" cy="200" rx="18" ry="18" fill="url(#coinGold)" filter="url(#glow)"/>
+                        <ellipse cx="310" cy="200" rx="12" ry="12" fill="none" stroke="#FFE566" stroke-width="1.5" opacity="0.6"/>
+                        <text x="310" y="205" text-anchor="middle" font-size="10" font-weight="900" fill="#996600">₿</text>
+                    </g>
+                    <g class="gold-coin-float" style="animation-delay:-1s; opacity:0.4;">
+                        <ellipse cx="60" cy="280" rx="14" ry="14" fill="url(#coinGold)" filter="url(#glow)"/>
+                        <text x="60" y="285" text-anchor="middle" font-size="8" font-weight="900" fill="#996600">₿</text>
+                    </g>
+                    <g class="gold-coin-float" style="animation-delay:-3s; opacity:0.3;">
+                        <ellipse cx="330" cy="350" rx="11" ry="11" fill="url(#coinGold)"/>
+                        <text x="330" y="354" text-anchor="middle" font-size="7" font-weight="900" fill="#996600">₿</text>
+                    </g>
+
+                    <!-- Big gold POL coin -->
+                    <g class="gold-coin-float" filter="url(#coinGlow)">
+                        <!-- Coin shadow -->
+                        <ellipse cx="115" cy="218" rx="68" ry="10" fill="rgba(0,0,0,0.25)" filter="url(#glow)"/>
+                        <!-- Coin body -->
+                        <ellipse cx="112" cy="168" rx="72" ry="72" fill="url(#coinGold)"/>
+                        <!-- Coin rim -->
+                        <ellipse cx="112" cy="168" rx="72" ry="72" fill="none" stroke="#FFE566" stroke-width="3" opacity="0.5"/>
+                        <ellipse cx="112" cy="168" rx="66" ry="66" fill="none" stroke="#CC9900" stroke-width="1.5" opacity="0.4"/>
+                        <!-- Circuit lines on coin -->
+                        <ellipse cx="112" cy="168" rx="56" ry="56" fill="none" stroke="#FFE566" stroke-width="0.8" opacity="0.25"/>
+                        <!-- POL symbol -->
+                        <text x="112" y="190" text-anchor="middle" font-size="52" font-weight="900" fill="#996600" font-family="Georgia,serif" opacity="0.9">₿</text>
+                        <!-- Shine -->
+                        <ellipse cx="90" cy="140" rx="22" ry="14" fill="rgba(255,255,255,0.18)" transform="rotate(-30,90,140)"/>
+                    </g>
+
+                    <!-- BODY — Legs -->
+                    <rect x="158" y="340" width="28" height="90" rx="10" fill="url(#pantsGrad)"/>
+                    <rect x="200" y="340" width="28" height="90" rx="10" fill="url(#pantsGrad)"/>
+                    <!-- Shoes -->
+                    <ellipse cx="172" cy="432" rx="22" ry="10" fill="url(#shoeGrad)"/>
+                    <ellipse cx="214" cy="432" rx="22" ry="10" fill="url(#shoeGrad)"/>
+
+                    <!-- BODY — Torso (purple shirt) -->
+                    <path d="M145,240 Q155,230 190,228 Q225,230 235,240 L240,340 Q190,355 150,340 Z" fill="url(#shirtGrad)"/>
+
+                    <!-- LEFT ARM — raised holding coin area -->
+                    <path d="M148,248 Q120,255 110,270 Q100,285 115,295 Q130,305 145,290 Q155,278 162,265 Z" fill="url(#skinGrad)"/>
+                    <!-- Hand -->
+                    <ellipse cx="116" cy="292" rx="13" ry="12" fill="url(#skinGrad)"/>
+
+                    <!-- RIGHT ARM — fist raised -->
+                    <path d="M233,248 Q258,240 268,225 Q278,210 270,200 Q260,190 248,205 Q240,218 236,235 Z" fill="url(#skinGrad)"/>
+                    <!-- Fist -->
+                    <rect x="258" y="192" width="22" height="18" rx="8" fill="url(#skinGrad)"/>
+
+                    <!-- NECK -->
+                    <rect x="180" y="218" width="26" height="20" rx="6" fill="url(#skinGrad)"/>
+
+                    <!-- HEAD -->
+                    <ellipse cx="192" cy="190" rx="48" ry="52" fill="url(#skinGrad)"/>
+
+                    <!-- HAIR -->
+                    <path d="M148,178 Q150,140 192,132 Q234,140 236,178 Q228,160 192,158 Q156,160 148,178 Z" fill="url(#hairGrad)"/>
+                    <path d="M148,178 Q142,168 145,155 Q150,138 165,132 Q155,148 155,165 Z" fill="url(#hairGrad)"/>
+                    <!-- Hair tuft -->
+                    <path d="M185,132 Q192,118 200,125 Q196,135 192,132 Z" fill="url(#hairGrad)"/>
+                    <path d="M175,133 Q178,120 185,125 Q183,133 179,134 Z" fill="url(#hairGrad)"/>
+
+                    <!-- EYES -->
+                    <!-- Left eye -->
+                    <ellipse cx="178" cy="195" rx="9" ry="10" fill="white"/>
+                    <ellipse cx="178" cy="196" rx="6" ry="7" fill="#3A2010"/>
+                    <ellipse cx="178" cy="196" rx="3.5" ry="4" fill="#000"/>
+                    <ellipse cx="180" cy="193" rx="2" ry="2" fill="white"/>
+                    <!-- Right eye -->
+                    <ellipse cx="206" cy="195" rx="9" ry="10" fill="white"/>
+                    <ellipse cx="206" cy="196" rx="6" ry="7" fill="#3A2010"/>
+                    <ellipse cx="206" cy="196" rx="3.5" ry="4" fill="#000"/>
+                    <ellipse cx="208" cy="193" rx="2" ry="2" fill="white"/>
+
+                    <!-- EYEBROWS -->
+                    <path d="M169,183 Q178,179 188,182" fill="none" stroke="#3A2010" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M197,182 Q207,179 216,183" fill="none" stroke="#3A2010" stroke-width="2.5" stroke-linecap="round"/>
+
+                    <!-- NOSE -->
+                    <path d="M192,202 Q188,210 192,214 Q196,210 192,202" fill="rgba(0,0,0,0.12)"/>
+
+                    <!-- SMILE — big happy smile -->
+                    <path d="M176,218 Q192,232 208,218" fill="none" stroke="#C0603A" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M176,218 Q192,234 208,218" fill="rgba(255,120,80,0.15)"/>
+
+                    <!-- CHEEKS -->
+                    <ellipse cx="166" cy="210" rx="10" ry="7" fill="rgba(255,120,100,0.18)"/>
+                    <ellipse cx="218" cy="210" rx="10" ry="7" fill="rgba(255,120,100,0.18)"/>
+
+                    <!-- Ear -->
+                    <ellipse cx="144" cy="198" rx="8" ry="10" fill="url(#skinGrad)"/>
+                    <ellipse cx="240" cy="198" rx="8" ry="10" fill="url(#skinGrad)"/>
+
+                    <!-- Star/sparkle effects -->
+                    <g filter="url(#glow)">
+                        <path d="M280,155 L283,145 L286,155 L296,158 L286,161 L283,171 L280,161 L270,158 Z" fill="#FFD700" opacity="0.85"/>
+                        <path d="M65,180 L67,174 L69,180 L75,182 L69,184 L67,190 L65,184 L59,182 Z" fill="#00FFD1" opacity="0.7"/>
+                        <path d="M340,280 L342,275 L344,280 L349,282 L344,284 L342,289 L340,284 L335,282 Z" fill="#A066FF" opacity="0.6"/>
+                    </g>
+
+                    <!-- Coin pile at feet -->
+                    <ellipse cx="172" cy="440" rx="30" ry="8" fill="url(#coinGold)" opacity="0.6"/>
+                    <ellipse cx="214" cy="442" rx="24" ry="7" fill="url(#coinGold)" opacity="0.5"/>
+                    <ellipse cx="193" cy="445" rx="40" ry="10" fill="url(#coinGold)" opacity="0.4"/>
+                    <!-- Coin symbols in pile -->
+                    <text x="172" y="443" text-anchor="middle" font-size="7" fill="#996600" opacity="0.8">₿</text>
+                    <text x="210" y="445" text-anchor="middle" font-size="6" fill="#996600" opacity="0.7">₿</text>
+                    <text x="193" y="448" text-anchor="middle" font-size="7" fill="#996600" opacity="0.6">₿</text>
+                </svg>
             </div>
         </div>
     </section>
@@ -157,47 +328,91 @@
         </div>
     </section>
 
-    <!-- Interactive Marketing Panels -->
-    <section class="features-section" style="padding: 60px 0;">
+    <!-- How It Works — Infographic Steps -->
+    <section class="features-section" style="padding: 70px 0 40px;">
         <div class="glass-container">
-            <div class="features-grid">
-                
-                <!-- Passive Mining Card -->
-                <div class="glass-card">
-                    <div class="feature-icon-wrapper">
-                        <i class="fa-solid fa-microchip"></i>
-                    </div>
-                    <h3 class="feature-title">Passive ROI Mining</h3>
-                    <p class="feature-desc">
-                        Every slot purchase activates a mining allocation. 
-                        Receive <strong>1.5% daily mining rewards</strong> on 20% of the slot price, capped at 5x multiplier (total slot price return) paid out continuously.
-                    </p>
-                </div>
+            <div class="section-eyebrow">How It Works</div>
+            <h2 style="font-family:var(--font-display); font-size:clamp(1.8rem,4vw,2.8rem); font-weight:900; color:#fff; margin-bottom:6px; line-height:1.15;">
+                3 Steps to Start <span style="background:linear-gradient(90deg,#00C8FF,#00FFD1); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Earning</span>
+            </h2>
+            <p style="color:rgba(255,255,255,0.4); font-size:0.95rem; margin-bottom:0; font-family:var(--font-display);">
+                No KYC · No Forms · Fully Decentralized · Instant Payouts
+            </p>
 
-                <!-- Auto Matrix Spillover Card -->
-                <div class="glass-card">
-                    <div class="feature-icon-wrapper">
-                        <i class="fa-solid fa-diagram-next"></i>
-                    </div>
-                    <h3 class="feature-title">Global Matrix Queue</h3>
-                    <p class="feature-desc">
-                        72% of slot prices enter the global auto-filling pool. 
-                        As new members buy slots, payments flow directly to active users. Cycle thresholds trigger automatic queue re-entries.
-                    </p>
+            <div class="infographic-steps">
+                <div class="infographic-step">
+                    <div class="infographic-step-num">01</div>
+                    <div class="infographic-step-icon">🔗</div>
+                    <div class="infographic-step-title">Connect Wallet</div>
+                    <div class="infographic-step-desc">Connect MetaMask or any Polygon-compatible wallet. No registration form — your wallet IS your identity on-chain.</div>
                 </div>
-
-                <!-- Decentralized and Secure Card -->
-                <div class="glass-card">
-                    <div class="feature-icon-wrapper">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </div>
-                    <h3 class="feature-title">100% On-Chain Security</h3>
-                    <p class="feature-desc">
-                        No admin control over user funds. No manual withdrawal approvals. 
-                        All interactions, matrix spillovers, and claims execute instantly via verified Polygon smart contract code.
-                    </p>
+                <div class="infographic-step">
+                    <div class="infographic-step-num">02</div>
+                    <div class="infographic-step-icon">💎</div>
+                    <div class="infographic-step-title">Buy a Slot</div>
+                    <div class="infographic-step-desc">Purchase Slot 1 (10 POL) to activate your matrix position and passive mining contract — instantly live.</div>
                 </div>
+                <div class="infographic-step">
+                    <div class="infographic-step-num">03</div>
+                    <div class="infographic-step-icon">⚡</div>
+                    <div class="infographic-step-title">Earn Daily</div>
+                    <div class="infographic-step-desc">1.5% daily ROI on mining capital + matrix cycle payouts sent directly to your wallet. Fully automated.</div>
+                </div>
+            </div>
 
+            <!-- Income Infographic -->
+            <div style="margin-top:60px;">
+                <div class="section-eyebrow">Income Streams</div>
+                <h2 style="font-family:var(--font-display); font-size:clamp(1.6rem,3.5vw,2.4rem); font-weight:900; color:#fff; margin-bottom:6px;">
+                    4 Ways You <span style="background:linear-gradient(90deg,#FFAA00,#FF6B00); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Earn POL</span>
+                </h2>
+                <div class="income-infographic-grid">
+                    <div class="income-infographic-item">
+                        <div class="income-infographic-icon">⛏️</div>
+                        <div>
+                            <div class="income-infographic-name">Passive Mining</div>
+                            <div class="income-infographic-val">1.5% / Day</div>
+                            <div class="income-infographic-desc">20% of every slot goes to mining capital. Earns continuously until 5× return cap is reached.</div>
+                        </div>
+                    </div>
+                    <div class="income-infographic-item">
+                        <div class="income-infographic-icon">🔄</div>
+                        <div>
+                            <div class="income-infographic-name">Matrix Cycles</div>
+                            <div class="income-infographic-val">Cycle Profit</div>
+                            <div class="income-infographic-desc">Every complete matrix cycle sends 72% of slot value directly to your wallet in real time.</div>
+                        </div>
+                    </div>
+                    <div class="income-infographic-item">
+                        <div class="income-infographic-icon">💸</div>
+                        <div>
+                            <div class="income-infographic-name">Direct Commission</div>
+                            <div class="income-infographic-val">Instant POL</div>
+                            <div class="income-infographic-desc">Every direct referral slot purchase sends your commission instantly — no waiting, no approval.</div>
+                        </div>
+                    </div>
+                    <div class="income-infographic-item">
+                        <div class="income-infographic-icon">🤖</div>
+                        <div>
+                            <div class="income-infographic-name">Auto Upgrades</div>
+                            <div class="income-infographic-val">Compounding</div>
+                            <div class="income-infographic-desc">Contract auto-reinvests and upgrades slots, compounding your income without any manual action.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trust strip -->
+            <div style="margin-top:50px; padding:28px; background:linear-gradient(135deg,rgba(11,16,53,0.9),rgba(8,11,40,0.85)); border:1px solid rgba(0,200,255,0.12); border-radius:20px; text-align:center;">
+                <div class="section-eyebrow" style="justify-content:center;">Why MetaPOL</div>
+                <div class="trust-badge-strip">
+                    <div class="trust-badge"><span class="badge-ico">🛡️</span> No Admin Access to Funds</div>
+                    <div class="trust-badge"><span class="badge-ico">⛓️</span> 100% On-Chain Verified</div>
+                    <div class="trust-badge"><span class="badge-ico">⬡</span> Polygon Network</div>
+                    <div class="trust-badge"><span class="badge-ico">🔒</span> Private Member Codes</div>
+                    <div class="trust-badge"><span class="badge-ico">🤖</span> Fully Automated</div>
+                    <div class="trust-badge"><span class="badge-ico">♾️</span> No Expiry on Mining</div>
+                </div>
             </div>
         </div>
     </section>
