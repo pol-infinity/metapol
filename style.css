@@ -5474,3 +5474,31 @@ header.main-header {
     .lb-row-bar-wrap { display: none; }
     .lb-row-right { min-width: 80px; }
 }
+
+/* ── Registration: card always on top, info panel below on mobile ── */
+.reg-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: 40px;
+    align-items: center;
+}
+
+/* Desktop: info left, card right (original) */
+@media (min-width: 769px) {
+    .reg-layout-grid {
+        grid-template-columns: 1.3fr 1fr;
+    }
+    /* Info panel first visually on desktop */
+    .reg-layout-grid .auth-card { order: 2; }
+    .reg-layout-grid > div:not(.auth-card) { order: 1; }
+}
+
+/* Mobile: registration card on top, info below */
+@media (max-width: 768px) {
+    .reg-layout-grid {
+        grid-template-columns: 1fr !important;
+        gap: 20px;
+    }
+    .reg-layout-grid .auth-card { order: 1; }
+    .reg-layout-grid > div:not(.auth-card) { order: 2; }
+}
