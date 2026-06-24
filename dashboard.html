@@ -113,6 +113,7 @@
                 <div class="sidebar-link" data-tab="matrix"><i class="fa-solid fa-diagram-next"></i> Matrix Queue</div>
                 <div class="sidebar-link" data-tab="team"><i class="fa-solid fa-users"></i> Team & Referrals</div>
                 <div class="sidebar-link" data-tab="activity"><i class="fa-solid fa-clock-rotate-left"></i> Activity Feed</div>
+                <div class="sidebar-link" data-tab="leaderboard"><i class="fa-solid fa-trophy"></i> Leaderboard</div>
                 <div class="sidebar-link" data-tab="profile"><i class="fa-solid fa-circle-user"></i> Member Profile</div>
                 <div class="sidebar-link" id="sidebar-admin-link" style="display:none;" onclick="window.location.href='admin.html'"><i class="fa-solid fa-user-gear" style="color:var(--accent);"></i> Admin Panel</div>
                 <div class="sidebar-link" onclick="window.metapolApp.changeWallet()"><i class="fa-solid fa-arrows-rotate" style="color:var(--primary);"></i> Change Wallet</div>
@@ -131,6 +132,7 @@
                 <button class="mobile-tab-btn" data-tab="matrix"><i class="fa-solid fa-diagram-next"></i> Matrix</button>
                 <button class="mobile-tab-btn" data-tab="team"><i class="fa-solid fa-users"></i> Team</button>
                 <button class="mobile-tab-btn" data-tab="activity"><i class="fa-solid fa-clock-rotate-left"></i> Activity</button>
+                <button class="mobile-tab-btn" data-tab="leaderboard"><i class="fa-solid fa-trophy"></i> Leaders</button>
                 <button class="mobile-tab-btn" data-tab="profile"><i class="fa-solid fa-circle-user"></i> Profile</button>
             </div>
 
@@ -615,6 +617,63 @@
             </div>
 
 
+            <!-- ==================== LEADERBOARD TAB ==================== -->
+            <div id="tab-leaderboard" class="tab-panel">
+
+                <!-- Hero Banner -->
+                <div class="lb-hero-banner">
+                    <div class="lb-hero-orb lb-hero-orb1"></div>
+                    <div class="lb-hero-orb lb-hero-orb2"></div>
+                    <div class="lb-hero-content">
+                        <div class="lb-hero-icon">🏆</div>
+                        <div>
+                            <h2 class="lb-hero-title">Top Earners Leaderboard</h2>
+                            <p class="lb-hero-sub">Top 10 members ranked by total direct commission earned</p>
+                        </div>
+                    </div>
+                    <div class="lb-hero-refresh">
+                        <button class="lb-refresh-btn" onclick="syncLeaderboard(true)" id="lb-refresh-btn">
+                            <i class="fa-solid fa-rotate"></i> Refresh
+                        </button>
+                        <div class="lb-last-updated" id="lb-last-updated">Not loaded yet</div>
+                    </div>
+                </div>
+
+                <!-- Your Rank Card -->
+                <div class="lb-my-rank-card glass-card" id="lb-my-rank-card" style="margin-bottom:14px; display:none;">
+                    <div class="lb-my-rank-left">
+                        <div class="lb-my-rank-pos" id="lb-my-rank-pos">#—</div>
+                        <div>
+                            <div class="lb-my-rank-label">Your Rank</div>
+                            <div class="lb-my-rank-code" id="lb-my-rank-code">#——————</div>
+                        </div>
+                    </div>
+                    <div class="lb-my-rank-right">
+                        <div class="lb-my-rank-amount" id="lb-my-rank-amount">0.00 POL</div>
+                        <div class="lb-my-rank-label">Total Commission</div>
+                    </div>
+                </div>
+
+                <!-- Podium Top 3 -->
+                <div class="lb-podium" id="lb-podium">
+                    <!-- Rendered by JS -->
+                </div>
+
+                <!-- Full Leaderboard Table -->
+                <div class="glass-card" style="margin-top:14px;">
+                    <h3 class="panel-section-title" style="font-size:0.8rem;">
+                        <i class="fa-solid fa-list-ol"></i> Full Rankings
+                    </h3>
+                    <div id="lb-table-container">
+                        <div class="lb-loading">
+                            <i class="fa-solid fa-spinner fa-spin"></i>
+                            <span>Loading leaderboard from blockchain...</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
             <!-- ==================== ACTIVITY TAB ==================== -->
             <div id="tab-activity" class="tab-panel">
                 <div class="glass-card">
@@ -1011,6 +1070,10 @@
         <button class="btab-btn" data-tab="activity">
             <i class="fa-solid fa-clock-rotate-left"></i>
             <span>History</span>
+        </button>
+        <button class="btab-btn" data-tab="leaderboard">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Leaders</span>
         </button>
     </nav>
 

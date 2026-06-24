@@ -96,6 +96,7 @@ function switchTab(tabId) {
     if (tabId === "slots") syncSlotsTab();
     if (tabId === "matrix") syncMatrixTab(parseInt(document.getElementById("matrix-level-select").value || 1));
     if (tabId === "team") syncTeamTab();
+    if (tabId === "leaderboard") syncLeaderboard(false);
     if (tabId === "activity") syncActivityTab();
 }
 
@@ -1375,4 +1376,194 @@ function renderInviteTracker(events, referralDetails, totalSponsorPaid, directsC
             <!-- No Polygonscan link -->
         </div>`;
     }).join("");
+}
+
+/* ============================================================
+   MEMBER LEADERBOARD — Top 10 by direct commission
+   ============================================================ */
+
+let _lbCache     = null;
+let _lbCacheTime = 0;
+const LB_CACHE_TTL = 5 * 60 * 1000; // 5 min cache
+
+async function syncLeaderboard(forceRefresh) {
+    if (!window.metapolApp.isConnected) return;
+
+    // Use cache unless forced refresh or expired
+    const now = Date.now();
+    if (!forceRefresh && _lbCache && (now - _lbCacheTime) < LB_CACHE_TTL) {
+        renderLeaderboard(_lbCache);
+        return;
+    }
+
+    // Show loading
+    document.getElementById("lb-table-container").innerHTML = `
+        <div class="lb-loading">
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            <span>Scanning blockchain for top earners...</span>
+        </div>`;
+    const podiumEl = document.getElementById("lb-podium");
+    if (podiumEl) podiumEl.innerHTML = "";
+
+    const refreshBtn = document.getElementById("lb-refresh-btn");
+    if (refreshBtn) { refreshBtn.disabled = true; refreshBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Loading`; }
+
+    try {
+        // Fetch ALL SponsorPaid events (no filter = all sponsors)
+        const allSponsorEvents = await window.metapolApp.contract.queryFilter(
+            window.metapolApp.contract.filters.SponsorPaid(), 0, "latest"
+        );
+
+        // Aggregate commission per sponsor address
+        const sponsorTotals = {};
+        allSponsorEvents.forEach(ev => {
+            const sponsor = ev.args.sponsor.toLowerCase();
+            if (!sponsorTotals[sponsor]) sponsorTotals[sponsor] = { total: 0n, count: 0 };
+            sponsorTotals[sponsor].total += ev.args.amount;
+            sponsorTotals[sponsor].count++;
+        });
+
+        // Sort by total descending, take top 10
+        const sorted = Object.entries(sponsorTotals)
+            .sort((a, b) => (b[1].total > a[1].total ? 1 : -1))
+            .slice(0, 10);
+
+        // Fetch contractId for each top earner via getUserInfo
+        const leaders = await Promise.all(sorted.map(async ([addr, data]) => {
+            try {
+                const info = await window.metapolApp.contract.getUserInfo(addr);
+                const contractId = Number(info[1]); // memberId
+                const isFounder  = info[7];
+                const pubCode    = window.MetapolRef ? window.MetapolRef.idToCode(contractId) : contractId;
+                return {
+                    addr,
+                    contractId,
+                    pubCode,
+                    isFounder,
+                    total: data.total,
+                    referrals: data.count,
+                    totalPOL: parseFloat(ethers.formatEther(data.total))
+                };
+            } catch {
+                return null;
+            }
+        }));
+
+        const valid = leaders.filter(Boolean);
+        _lbCache = valid;
+        _lbCacheTime = Date.now();
+
+        renderLeaderboard(valid);
+
+    } catch (err) {
+        console.error("Leaderboard error:", err);
+        document.getElementById("lb-table-container").innerHTML = `
+            <div class="lb-loading" style="color:rgba(255,80,80,0.7);">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Failed to load leaderboard. Please try again.</span>
+            </div>`;
+    } finally {
+        if (refreshBtn) {
+            refreshBtn.disabled = false;
+            refreshBtn.innerHTML = `<i class="fa-solid fa-rotate"></i> Refresh`;
+        }
+        const updEl = document.getElementById("lb-last-updated");
+        if (updEl) updEl.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+    }
+}
+
+function renderLeaderboard(leaders) {
+    if (!leaders || leaders.length === 0) {
+        document.getElementById("lb-table-container").innerHTML = `
+            <div class="lb-loading"><i class="fa-solid fa-ghost"></i><span>No data yet</span></div>`;
+        return;
+    }
+
+    const myAddr = window.metapolApp.userAddress?.toLowerCase();
+
+    // ── MY RANK CARD ──
+    const myIdx = leaders.findIndex(l => l.addr === myAddr);
+    const myRankCard = document.getElementById("lb-my-rank-card");
+    if (myIdx >= 0 && myRankCard) {
+        myRankCard.style.display = "flex";
+        const leader = leaders[myIdx];
+        document.getElementById("lb-my-rank-pos").textContent   = `#${myIdx + 1}`;
+        document.getElementById("lb-my-rank-code").textContent  = `#${leader.pubCode}`;
+        document.getElementById("lb-my-rank-amount").textContent = `${leader.totalPOL.toFixed(2)} POL`;
+        // Color rank position
+        const pos = myIdx + 1;
+        const posEl = document.getElementById("lb-my-rank-pos");
+        if (posEl) posEl.style.color = pos === 1 ? "#FFD700" : pos === 2 ? "#C0C0C0" : pos === 3 ? "#CD7F32" : "var(--cyan)";
+    } else if (myRankCard) {
+        myRankCard.style.display = "none";
+    }
+
+    const maxPOL = leaders[0]?.totalPOL || 1;
+
+    // ── PODIUM TOP 3 ──
+    const podiumEl = document.getElementById("lb-podium");
+    if (podiumEl && leaders.length >= 1) {
+        const podium = [leaders[1], leaders[0], leaders[2]].filter(Boolean); // 2nd, 1st, 3rd
+        const podiumPos = [2, 1, 3];
+        const podiumIcons = { 1: "🥇", 2: "🥈", 3: "🥉" };
+        const podiumColors = { 1: "#FFD700", 2: "#C0C0C0", 3: "#CD7F32" };
+        const podiumHeights = { 1: "110px", 2: "80px", 3: "65px" };
+
+        podiumEl.innerHTML = podium.map((leader, i) => {
+            const pos = podiumPos[i];
+            const isMe = leader.addr === myAddr;
+            return `
+            <div class="lb-podium-col ${isMe ? "lb-podium-me" : ""}">
+                <div class="lb-podium-code" style="color:${podiumColors[pos]};">#${leader.pubCode}</div>
+                <div class="lb-podium-amount">${leader.totalPOL.toFixed(1)} POL</div>
+                <div class="lb-podium-refs">${leader.referrals} referral${leader.referrals !== 1 ? "s" : ""}</div>
+                <div class="lb-podium-block" style="height:${podiumHeights[pos]}; background:linear-gradient(180deg,${podiumColors[pos]}33,${podiumColors[pos]}11); border-color:${podiumColors[pos]}55;">
+                    <div class="lb-podium-medal">${podiumIcons[pos]}</div>
+                    <div class="lb-podium-rank" style="color:${podiumColors[pos]};">#${pos}</div>
+                    ${leader.isFounder ? '<div class="lb-podium-founder"><i class="fa-solid fa-crown"></i></div>' : ""}
+                </div>
+            </div>`;
+        }).join("");
+    }
+
+    // ── FULL TABLE ──
+    const container = document.getElementById("lb-table-container");
+    container.innerHTML = `
+        <div class="lb-table-wrap">
+            ${leaders.map((leader, idx) => {
+                const pos     = idx + 1;
+                const isMe    = leader.addr === myAddr;
+                const pct     = Math.max(6, Math.round((leader.totalPOL / maxPOL) * 100));
+                const medal   = pos === 1 ? "🥇" : pos === 2 ? "🥈" : pos === 3 ? "🥉" : null;
+                const color   = pos === 1 ? "#FFD700" : pos === 2 ? "#C0C0C0" : pos === 3 ? "#CD7F32" : pos <= 5 ? "var(--cyan)" : "rgba(255,255,255,0.5)";
+
+                return `
+                <div class="lb-row ${isMe ? "lb-row-me" : ""}" style="animation-delay:${idx * 50}ms">
+                    <!-- Rank -->
+                    <div class="lb-row-rank" style="color:${color};">
+                        ${medal ? `<span class="lb-medal">${medal}</span>` : `<span class="lb-pos-num">${pos}</span>`}
+                    </div>
+
+                    <!-- Member -->
+                    <div class="lb-row-member">
+                        <div class="lb-row-code" style="color:${color};">
+                            #${leader.pubCode}
+                            ${isMe ? '<span class="lb-you-badge">YOU</span>' : ""}
+                        </div>
+                        <div class="lb-row-meta">
+                            ${leader.isFounder ? '<span class="lb-founder-tag"><i class="fa-solid fa-crown"></i> Founder</span>' : ""}
+                            <span>${leader.referrals} referral${leader.referrals !== 1 ? "s" : ""}</span>
+                        </div>
+                    </div>
+
+                    <!-- Bar + Amount -->
+                    <div class="lb-row-right">
+                        <div class="lb-row-amount" style="color:${color};">${leader.totalPOL.toFixed(2)} <span style="font-size:0.7rem; opacity:0.6;">POL</span></div>
+                        <div class="lb-row-bar-wrap">
+                            <div class="lb-row-bar-fill" style="width:${pct}%; background:linear-gradient(90deg,${color}66,${color});"></div>
+                        </div>
+                    </div>
+                </div>`;
+            }).join("")}
+        </div>`;
 }
