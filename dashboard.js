@@ -716,6 +716,22 @@ async function syncTeamTab() {
         let totalSponsorPaid = 0n;
         sponsorEvents.forEach(ev => { totalSponsorPaid += ev.args.amount; });
 
+        // ── Build per-referral commission map (user address → total POL earned) ──
+        const commissionByUser = {};
+        const commissionEvents = []; // sorted list for timeline
+        sponsorEvents.forEach(ev => {
+            const userAddr = ev.args.user.toLowerCase();
+            const amt = ev.args.amount;
+            const time = Number(ev.args.time || 0);
+            if (!commissionByUser[userAddr]) commissionByUser[userAddr] = { total: 0n, count: 0, lastTime: 0 };
+            commissionByUser[userAddr].total += amt;
+            commissionByUser[userAddr].count++;
+            if (time > commissionByUser[userAddr].lastTime) commissionByUser[userAddr].lastTime = time;
+            commissionEvents.push({ userAddr, amt, time, txHash: ev.transactionHash });
+        });
+        // Sort newest first
+        commissionEvents.sort((a, b) => b.time - a.time);
+
         // ── Per-member details ──
         const referralDetails = [];
         let totalTeamVolume = 0n;
@@ -748,7 +764,7 @@ async function syncTeamTab() {
                 if (isFounder) foundersCount++;
                 totalTeamMining += miningDep;
 
-                return { id: refId, address: refAddr, date: new Date(regTime*1000).toLocaleDateString(), invested: slotsInvested, mining: miningDep, isFounder, highestSlot };
+                return { id: refId, address: refAddr, addrLower: refAddr.toLowerCase(), date: new Date(regTime*1000).toLocaleDateString(), invested: slotsInvested, mining: miningDep, isFounder, highestSlot };
             }));
             results.forEach(r => { referralDetails.push(r); totalTeamVolume += r.invested; });
         }
@@ -825,7 +841,10 @@ async function syncTeamTab() {
 
         // ── Table render ──
         window._teamData = referralDetails;
+        window._commissionEvents = commissionEvents;
+        window._commissionByUser = commissionByUser;
         renderTeamTable(referralDetails);
+        renderInviteTracker(commissionEvents, referralDetails, totalSponsorPaid, directsCount);
 
     } catch(err) {
         console.error("Team tab error:", err);
@@ -841,9 +860,13 @@ function renderTeamTable(data) {
         tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:24px 0;">No direct referrals yet. Share your link!</td></tr>`;
         return;
     }
-    tbody.innerHTML = data.map(ref => `
+    tbody.innerHTML = data.map(ref => {
+        const pubCode = window.MetapolRef ? window.MetapolRef.idToCode(ref.id) : ref.id;
+        const commData = window._commissionByUser ? window._commissionByUser[ref.addrLower] : null;
+        const commPOL = commData ? parseFloat(ethers.formatEther(commData.total)).toFixed(2) : "0.00";
+        return `
         <tr>
-            <td style="font-family:var(--font-display); font-weight:700; color:var(--cyan);">#${ref.id}</td>
+            <td style="font-family:var(--font-display); font-weight:700; color:var(--cyan);">#${pubCode}</td>
             <td><span class="wallet-badge" style="font-size:0.72rem;">${window.metapolApp.shortenAddress(ref.address)}</span></td>
             <td style="color:var(--text-muted); font-size:0.78rem;">${ref.date}</td>
             <td style="font-weight:700;">${parseFloat(ethers.formatEther(ref.invested)).toFixed(1)} POL</td>
@@ -853,7 +876,7 @@ function renderTeamTable(data) {
                     ? '<span class="slot-status-label slot-status-active" style="font-size:0.65rem;"><i class="fa-solid fa-crown"></i> Founder</span>'
                     : '<span class="slot-status-label slot-status-locked" style="font-size:0.65rem;">Standard</span>'}
             </td>
-        </tr>`).join("");
+        </tr>`}).join("");
 }
 
 function sortTeamTable(by) {
@@ -1244,3 +1267,115 @@ window.addEventListener("resize", () => {
         if (backdrop) backdrop.classList.remove("visible");
     }
 });
+
+/* ============================================================
+   INVITE TRACKER — commission feed per referral member
+   ============================================================ */
+
+function renderInviteTracker(events, referralDetails, totalSponsorPaid, directsCount) {
+    const feed     = document.getElementById("invite-tracker-feed");
+    const totalEl  = document.getElementById("itrack-total");
+    const countEl  = document.getElementById("itrack-count");
+    const avgEl    = document.getElementById("itrack-avg");
+    if (!feed) return;
+
+    const totalPOL = parseFloat(ethers.formatEther(totalSponsorPaid));
+    const avg      = directsCount > 0 ? (totalPOL / directsCount).toFixed(2) : "0.00";
+
+    if (totalEl) totalEl.textContent  = `${totalPOL.toFixed(2)} POL`;
+    if (countEl) countEl.textContent  = directsCount;
+    if (avgEl)   avgEl.textContent    = `${avg} POL`;
+
+    if (!events || events.length === 0) {
+        feed.innerHTML = `
+            <div class="invite-tracker-empty">
+                <i class="fa-solid fa-satellite-dish"></i>
+                <span>No commissions yet — share your referral link to start earning!</span>
+            </div>`;
+        return;
+    }
+
+    // Build address → contractId map from referralDetails
+    const addrToId = {};
+    referralDetails.forEach(r => { addrToId[r.addrLower] = r.id; });
+
+    // Group events by user for the feed
+    const byUser = {};
+    events.forEach(ev => {
+        const key = ev.userAddr;
+        if (!byUser[key]) byUser[key] = { userAddr: key, total: 0n, count: 0, lastTime: ev.time, lastTx: ev.txHash };
+        byUser[key].total += ev.amt;
+        byUser[key].count++;
+        if (ev.time > byUser[key].lastTime) { byUser[key].lastTime = ev.time; byUser[key].lastTx = ev.txHash; }
+    });
+
+    // Sort by most recent
+    const rows = Object.values(byUser).sort((a, b) => b.lastTime - a.lastTime);
+
+    const now = Math.floor(Date.now() / 1000);
+
+    function timeAgo(ts) {
+        if (!ts) return "—";
+        const diff = now - ts;
+        if (diff < 60)           return "just now";
+        if (diff < 3600)         return `${Math.floor(diff/60)}m ago`;
+        if (diff < 86400)        return `${Math.floor(diff/3600)}h ago`;
+        if (diff < 86400*30)     return `${Math.floor(diff/86400)}d ago`;
+        if (diff < 86400*365)    return `${Math.floor(diff/2592000)}mo ago`;
+        return `${Math.floor(diff/31536000)}y ago`;
+    }
+
+    function rankColor(pol) {
+        if (pol >= 100) return { color: "#FFD700", bg: "rgba(255,215,0,0.1)",  border: "rgba(255,215,0,0.3)",  label: "Gold",     icon: "👑" };
+        if (pol >= 50)  return { color: "#C0C0C0", bg: "rgba(192,192,192,0.08)", border: "rgba(192,192,192,0.25)", label: "Silver", icon: "🥈" };
+        if (pol >= 10)  return { color: "#00FFD1", bg: "rgba(0,255,209,0.07)",  border: "rgba(0,255,209,0.25)",  label: "Active",  icon: "⚡" };
+        return            { color: "#00C8FF", bg: "rgba(0,200,255,0.06)",  border: "rgba(0,200,255,0.2)",  label: "New",     icon: "🌱" };
+    }
+
+    const explorerBase = window.CONFIG?.BLOCK_EXPLORER || "https://polygonscan.com";
+
+    feed.innerHTML = rows.map((row, idx) => {
+        const contractId  = addrToId[row.userAddr];
+        const pubCode     = contractId && window.MetapolRef ? window.MetapolRef.idToCode(contractId) : null;
+        const displayCode = pubCode ? `#${pubCode}` : `#——`;
+        const pol         = parseFloat(ethers.formatEther(row.total));
+        const rank        = rankColor(pol);
+        const timeStr     = timeAgo(row.lastTime);
+        const txUrl       = row.lastTx ? `${explorerBase}/tx/${row.lastTx}` : "#";
+
+        // Percentage share of total
+        const pct = totalPOL > 0 ? Math.round((pol / totalPOL) * 100) : 0;
+
+        return `
+        <div class="itrack-row" style="animation-delay:${idx * 60}ms">
+            <!-- Rank icon -->
+            <div class="itrack-rank-icon" title="${rank.label}" style="background:${rank.bg}; border-color:${rank.border};">
+                ${rank.icon}
+            </div>
+
+            <!-- Member info -->
+            <div class="itrack-member">
+                <div class="itrack-member-code" style="color:${rank.color};">${displayCode}</div>
+                <div class="itrack-member-meta">
+                    <span>${row.count} payment${row.count !== 1 ? "s" : ""}</span>
+                    <span class="itrack-dot">·</span>
+                    <span>${timeStr}</span>
+                </div>
+            </div>
+
+            <!-- Progress bar + amount -->
+            <div class="itrack-amount-col">
+                <div class="itrack-amount" style="color:${rank.color};">+${pol.toFixed(2)} POL</div>
+                <div class="itrack-bar-wrap">
+                    <div class="itrack-bar-fill" style="width:${pct}%; background:linear-gradient(90deg,${rank.color}88,${rank.color});"></div>
+                </div>
+                <div class="itrack-pct">${pct}% of total</div>
+            </div>
+
+            <!-- Polygonscan link -->
+            <a class="itrack-tx-link" href="${txUrl}" target="_blank" title="View on Polygonscan">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+        </div>`;
+    }).join("");
+}
