@@ -1372,10 +1372,7 @@ function renderInviteTracker(events, referralDetails, totalSponsorPaid, directsC
                 <div class="itrack-pct">${pct}% of total</div>
             </div>
 
-            <!-- Polygonscan link -->
-            <a class="itrack-tx-link" href="${txUrl}" target="_blank" title="View on Polygonscan">
-                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-            </a>
+            <!-- No Polygonscan link -->
         </div>`;
     }).join("");
 }
