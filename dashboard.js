@@ -443,6 +443,16 @@ async function syncSlotsTab() {
         const activeStates = await Promise.all(activeStatesPromises);
         const poolInfos = await Promise.all(poolInfoPromises);
 
+        // Store globally for slot progress card
+        window._mpolActiveSlots = activeStates;
+        // Trigger pre-footer update with real data
+        if (window.pfsSlotProgress) {
+            const highest = activeStates.reduce((h, a, i) => a ? i + 1 : h, 0);
+            const claimEl = document.getElementById("mining-tab-claimable") || document.getElementById("live-mining-counter");
+            const earned = parseFloat((claimEl?.innerText || "0").replace(/[^0-9.]/g,"")) || 0;
+            window.pfsSlotProgress.update(highest, earned);
+        }
+
         for (let idx = 0; idx < 12; idx++) {
             const level = idx + 1;
             const price = prices[idx];

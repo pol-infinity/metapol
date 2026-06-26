@@ -379,6 +379,8 @@ class MetaPOLApp {
             // Remove wallet panel if exists
             const existing = document.getElementById("wallet-info-panel-header");
             if (existing) existing.remove();
+            const mBar = document.getElementById("mobile-wallet-bar");
+            if (mBar) mBar.classList.remove("mwb-visible");
             
             // If on dashboard, show prompt overlay and hide main container
             const promptOverlay = document.getElementById("connect-prompt-overlay");
@@ -394,20 +396,8 @@ class MetaPOLApp {
     }
 
     _renderWalletPanel() {
-        const headerActions = document.querySelector(".header-actions");
-        if (!headerActions) return;
-
-        let panel = document.getElementById("wallet-info-panel-header");
-        if (!panel) {
-            panel = document.createElement("div");
-            panel.id = "wallet-info-panel-header";
-            panel.className = "wallet-info-panel";
-            headerActions.appendChild(panel);
-        }
-
         const shortAddr = this.shortenAddress(this.userAddress);
-
-        panel.innerHTML = `
+        const walletHTML = `
             <span class="wallet-info-net" id="wp-network-badge">Polygon</span>
             <span class="wallet-info-addr" title="${this.userAddress}">${shortAddr}</span>
             <span class="wallet-info-bal" id="wp-pol-balance">… POL</span>
@@ -415,172 +405,30 @@ class MetaPOLApp {
                 <button class="btn-sm-icon" title="Change Wallet" onclick="window.metapolApp.changeWallet()">
                     <i class="fa-solid fa-arrows-rotate"></i>
                 </button>
-                <button class="btn-sm-icon btn-danger" title="Disconnect Wallet" onclick="window.metapolApp.disconnectWallet()">
+                <button class="btn-sm-icon btn-danger" title="Disconnect" onclick="window.metapolApp.disconnectWallet()">
                     <i class="fa-solid fa-right-from-bracket"></i>
+                    <span class="btn-sm-label">Disconnect</span>
                 </button>
             </div>
         `;
 
-        // Async-fetch POL balance
-        this._fetchAndShowBalance();
-    }
-
-    async _fetchAndShowBalance() {
-        try {
-            const bal = await this.provider.getBalance(this.userAddress);
-            const balEth = parseFloat(ethers.formatEther(bal)).toFixed(3);
-            const el = document.getElementById("wp-pol-balance");
-            if (el) el.innerText = `${balEth} POL`;
-
-            // Check network
-            const network = await this.provider.getNetwork();
-            const chainId = Number(network.chainId);
-            const netBadge = document.getElementById("wp-network-badge");
-            if (netBadge) {
-                if (chainId === window.CONFIG.CHAIN_ID_DECIMAL) {
-                    netBadge.className = "wallet-info-net";
-                    netBadge.innerText = "Polygon";
-                } else {
-                    netBadge.className = "wallet-info-net net-wrong";
-                    netBadge.innerText = "Wrong Net";
-                }
+        // Desktop: render inside #header-wallet-container
+        const container = document.getElementById("header-wallet-container");
+        if (container) {
+            let panel = document.getElementById("wallet-info-panel-header");
+            if (!panel) {
+                panel = document.createElement("div");
+                panel.id = "wallet-info-panel-header";
+                panel.className = "wallet-info-panel";
+                container.appendChild(panel);
             }
-        } catch(e) {
-            console.warn("Balance fetch failed", e);
-        }
-    }
-
-    async changeWallet() {
-        try {
-            // Request permissions to let user pick a different account
-            await window.ethereum.request({
-                method: "wallet_requestPermissions",
-                params: [{ eth_accounts: {} }]
-            });
-            // After permission granted, reconnect
-            await this.connectWallet(false);
-        } catch(e) {
-            this.showToast("Change wallet cancelled.", "warning");
-        }
-    }
-
-    // Smart Routing Logic based on User Registration Status
-    async routePage() {
-        const currentPath = window.location.pathname;
-        const pageName = currentPath.substring(currentPath.lastIndexOf("/") + 1);
-        
-        // If not connected
-        if (!this.isConnected) {
-            // If user is accessing dashboard.html or admin.html directly, we show connect wallet screen (prevent layout from loading)
-            if (pageName === "dashboard.html" || pageName === "admin.html") {
-                this.updateWalletUI(); // triggers display of prompt
-            }
-            this.hideLoader();
-            return;
+            panel.innerHTML = walletHTML;
         }
 
-        try {
-            // Check registration
-            const userInfo = await this.contract.getUserInfo(this.userAddress);
-            const isRegistered = userInfo[0]; // isExist
-            const isFounder = userInfo[7];
-            const isOwner = this.userAddress.toLowerCase() === (await this.contract.ownerWallet()).toLowerCase();
-
-            console.log(`Routing Check - Address: ${this.userAddress}, Registered: ${isRegistered}, Founder: ${isFounder}, Owner: ${isOwner}`);
-
-            // Logic 1: Connected but NOT registered -> Redirect to register.html
-            if (!isRegistered) {
-                if (pageName !== "register.html" && pageName !== "index.html") {
-                    this.showToast("Registration required. Redirecting...", "info");
-                    setTimeout(() => {
-                        window.location.href = "register.html";
-                    }, 1000);
-                }
-            } 
-            // Logic 2: Connected and REGISTERED
-            else {
-                // If on register.html or landing page index.html -> Auto-redirect to dashboard.html
-                if (pageName === "register.html" || pageName === "" || pageName === "index.html") {
-                    this.showToast("Already registered. Redirecting to dashboard...", "success");
-                    setTimeout(() => {
-                        window.location.href = "dashboard.html";
-                    }, 1000);
-                }
-                
-                // If trying to access admin.html, ensure they are owner
-                if (pageName === "admin.html" && !isOwner) {
-                    this.showToast("Access Denied: Owner only", "error");
-                    setTimeout(() => {
-                        window.location.href = "dashboard.html";
-                    }, 1000);
-                }
-            }
-        } catch (err) {
-            console.error("Error reading profile details from contract:", err);
-            this.showToast("Blockchain read failed. Please verify network.", "error");
-        } finally {
-            this.hideLoader();
+        // Mobile: render inside #mobile-wallet-bar
+        const mobileInner = document.getElementById("mobile-wallet-bar-inner");
+        if (mobileInner) {
+            mobileInner.innerHTML = walletHTML;
+            const mobileBar = document.getElementById("mobile-wallet-bar");
+            if (mobileBar) mobileBar.classList.add("mwb-visible");
         }
-    }
-
-    // Toast Notification System
-    showToast(message, type = "info") {
-        let container = document.getElementById("toast-container");
-        if (!container) {
-            container = document.createElement("div");
-            container.id = "toast-container";
-            container.className = "toast-container";
-            document.body.appendChild(container);
-        }
-
-        const toast = document.createElement("div");
-        toast.className = `toast toast-${type}`;
-        
-        let icon = "fa-info-circle";
-        if (type === "success") icon = "fa-check-circle";
-        if (type === "error") icon = "fa-exclamation-triangle";
-
-        toast.innerHTML = `
-            <i class="fa-solid ${icon} toast-icon"></i>
-            <div class="toast-content">${message}</div>
-        `;
-
-        container.appendChild(toast);
-
-        // Slide in
-        setTimeout(() => toast.classList.add("show"), 10);
-
-        // Remove after 4s
-        setTimeout(() => {
-            toast.classList.remove("show");
-            setTimeout(() => toast.remove(), 400);
-        }, 4000);
-    }
-
-    // Helper functions
-    shortenAddress(addr) {
-        if (!addr) return "";
-        return `${addr.substring(0, 6)}...${addr.substring(addr.length - 4)}`;
-    }
-
-    hideLoader() {
-        if (this.loadingScreen) {
-            this.loadingScreen.style.opacity = "0";
-            setTimeout(() => {
-                this.loadingScreen.style.display = "none";
-            }, 600);
-        }
-    }
-
-    showLoader() {
-        if (this.loadingScreen) {
-            this.loadingScreen.style.display = "flex";
-            setTimeout(() => {
-                this.loadingScreen.style.opacity = "1";
-            }, 10);
-        }
-    }
-}
-
-// Bind to window context
-window.metapolApp = new MetaPOLApp();
