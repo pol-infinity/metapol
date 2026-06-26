@@ -273,7 +273,7 @@
   /* ─────────────────────────────────
      AUTO-SYNC LOOP
   ───────────────────────────────── */
-  function syncAll() {
+  async function syncAll() {
     pfsShareCenter.syncLink();
     pfsShareCenter.syncStats();
 
@@ -283,16 +283,23 @@
     const directs = parseInt(directsEl?.textContent || "0") || 0;
     pfsMilestonePopup.check(directs);
 
-    // Read highest slot from contract data (set by dashboard.js syncSlotsTab)
+    // Query contract directly for active slot status
     let highest = 0;
-    if (window._mpolActiveSlots && Array.isArray(window._mpolActiveSlots)) {
-      window._mpolActiveSlots.forEach((isActive, idx) => { if (isActive) highest = idx + 1; });
-    } else {
-      document.querySelectorAll(".slot-card.active-slot").forEach(card => {
-        const txt = card.querySelector(".slot-number")?.textContent || "";
-        const lvl = parseInt(txt.replace(/[^0-9]/g,"")) || 0;
-        if (lvl > highest) highest = lvl;
-      });
+    try {
+      if (window.metapolApp && window.metapolApp.isConnected && window.metapolApp.contract) {
+        const addr = window.metapolApp.userAddress;
+        const checks = [];
+        for (let i = 1; i <= 12; i++) checks.push(window.metapolApp.contract.isUserInSlot(addr, i));
+        const results = await Promise.all(checks);
+        results.forEach((active, idx) => { if (active) highest = idx + 1; });
+        window._mpolActiveSlots = results;
+      } else if (window._mpolActiveSlots) {
+        window._mpolActiveSlots.forEach((a, i) => { if (a) highest = i + 1; });
+      }
+    } catch(e) {
+      if (window._mpolActiveSlots) {
+        window._mpolActiveSlots.forEach((a, i) => { if (a) highest = i + 1; });
+      }
     }
 
     // Claimable earnings
