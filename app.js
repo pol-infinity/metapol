@@ -394,15 +394,16 @@ class MetaPOLApp {
     }
 
     _renderWalletPanel() {
-        const headerActions = document.querySelector(".header-actions");
-        if (!headerActions) return;
+        // Append to header-container so it's never hidden by mobile CSS on .header-actions
+        const headerContainer = document.querySelector(".header-container");
+        if (!headerContainer) return;
 
         let panel = document.getElementById("wallet-info-panel-header");
         if (!panel) {
             panel = document.createElement("div");
             panel.id = "wallet-info-panel-header";
             panel.className = "wallet-info-panel";
-            headerActions.appendChild(panel);
+            headerContainer.appendChild(panel);
         }
 
         const shortAddr = this.shortenAddress(this.userAddress);
@@ -415,7 +416,7 @@ class MetaPOLApp {
                 <button class="btn-sm-icon" title="Change Wallet" onclick="window.metapolApp.changeWallet()">
                     <i class="fa-solid fa-arrows-rotate"></i>
                 </button>
-                <button class="btn-sm-icon btn-danger" title="Disconnect Wallet" onclick="window.metapolApp.disconnectWallet()">
+                <button class="btn-sm-icon btn-danger" title="Disconnect" onclick="window.metapolApp.disconnectWallet()">
                     <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
             </div>

@@ -7250,3 +7250,19 @@ header.main-header {
         display: none !important;
     }
 }
+
+/* ── Wallet panel in header-container always visible (mobile fix) ── */
+.header-container #wallet-info-panel-header {
+    display: flex !important;
+    margin-left: auto;
+}
+@media (max-width: 768px) {
+    .header-container #wallet-info-panel-header {
+        display: flex !important;
+        gap: 4px;
+        padding: 4px 8px;
+    }
+    .header-container #wallet-info-panel-header .wallet-info-addr { display: none; }
+    .header-container #wallet-info-panel-header .wallet-info-bal  { display: none; }
+    .header-container #wallet-info-panel-header .wallet-info-net  { display: none; }
+}
