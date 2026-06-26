@@ -443,6 +443,13 @@ async function syncSlotsTab() {
         const activeStates = await Promise.all(activeStatesPromises);
         const poolInfos = await Promise.all(poolInfoPromises);
 
+        // Store for slot progress card
+        window._mpolActiveSlots = activeStates;
+        if (window.pfsSlotProgress) {
+            const highest = activeStates.reduce((h, a, i) => a ? i + 1 : h, 0);
+            window.pfsSlotProgress.update(highest, 0);
+        }
+
         for (let idx = 0; idx < 12; idx++) {
             const level = idx + 1;
             const price = prices[idx];

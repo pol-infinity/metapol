@@ -283,13 +283,17 @@
     const directs = parseInt(directsEl?.textContent || "0") || 0;
     pfsMilestonePopup.check(directs);
 
-    // Read highest slot from slot cards
-    const slotCards = document.querySelectorAll(".slot-card.active-slot");
+    // Read highest slot from contract data (set by dashboard.js syncSlotsTab)
     let highest = 0;
-    slotCards.forEach(card => {
-      const lvl = parseInt(card.dataset.slot || card.querySelector(".slot-number")?.textContent || 0);
-      if (lvl > highest) highest = lvl;
-    });
+    if (window._mpolActiveSlots && Array.isArray(window._mpolActiveSlots)) {
+      window._mpolActiveSlots.forEach((isActive, idx) => { if (isActive) highest = idx + 1; });
+    } else {
+      document.querySelectorAll(".slot-card.active-slot").forEach(card => {
+        const txt = card.querySelector(".slot-number")?.textContent || "";
+        const lvl = parseInt(txt.replace(/[^0-9]/g,"")) || 0;
+        if (lvl > highest) highest = lvl;
+      });
+    }
 
     // Claimable earnings
     const claimEl = document.getElementById("live-mining-counter")

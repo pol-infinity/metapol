@@ -7234,3 +7234,19 @@ header.main-header {
     background: linear-gradient(0deg, #04050F 0%, #06071A 100%) !important;
     border-top: 1px solid rgba(130,71,229,0.2) !important;
 }
+
+/* ── Fix: keep wallet panel visible on mobile even when header-actions is hidden ── */
+@media (max-width: 768px) {
+    .header-actions {
+        display: flex !important;
+        align-items: center;
+    }
+    #btn-connect-wallet:not([style*="display: none"]) ~ #wallet-info-panel-header,
+    #wallet-info-panel-header {
+        display: flex !important;
+    }
+    /* Hide only the connect button text on very small screens, keep the panel */
+    #btn-connect-wallet {
+        display: none !important;
+    }
+}
