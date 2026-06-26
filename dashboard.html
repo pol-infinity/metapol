@@ -160,6 +160,124 @@
 
             <!-- ==================== OVERVIEW TAB ==================== -->
             <div id="tab-overview" class="tab-panel active">
+
+                <!-- 3D Character Welcome Banner -->
+                <div class="overview-char-banner">
+                    <!-- Small POL character -->
+                    <div class="ocb-char">
+                        <svg viewBox="0 0 160 200" xmlns="http://www.w3.org/2000/svg" style="width:120px;height:150px;overflow:visible;">
+                            <defs>
+                                <radialGradient id="ocSkin" cx="50%" cy="30%" r="60%"><stop offset="0%" stop-color="#FFCC99"/><stop offset="100%" stop-color="#E8935A"/></radialGradient>
+                                <radialGradient id="ocShirt" cx="50%" cy="20%" r="70%"><stop offset="0%" stop-color="#9966FF"/><stop offset="100%" stop-color="#5500BB"/></radialGradient>
+                                <radialGradient id="ocHair" cx="50%" cy="0%" r="80%"><stop offset="0%" stop-color="#4A3010"/><stop offset="100%" stop-color="#1A0A00"/></radialGradient>
+                                <radialGradient id="ocPolCoin" cx="35%" cy="30%" r="65%"><stop offset="0%" stop-color="#9B6BF5"/><stop offset="60%" stop-color="#7B2FE0"/><stop offset="100%" stop-color="#4A0FA0"/></radialGradient>
+                                <filter id="ocGlow"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                            </defs>
+                            <!-- POL Coin held -->
+                            <g filter="url(#ocGlow)" style="animation:polFloat 4s ease-in-out infinite; animation-delay:-1s;">
+                                <circle cx="46" cy="52" r="38" fill="url(#ocPolCoin)"/>
+                                <circle cx="46" cy="52" r="38" fill="none" stroke="rgba(200,160,255,0.4)" stroke-width="2"/>
+                                <circle cx="46" cy="52" r="30" fill="none" stroke="rgba(200,160,255,0.2)" stroke-width="1"/>
+                                <polygon points="46,30 60,38 60,54 46,62 32,54 32,38" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+                                <text x="46" y="56" text-anchor="middle" font-size="10" font-weight="900" fill="rgba(255,255,255,0.9)" font-family="Exo 2,sans-serif">POL</text>
+                                <ellipse cx="34" cy="40" rx="8" ry="5" fill="rgba(255,255,255,0.2)" transform="rotate(-30,34,40)"/>
+                            </g>
+                            <!-- Legs -->
+                            <rect x="70" y="152" width="16" height="40" rx="7" fill="#223355"/>
+                            <rect x="92" y="152" width="16" height="40" rx="7" fill="#223355"/>
+                            <ellipse cx="78" cy="194" rx="14" ry="6" fill="#181818"/>
+                            <ellipse cx="100" cy="194" rx="14" ry="6" fill="#181818"/>
+                            <!-- Torso -->
+                            <path d="M62,108 Q70,100 84,99 Q98,100 106,108 L110,155 Q84,168 58,155 Z" fill="url(#ocShirt)"/>
+                            <!-- Arms -->
+                            <path d="M63,115 Q44,120 40,108 Q36,95 48,90" fill="none" stroke="url(#ocSkin)" stroke-width="14" stroke-linecap="round"/>
+                            <ellipse cx="47" cy="89" rx="9" ry="8" fill="url(#ocSkin)"/>
+                            <path d="M106,115 Q125,108 128,122 Q131,136 122,140" fill="none" stroke="url(#ocSkin)" stroke-width="13" stroke-linecap="round"/>
+                            <!-- Neck -->
+                            <rect x="76" y="90" width="16" height="14" rx="5" fill="url(#ocSkin)"/>
+                            <!-- Head -->
+                            <ellipse cx="84" cy="72" rx="32" ry="34" fill="url(#ocSkin)"/>
+                            <!-- Hair -->
+                            <path d="M54,64 Q57,40 84,34 Q111,40 114,64 Q106,48 84,46 Q62,48 54,64 Z" fill="url(#ocHair)"/>
+                            <path d="M78,34 Q84,22 90,28 Q87,36 84,34 Z" fill="url(#ocHair)"/>
+                            <!-- Eyes -->
+                            <ellipse cx="73" cy="74" rx="7" ry="8" fill="white"/>
+                            <ellipse cx="73" cy="75" rx="4.5" ry="5.5" fill="#3A2010"/>
+                            <ellipse cx="73" cy="75" rx="2.5" ry="3" fill="#000"/>
+                            <ellipse cx="74.5" cy="72.5" rx="1.5" ry="1.5" fill="white"/>
+                            <ellipse cx="95" cy="74" rx="7" ry="8" fill="white"/>
+                            <ellipse cx="95" cy="75" rx="4.5" ry="5.5" fill="#3A2010"/>
+                            <ellipse cx="95" cy="75" rx="2.5" ry="3" fill="#000"/>
+                            <ellipse cx="96.5" cy="72.5" rx="1.5" ry="1.5" fill="white"/>
+                            <!-- Eyebrows -->
+                            <path d="M65,62 Q73,58 80,61" fill="none" stroke="#3A2010" stroke-width="2" stroke-linecap="round"/>
+                            <path d="M88,61 Q95,58 103,62" fill="none" stroke="#3A2010" stroke-width="2" stroke-linecap="round"/>
+                            <!-- Smile -->
+                            <path d="M72,88 Q84,98 96,88" fill="none" stroke="#C0603A" stroke-width="2.2" stroke-linecap="round"/>
+                            <!-- Cheeks -->
+                            <ellipse cx="63" cy="82" rx="7" ry="5" fill="rgba(255,120,100,0.2)"/>
+                            <ellipse cx="105" cy="82" rx="7" ry="5" fill="rgba(255,120,100,0.2)"/>
+                            <!-- Star sparkles -->
+                            <g filter="url(#ocGlow)">
+                                <path d="M135,50 L137,44 L139,50 L145,52 L139,54 L137,60 L135,54 L129,52 Z" fill="#FFD700" opacity="0.8"/>
+                                <path d="M18,100 L20,95 L22,100 L27,102 L22,104 L20,109 L18,104 L13,102 Z" fill="#00FFD1" opacity="0.7"/>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="ocb-text">
+                        <div class="ocb-greeting">⬡ Welcome to MetaPOL Dashboard</div>
+                        <div class="ocb-title">Your <span>Polygon</span> Passive<br>Income Machine</div>
+                        <div class="ocb-sub">Mining ROI · Matrix Cycles · Direct Commission · All automated on-chain</div>
+                    </div>
+
+                    <!-- Animated POL coin orbit -->
+                    <div class="pol-orbit-wrap" style="width:110px; height:110px; flex-shrink:0;">
+                        <div class="pol-orbit-ring" style="width:105px; height:105px;">
+                            <div class="pol-orbit-dot"></div>
+                        </div>
+                        <div class="pol-orbit-ring-2" style="width:80px; height:80px;">
+                            <div class="pol-orbit-dot-2"></div>
+                        </div>
+                        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="width:64px;height:64px;overflow:visible;" class="ocb-pol-coin">
+    <defs>
+        <radialGradient id="polGradocb" cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stop-color="#9B6BF5"/>
+            <stop offset="50%" stop-color="#7B2FE0"/>
+            <stop offset="100%" stop-color="#4A0FA0"/>
+        </radialGradient>
+        <radialGradient id="polEdgeocb" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#A87FF8"/>
+            <stop offset="100%" stop-color="#5B1FC8"/>
+        </radialGradient>
+        <filter id="polGlowFocb">
+            <feGaussianBlur stdDeviation="6" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+    </defs>
+    <!-- Shadow -->
+    <ellipse cx="60" cy="112" rx="36" ry="6" fill="rgba(130,71,229,0.3)" filter="url(#polGlowFocb)"/>
+    <!-- Outer rim -->
+    <circle cx="60" cy="58" r="52" fill="url(#polEdgeocb)"/>
+    <!-- Main face -->
+    <circle cx="60" cy="56" r="50" fill="url(#polGradocb)"/>
+    <!-- Inner ring -->
+    <circle cx="60" cy="56" r="42" fill="none" stroke="rgba(200,160,255,0.25)" stroke-width="1.5"/>
+    <circle cx="60" cy="56" r="34" fill="none" stroke="rgba(200,160,255,0.15)" stroke-width="1"/>
+    <!-- Polygon hexagon symbol -->
+    <polygon points="60,28 80,39 80,61 60,72 40,61 40,39" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="60,34 75,43 75,59 60,68 45,59 45,43" fill="rgba(255,255,255,0.08)"/>
+    <!-- POL text -->
+    <text x="60" y="62" text-anchor="middle" font-size="16" font-weight="900" fill="rgba(255,255,255,0.9)" font-family="Exo 2,sans-serif" letter-spacing="1">POL</text>
+    <!-- Shine -->
+    <ellipse cx="44" cy="38" rx="14" ry="9" fill="rgba(255,255,255,0.18)" transform="rotate(-30,44,38)"/>
+    <!-- Sparkle dots -->
+    <circle cx="96" cy="24" r="3" fill="#A87FF8" opacity="0.7"/>
+    <circle cx="16" cy="72" r="2" fill="#00FFD1" opacity="0.6"/>
+    <circle cx="100" cy="80" r="2.5" fill="#8247E5" opacity="0.5"/>
+</svg>
+                    </div>
+                </div>
                 <div class="stats-grid">
                     <div class="stat-card">
                         <span class="stat-label">Member ID</span>
@@ -295,6 +413,65 @@
 
             <!-- ==================== MINING TAB ==================== -->
             <div id="tab-mining" class="tab-panel">
+
+                <!-- Mining Hero Infographic -->
+                <div class="mining-hero-infographic">
+                    <div class="mhi-left">
+                        <div class="mhi-eyebrow">
+                            <span style="width:16px;height:2px;background:#8247E5;display:inline-block;border-radius:2px;"></span>
+                            Passive Mining Engine
+                        </div>
+                        <div class="mhi-title">⛏️ Your POL Earns<br>While You Sleep</div>
+                        <div class="mhi-roi-strip">
+                            <div class="mhi-roi-pill">⚡ 1.5% Daily ROI</div>
+                            <div class="mhi-roi-pill">🔒 Up to 5× Return</div>
+                            <div class="mhi-roi-pill teal">🤖 Fully Automated</div>
+                            <div class="mhi-roi-pill teal">⬡ Polygon Network</div>
+                        </div>
+                    </div>
+                    <!-- Animated POL coin with orbit -->
+                    <div class="pol-orbit-wrap pol-coin-xl" style="position:relative;">
+                        <div class="pol-orbit-ring" style="width:125px;height:125px;"><div class="pol-orbit-dot"></div></div>
+                        <div class="pol-orbit-ring-2" style="width:96px;height:96px;"><div class="pol-orbit-dot-2"></div></div>
+                        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="width:80px;height:80px;overflow:visible;" class="ocb-pol-coin">
+    <defs>
+        <radialGradient id="polGradmhi" cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stop-color="#9B6BF5"/>
+            <stop offset="50%" stop-color="#7B2FE0"/>
+            <stop offset="100%" stop-color="#4A0FA0"/>
+        </radialGradient>
+        <radialGradient id="polEdgemhi" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#A87FF8"/>
+            <stop offset="100%" stop-color="#5B1FC8"/>
+        </radialGradient>
+        <filter id="polGlowFmhi">
+            <feGaussianBlur stdDeviation="6" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+    </defs>
+    <!-- Shadow -->
+    <ellipse cx="60" cy="112" rx="36" ry="6" fill="rgba(130,71,229,0.3)" filter="url(#polGlowFmhi)"/>
+    <!-- Outer rim -->
+    <circle cx="60" cy="58" r="52" fill="url(#polEdgemhi)"/>
+    <!-- Main face -->
+    <circle cx="60" cy="56" r="50" fill="url(#polGradmhi)"/>
+    <!-- Inner ring -->
+    <circle cx="60" cy="56" r="42" fill="none" stroke="rgba(200,160,255,0.25)" stroke-width="1.5"/>
+    <circle cx="60" cy="56" r="34" fill="none" stroke="rgba(200,160,255,0.15)" stroke-width="1"/>
+    <!-- Polygon hexagon symbol -->
+    <polygon points="60,28 80,39 80,61 60,72 40,61 40,39" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="60,34 75,43 75,59 60,68 45,59 45,43" fill="rgba(255,255,255,0.08)"/>
+    <!-- POL text -->
+    <text x="60" y="62" text-anchor="middle" font-size="16" font-weight="900" fill="rgba(255,255,255,0.9)" font-family="Exo 2,sans-serif" letter-spacing="1">POL</text>
+    <!-- Shine -->
+    <ellipse cx="44" cy="38" rx="14" ry="9" fill="rgba(255,255,255,0.18)" transform="rotate(-30,44,38)"/>
+    <!-- Sparkle dots -->
+    <circle cx="96" cy="24" r="3" fill="#A87FF8" opacity="0.7"/>
+    <circle cx="16" cy="72" r="2" fill="#00FFD1" opacity="0.6"/>
+    <circle cx="100" cy="80" r="2.5" fill="#8247E5" opacity="0.5"/>
+</svg>
+                    </div>
+                </div>
                 <div class="glass-card mining-live-card" style="margin-bottom: 30px;">
                     <div class="mining-ticker-wrapper">
                         <span class="mining-ticker-title">Accumulating ROI Rewards</span>
@@ -363,6 +540,120 @@
 
             <!-- ==================== SLOTS TAB ==================== -->
             <div id="tab-slots" class="tab-panel">
+
+                <!-- Slots Header Infographic -->
+                <div class="slots-header-infographic">
+                    <!-- Small walking character -->
+                    <svg viewBox="0 0 80 100" xmlns="http://www.w3.org/2000/svg" style="width:70px;height:88px;flex-shrink:0;overflow:visible;animation:charWalk 2s ease-in-out infinite;">
+                        <defs>
+                            <radialGradient id="slSkin" cx="50%" cy="30%" r="60%"><stop offset="0%" stop-color="#FFCC99"/><stop offset="100%" stop-color="#E8935A"/></radialGradient>
+                            <radialGradient id="slShirt" cx="50%" cy="20%" r="70%"><stop offset="0%" stop-color="#9966FF"/><stop offset="100%" stop-color="#5500BB"/></radialGradient>
+                            <radialGradient id="slHair" cx="50%" cy="0%" r="80%"><stop offset="0%" stop-color="#4A3010"/><stop offset="100%" stop-color="#1A0A00"/></radialGradient>
+                        </defs>
+                        <rect x="30" y="68" width="9" height="22" rx="4" fill="#223355"/>
+                        <rect x="42" y="68" width="9" height="22" rx="4" fill="#223355"/>
+                        <ellipse cx="34.5" cy="92" rx="9" ry="4" fill="#111"/>
+                        <ellipse cx="46.5" cy="92" rx="9" ry="4" fill="#111"/>
+                        <path d="M25,44 Q30,38 40,37 Q50,38 55,44 L57,70 Q40,78 23,70 Z" fill="url(#slShirt)"/>
+                        <path d="M25,48 Q14,52 12,62 Q10,70 16,73" fill="none" stroke="url(#slSkin)" stroke-width="8" stroke-linecap="round"/>
+                        <path d="M55,48 Q66,44 67,54 Q68,62 62,65" fill="none" stroke="url(#slSkin)" stroke-width="8" stroke-linecap="round"/>
+                        <rect x="34" y="31" width="12" height="10" rx="4" fill="url(#slSkin)"/>
+                        <ellipse cx="40" cy="23" rx="20" ry="22" fill="url(#slSkin)"/>
+                        <path d="M21,18 Q23,4 40,0 Q57,4 59,18 Q53,8 40,7 Q27,8 21,18 Z" fill="url(#slHair)"/>
+                        <ellipse cx="30" cy="24" rx="5" ry="6" fill="white"/>
+                        <ellipse cx="30" cy="25" rx="3" ry="4" fill="#2A1505"/>
+                        <ellipse cx="50" cy="24" rx="5" ry="6" fill="white"/>
+                        <ellipse cx="50" cy="25" rx="3" ry="4" fill="#2A1505"/>
+                        <path d="M34,34 Q40,40 46,34" fill="none" stroke="#C0603A" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+
+                    <div style="flex:1; min-width:0;">
+                        <div class="section-eyebrow">Upgrade Ladder</div>
+                        <div style="font-family:var(--font-display); font-size:1.25rem; font-weight:900; color:#fff; margin-bottom:6px; line-height:1.2;">
+                            Higher Slot = <span style="background:linear-gradient(90deg,#8247E5,#00C8FF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Bigger Payouts</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:rgba(255,255,255,0.4); font-family:var(--font-display);">
+                            20% of slot price → Mining Capital · 72% → Matrix Pool · Cycles reward you automatically
+                        </div>
+                        <!-- Mini progress bar strip -->
+                        <div style="display:flex; gap:3px; margin-top:10px; align-items:flex-end;">
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;" title="Slot 1">
+                                <div style="width:16px;background:linear-gradient(180deg,#00C8FF,#00C8FF44);border-radius:3px 3px 0 0;height:14px;"></div>
+                                <span style="font-size:9px;color:rgba(255,255,255,0.4);font-family:var(--font-caption);font-weight:700;">1</span>
+                            </div>
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+                                <div style="width:16px;background:linear-gradient(180deg,#20E5B0,#20E5B044);border-radius:3px 3px 0 0;height:20px;"></div>
+                                <span style="font-size:9px;color:rgba(255,255,255,0.4);font-family:var(--font-caption);font-weight:700;">2</span>
+                            </div>
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+                                <div style="width:16px;background:linear-gradient(180deg,#80E040,#80E04044);border-radius:3px 3px 0 0;height:28px;"></div>
+                                <span style="font-size:9px;color:rgba(255,255,255,0.4);font-family:var(--font-caption);font-weight:700;">3</span>
+                            </div>
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+                                <div style="width:16px;background:linear-gradient(180deg,#E0C040,#E0C04044);border-radius:3px 3px 0 0;height:38px;"></div>
+                                <span style="font-size:9px;color:rgba(255,255,255,0.4);font-family:var(--font-caption);font-weight:700;">4</span>
+                            </div>
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+                                <div style="width:16px;background:linear-gradient(180deg,#FFA030,#FFA03044);border-radius:3px 3px 0 0;height:50px;"></div>
+                                <span style="font-size:9px;color:rgba(255,255,255,0.4);font-family:var(--font-caption);font-weight:700;">5</span>
+                            </div>
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+                                <div style="width:16px;background:linear-gradient(180deg,#FF7020,#FF702044);border-radius:3px 3px 0 0;height:64px;"></div>
+                                <span style="font-size:9px;color:rgba(255,255,255,0.4);font-family:var(--font-caption);font-weight:700;">6</span>
+                            </div>
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+                                <div style="width:16px;background:linear-gradient(180deg,#FF4040,#FF404044);border-radius:3px 3px 0 0;height:82px;"></div>
+                                <span style="font-size:9px;color:rgba(255,255,255,0.4);font-family:var(--font-caption);font-weight:700;">7</span>
+                            </div>
+                            <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
+                                <div style="width:16px;background:linear-gradient(180deg,#FF2060,#FF206055);border-radius:3px 3px 0 0;height:100px;border:1px solid rgba(255,32,96,0.4);"></div>
+                                <span style="font-size:9px;color:#FF6090;font-family:var(--font-caption);font-weight:700;">8</span>
+                            </div>
+                            <div style="margin-left:6px;display:flex;flex-direction:column;justify-content:center;">
+                                <span style="font-size:10px;color:rgba(255,255,255,0.25);font-family:var(--font-caption);">···4 more</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pol-orbit-wrap" style="flex-shrink:0;">
+                        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="width:72px;height:72px;overflow:visible;" class="ocb-pol-coin">
+    <defs>
+        <radialGradient id="polGradslh" cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stop-color="#9B6BF5"/>
+            <stop offset="50%" stop-color="#7B2FE0"/>
+            <stop offset="100%" stop-color="#4A0FA0"/>
+        </radialGradient>
+        <radialGradient id="polEdgeslh" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#A87FF8"/>
+            <stop offset="100%" stop-color="#5B1FC8"/>
+        </radialGradient>
+        <filter id="polGlowFslh">
+            <feGaussianBlur stdDeviation="6" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+    </defs>
+    <!-- Shadow -->
+    <ellipse cx="60" cy="112" rx="36" ry="6" fill="rgba(130,71,229,0.3)" filter="url(#polGlowFslh)"/>
+    <!-- Outer rim -->
+    <circle cx="60" cy="58" r="52" fill="url(#polEdgeslh)"/>
+    <!-- Main face -->
+    <circle cx="60" cy="56" r="50" fill="url(#polGradslh)"/>
+    <!-- Inner ring -->
+    <circle cx="60" cy="56" r="42" fill="none" stroke="rgba(200,160,255,0.25)" stroke-width="1.5"/>
+    <circle cx="60" cy="56" r="34" fill="none" stroke="rgba(200,160,255,0.15)" stroke-width="1"/>
+    <!-- Polygon hexagon symbol -->
+    <polygon points="60,28 80,39 80,61 60,72 40,61 40,39" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="60,34 75,43 75,59 60,68 45,59 45,43" fill="rgba(255,255,255,0.08)"/>
+    <!-- POL text -->
+    <text x="60" y="62" text-anchor="middle" font-size="16" font-weight="900" fill="rgba(255,255,255,0.9)" font-family="Exo 2,sans-serif" letter-spacing="1">POL</text>
+    <!-- Shine -->
+    <ellipse cx="44" cy="38" rx="14" ry="9" fill="rgba(255,255,255,0.18)" transform="rotate(-30,44,38)"/>
+    <!-- Sparkle dots -->
+    <circle cx="96" cy="24" r="3" fill="#A87FF8" opacity="0.7"/>
+    <circle cx="16" cy="72" r="2" fill="#00FFD1" opacity="0.6"/>
+    <circle cx="100" cy="80" r="2.5" fill="#8247E5" opacity="0.5"/>
+</svg>
+                    </div>
+                </div>
                 <div class="glass-card" style="margin-bottom: 30px;">
                     <h3 class="panel-section-title"><i class="fa-solid fa-layer-group"></i> Slot Purchasing & Level Upgrades</h3>
                     <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
@@ -378,6 +669,72 @@
 
             <!-- ==================== MATRIX TAB ==================== -->
             <div id="tab-matrix" class="tab-panel">
+
+                <!-- Matrix Header Infographic -->
+                <div class="matrix-header-infographic">
+                    <div class="pol-orbit-wrap" style="flex-shrink:0;">
+                        <div class="pol-orbit-ring" style="width:90px;height:90px;"><div class="pol-orbit-dot"></div></div>
+                        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="width:64px;height:64px;overflow:visible;" class="ocb-pol-coin">
+    <defs>
+        <radialGradient id="polGradmtx" cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stop-color="#9B6BF5"/>
+            <stop offset="50%" stop-color="#7B2FE0"/>
+            <stop offset="100%" stop-color="#4A0FA0"/>
+        </radialGradient>
+        <radialGradient id="polEdgemtx" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#A87FF8"/>
+            <stop offset="100%" stop-color="#5B1FC8"/>
+        </radialGradient>
+        <filter id="polGlowFmtx">
+            <feGaussianBlur stdDeviation="6" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+    </defs>
+    <!-- Shadow -->
+    <ellipse cx="60" cy="112" rx="36" ry="6" fill="rgba(130,71,229,0.3)" filter="url(#polGlowFmtx)"/>
+    <!-- Outer rim -->
+    <circle cx="60" cy="58" r="52" fill="url(#polEdgemtx)"/>
+    <!-- Main face -->
+    <circle cx="60" cy="56" r="50" fill="url(#polGradmtx)"/>
+    <!-- Inner ring -->
+    <circle cx="60" cy="56" r="42" fill="none" stroke="rgba(200,160,255,0.25)" stroke-width="1.5"/>
+    <circle cx="60" cy="56" r="34" fill="none" stroke="rgba(200,160,255,0.15)" stroke-width="1"/>
+    <!-- Polygon hexagon symbol -->
+    <polygon points="60,28 80,39 80,61 60,72 40,61 40,39" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="60,34 75,43 75,59 60,68 45,59 45,43" fill="rgba(255,255,255,0.08)"/>
+    <!-- POL text -->
+    <text x="60" y="62" text-anchor="middle" font-size="16" font-weight="900" fill="rgba(255,255,255,0.9)" font-family="Exo 2,sans-serif" letter-spacing="1">POL</text>
+    <!-- Shine -->
+    <ellipse cx="44" cy="38" rx="14" ry="9" fill="rgba(255,255,255,0.18)" transform="rotate(-30,44,38)"/>
+    <!-- Sparkle dots -->
+    <circle cx="96" cy="24" r="3" fill="#A87FF8" opacity="0.7"/>
+    <circle cx="16" cy="72" r="2" fill="#00FFD1" opacity="0.6"/>
+    <circle cx="100" cy="80" r="2.5" fill="#8247E5" opacity="0.5"/>
+</svg>
+                    </div>
+                    <div style="flex:1; min-width:0;">
+                        <div class="section-eyebrow" style="color:#00C8FF;">
+                            <span style="width:16px;height:2px;background:#00C8FF;display:inline-block;border-radius:2px;"></span>
+                            Global Matrix Queue
+                        </div>
+                        <div style="font-family:var(--font-display); font-size:1.2rem; font-weight:900; color:#fff; margin-bottom:6px; line-height:1.2;">
+                            Every New Member <span style="background:linear-gradient(90deg,#00C8FF,#00FFD1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Pays You Forward</span>
+                        </div>
+                        <div style="font-size:0.78rem; color:rgba(255,255,255,0.4); font-family:var(--font-display); margin-bottom:10px;">
+                            72% of every slot enters the auto-fill queue → cycles trigger → POL lands in your wallet instantly
+                        </div>
+                        <!-- Flow diagram -->
+                        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                            <div style="background:rgba(130,71,229,0.15); border:1px solid rgba(130,71,229,0.35); border-radius:10px; padding:6px 12px; font-family:var(--font-display); font-size:0.72rem; font-weight:700; color:#C0A0FF;">🎯 New Join</div>
+                            <div style="color:rgba(0,200,255,0.5); font-size:1rem;">→</div>
+                            <div style="background:rgba(0,200,255,0.1); border:1px solid rgba(0,200,255,0.25); border-radius:10px; padding:6px 12px; font-family:var(--font-display); font-size:0.72rem; font-weight:700; color:#00C8FF;">📋 Queue Fill</div>
+                            <div style="color:rgba(0,200,255,0.5); font-size:1rem;">→</div>
+                            <div style="background:rgba(0,255,209,0.1); border:1px solid rgba(0,255,209,0.25); border-radius:10px; padding:6px 12px; font-family:var(--font-display); font-size:0.72rem; font-weight:700; color:#00FFD1;">⚡ Cycle Complete</div>
+                            <div style="color:rgba(0,200,255,0.5); font-size:1rem;">→</div>
+                            <div style="background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.3); border-radius:10px; padding:6px 12px; font-family:var(--font-display); font-size:0.72rem; font-weight:700; color:#FFD700;">💰 POL to Wallet</div>
+                        </div>
+                    </div>
+                </div>
                 <div class="glass-card" style="margin-bottom: 30px;">
                     <h3 class="panel-section-title"><i class="fa-solid fa-diagram-next"></i> Global Queue Matrix Details</h3>
                     <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
@@ -676,6 +1033,51 @@
 
             <!-- ==================== ACTIVITY TAB ==================== -->
             <div id="tab-activity" class="tab-panel">
+                <div class="activity-header-infographic">
+                    <div style="animation:polFloat 4s ease-in-out infinite; flex-shrink:0;">
+                        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="width:52px;height:52px;overflow:visible;" class="ocb-pol-coin">
+    <defs>
+        <radialGradient id="polGradact" cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stop-color="#9B6BF5"/>
+            <stop offset="50%" stop-color="#7B2FE0"/>
+            <stop offset="100%" stop-color="#4A0FA0"/>
+        </radialGradient>
+        <radialGradient id="polEdgeact" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#A87FF8"/>
+            <stop offset="100%" stop-color="#5B1FC8"/>
+        </radialGradient>
+        <filter id="polGlowFact">
+            <feGaussianBlur stdDeviation="6" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+    </defs>
+    <!-- Shadow -->
+    <ellipse cx="60" cy="112" rx="36" ry="6" fill="rgba(130,71,229,0.3)" filter="url(#polGlowFact)"/>
+    <!-- Outer rim -->
+    <circle cx="60" cy="58" r="52" fill="url(#polEdgeact)"/>
+    <!-- Main face -->
+    <circle cx="60" cy="56" r="50" fill="url(#polGradact)"/>
+    <!-- Inner ring -->
+    <circle cx="60" cy="56" r="42" fill="none" stroke="rgba(200,160,255,0.25)" stroke-width="1.5"/>
+    <circle cx="60" cy="56" r="34" fill="none" stroke="rgba(200,160,255,0.15)" stroke-width="1"/>
+    <!-- Polygon hexagon symbol -->
+    <polygon points="60,28 80,39 80,61 60,72 40,61 40,39" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="60,34 75,43 75,59 60,68 45,59 45,43" fill="rgba(255,255,255,0.08)"/>
+    <!-- POL text -->
+    <text x="60" y="62" text-anchor="middle" font-size="16" font-weight="900" fill="rgba(255,255,255,0.9)" font-family="Exo 2,sans-serif" letter-spacing="1">POL</text>
+    <!-- Shine -->
+    <ellipse cx="44" cy="38" rx="14" ry="9" fill="rgba(255,255,255,0.18)" transform="rotate(-30,44,38)"/>
+    <!-- Sparkle dots -->
+    <circle cx="96" cy="24" r="3" fill="#A87FF8" opacity="0.7"/>
+    <circle cx="16" cy="72" r="2" fill="#00FFD1" opacity="0.6"/>
+    <circle cx="100" cy="80" r="2.5" fill="#8247E5" opacity="0.5"/>
+</svg>
+                    </div>
+                    <div>
+                        <div style="font-family:var(--font-display); font-size:1.05rem; font-weight:800; color:#fff; margin-bottom:3px;">📋 On-Chain Activity Log</div>
+                        <div style="font-size:0.78rem; color:rgba(255,255,255,0.38); font-family:var(--font-display);">Every deposit, claim, upgrade and commission — recorded permanently on Polygon blockchain</div>
+                    </div>
+                </div>
                 <div class="glass-card">
                     <h3 class="panel-section-title"><i class="fa-solid fa-clock-rotate-left"></i> Personal Activity Logs</h3>
                     <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
@@ -692,7 +1094,62 @@
             <!-- ==================== PROFILE TAB ==================== -->
             <div id="tab-profile" class="tab-panel">
                 <div class="glass-card" style="max-width: 700px; margin: 0 auto;">
-                    <h3 class="panel-section-title"><i class="fa-solid fa-circle-user"></i> Member Verification Profile</h3>
+
+                    <!-- Profile Character Header -->
+                    <div class="profile-member-card-header">
+                        <div style="animation:polFloat 5s ease-in-out infinite 0.5s; flex-shrink:0;">
+                            <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="width:56px;height:56px;overflow:visible;" class="ocb-pol-coin">
+    <defs>
+        <radialGradient id="polGradprf" cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stop-color="#9B6BF5"/>
+            <stop offset="50%" stop-color="#7B2FE0"/>
+            <stop offset="100%" stop-color="#4A0FA0"/>
+        </radialGradient>
+        <radialGradient id="polEdgeprf" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#A87FF8"/>
+            <stop offset="100%" stop-color="#5B1FC8"/>
+        </radialGradient>
+        <filter id="polGlowFprf">
+            <feGaussianBlur stdDeviation="6" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+    </defs>
+    <!-- Shadow -->
+    <ellipse cx="60" cy="112" rx="36" ry="6" fill="rgba(130,71,229,0.3)" filter="url(#polGlowFprf)"/>
+    <!-- Outer rim -->
+    <circle cx="60" cy="58" r="52" fill="url(#polEdgeprf)"/>
+    <!-- Main face -->
+    <circle cx="60" cy="56" r="50" fill="url(#polGradprf)"/>
+    <!-- Inner ring -->
+    <circle cx="60" cy="56" r="42" fill="none" stroke="rgba(200,160,255,0.25)" stroke-width="1.5"/>
+    <circle cx="60" cy="56" r="34" fill="none" stroke="rgba(200,160,255,0.15)" stroke-width="1"/>
+    <!-- Polygon hexagon symbol -->
+    <polygon points="60,28 80,39 80,61 60,72 40,61 40,39" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linejoin="round"/>
+    <polygon points="60,34 75,43 75,59 60,68 45,59 45,43" fill="rgba(255,255,255,0.08)"/>
+    <!-- POL text -->
+    <text x="60" y="62" text-anchor="middle" font-size="16" font-weight="900" fill="rgba(255,255,255,0.9)" font-family="Exo 2,sans-serif" letter-spacing="1">POL</text>
+    <!-- Shine -->
+    <ellipse cx="44" cy="38" rx="14" ry="9" fill="rgba(255,255,255,0.18)" transform="rotate(-30,44,38)"/>
+    <!-- Sparkle dots -->
+    <circle cx="96" cy="24" r="3" fill="#A87FF8" opacity="0.7"/>
+    <circle cx="16" cy="72" r="2" fill="#00FFD1" opacity="0.6"/>
+    <circle cx="100" cy="80" r="2.5" fill="#8247E5" opacity="0.5"/>
+</svg>
+                        </div>
+                        <div style="flex:1; min-width:0;">
+                            <div style="font-family:var(--font-caption); font-size:0.65rem; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:#8247E5; margin-bottom:4px;">⬡ MetaPOL Member</div>
+                            <div style="font-family:var(--font-display); font-size:1.3rem; font-weight:900; background:linear-gradient(90deg,#fff 30%,#8247E5 70%,#00C8FF 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">Verification Profile</div>
+                            <div style="font-size:0.76rem; color:rgba(255,255,255,0.38); font-family:var(--font-display); margin-top:3px;">Your identity lives on Polygon — private, secure, and fully on-chain</div>
+                        </div>
+                        <!-- Pulse ring decoration -->
+                        <div style="position:relative; width:44px; height:44px; flex-shrink:0;">
+                            <div style="position:absolute; inset:0; border-radius:50%; border:2px solid rgba(130,71,229,0.5); animation:pulseRing 2s ease-out infinite;"></div>
+                            <div style="position:absolute; inset:0; border-radius:50%; border:2px solid rgba(0,200,255,0.4); animation:pulseRing 2s ease-out infinite 0.6s;"></div>
+                            <div style="position:absolute; inset:8px; border-radius:50%; background:rgba(130,71,229,0.2); border:1px solid rgba(130,71,229,0.4); display:flex; align-items:center; justify-content:center; font-size:14px;">🛡️</div>
+                        </div>
+                    </div>
+
+                    <h3 class="panel-section-title" style="display:none;"><i class="fa-solid fa-circle-user"></i> Member Verification Profile</h3>
                     
                     <div style="display: flex; flex-direction: column; gap: 16px; margin-top: 24px;">
                         
@@ -1012,12 +1469,10 @@
                     <p class="footer-tagline">Decentralized Matrix &amp; Passive Mining<br>Ecosystem on Polygon Mainnet</p>
                 </div>
                 <div class="footer-links-col">
-                    <h4 class="footer-col-title">Navigation</h4>
-                    <a href="index.html">Home</a>
-                    <a href="dashboard.html?tab=mining">Mining</a>
-                    <a href="dashboard.html?tab=slots">Slots</a>
-                    <a href="dashboard.html?tab=matrix">Matrix</a>
-                    <a href="dashboard.html?tab=team">Team</a>
+                    <h4 class="footer-col-title">Quick Links</h4>
+                    <a href="index.html"><i class="fa-solid fa-house"></i> Home</a>
+                    <a href="register.html"><i class="fa-solid fa-user-plus"></i> Register</a>
+                    <a href="dashboard.html"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
                 </div>
                 <div class="footer-links-col">
                     <h4 class="footer-col-title">Resources</h4>

@@ -1251,15 +1251,23 @@ function closeSidebar() {
 document.addEventListener("DOMContentLoaded", () => {
     const isDesktop = window.innerWidth >= 1024;
     if (isDesktop) {
-        // Desktop: sidebar always visible via CSS, no JS needed
         const l = document.getElementById("dashboard-layout-wrapper");
         if (l) l.classList.add("sidebar-visible");
     }
-    // Mobile: always starts closed, hamburger opens it
-    // Close sidebar when nav link clicked on mobile
-    document.querySelectorAll(".sidebar-link").forEach(link => {
-        link.addEventListener("click", () => { if (window.innerWidth < 1024) closeSidebar(); });
-    });
+    // Close sidebar on mobile when any nav link or bottom tab is clicked
+    function attachSidebarCloseTriggers() {
+        document.querySelectorAll(".sidebar-link, .btab-btn, .mobile-tab-btn").forEach(el => {
+            el.removeEventListener("click", el._sidebarCloseHandler || function(){});
+            el._sidebarCloseHandler = function() {
+                if (window.innerWidth < 1024) {
+                    setTimeout(() => closeSidebar(), 60);
+                }
+            };
+            el.addEventListener("click", el._sidebarCloseHandler);
+        });
+    }
+    attachSidebarCloseTriggers();
+    window._attachSidebarCloseTriggers = attachSidebarCloseTriggers;
 });
 
 window.addEventListener("resize", () => {
