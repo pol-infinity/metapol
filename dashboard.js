@@ -107,13 +107,16 @@ async function syncDashboardData() {
     try {
         const address = window.metapolApp.userAddress;
         
-        // 1. Get user info from contract
+        // 1. Get user info from new contract (6 outputs)
         const userInfo = await window.metapolApp.contract.getUserInfo(address);
         const [
             isExist, id, referrerID, referredUsers,
-            totalEarnings, totalMiningDep, totalMiningWith,
             isFounder, incomeEligible
         ] = userInfo;
+
+        // 2. Get earnings from separate getUserEarnings function (new contract)
+        const earningsInfo = await window.metapolApp.contract.getUserEarnings(address);
+        const [totalEarnings, totalMiningDep, totalMiningWith] = earningsInfo;
 
         userMemberId = Number(id);
         userTotalMiningDeposited = totalMiningDep;
@@ -756,8 +759,11 @@ async function syncTeamTab() {
                 const refId   = Number(ev.args.userId);
                 const regTime = Number(ev.args.time);
                 const info    = await window.metapolApp.contract.getUserInfo(refAddr);
-                const isFounder    = info[7];
-                const miningDep    = info[5];
+                // New contract: [isExist, id, referrerID, referredUsers, isFounder, incomeEligible]
+                const isFounder = info[4];
+                // Get mining data from getUserEarnings
+                const earningsData = await window.metapolApp.contract.getUserEarnings(refAddr).catch(() => [0n, 0n, 0n]);
+                const miningDep    = earningsData[1];
                 const slotsInvested = miningDep * 5n;
 
                 // Estimate highest slot from mining deposit
@@ -1448,7 +1454,7 @@ async function syncLeaderboard(forceRefresh) {
             try {
                 const info = await window.metapolApp.contract.getUserInfo(addr);
                 const contractId = Number(info[1]); // memberId
-                const isFounder  = info[7];
+                const isFounder  = info[4]; // new contract: index 4
                 const pubCode    = window.MetapolRef ? window.MetapolRef.idToCode(contractId) : contractId;
                 return {
                     addr,

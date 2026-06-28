@@ -484,7 +484,7 @@ class MetaPOLApp {
             // Check registration
             const userInfo = await this.contract.getUserInfo(this.userAddress);
             const isRegistered = userInfo[0]; // isExist
-            const isFounder = userInfo[7];
+            const isFounder = userInfo[4]; // new contract: [isExist, id, referrerID, referredUsers, isFounder, incomeEligible]
             const isOwner = this.userAddress.toLowerCase() === (await this.contract.ownerWallet()).toLowerCase();
 
             console.log(`Routing Check - Address: ${this.userAddress}, Registered: ${isRegistered}, Founder: ${isFounder}, Owner: ${isOwner}`);

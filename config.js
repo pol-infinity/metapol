@@ -1,7 +1,7 @@
 // MetaPOL DApp Configuration
 const CONFIG = {
     // Contract details
-    CONTRACT_ADDRESS: "0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab",
+    CONTRACT_ADDRESS: "0x03964b371a6256037e8e9f23686fd9f4ce3c1f09",
     
     // Polygon Mainnet (Chain ID 137)
     CHAIN_ID: "0x89", // Hex representation of 137
