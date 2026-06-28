@@ -3,223 +3,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MetaPOL - Secured Admin Back-Office</title>
-    
-    <!-- Favicon & Styles -->
+    <title>MetaPOL — Admin Back-Office</title>
     <link rel="icon" type="image/jpg" href="assets/logo.jpg">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* ── Admin-specific overrides ── */
+        .admin-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 16px; }
+        .admin-stat-card { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px 16px; transition: border-color 0.2s; }
+        .admin-stat-card:hover { border-color: var(--primary); }
+        .admin-stat-icon { font-size: 1.4rem; margin-bottom: 8px; }
+        .admin-stat-val  { font-size: 1.35rem; font-weight: 800; color: #fff; font-family: var(--font-heading); margin-bottom: 4px; }
+        .admin-stat-lbl  { font-size: 0.72rem; color: var(--text-muted); }
+
+        .admin-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* form */
+        .admin-form-card { background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 16px; padding: 22px; }
+        .admin-form-card h3 { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        .admin-form-card p  { font-size: 0.8rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 18px; }
+        .admin-field { margin-bottom: 14px; }
+        .admin-field label { display: block; font-size: 0.76rem; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+        .admin-input { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px 14px; color: #fff; font-size: 0.85rem; font-family: monospace; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+        .admin-input:focus { border-color: var(--primary); }
+        .admin-select { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px 14px; color: #fff; font-size: 0.85rem; outline: none; cursor: pointer; box-sizing: border-box; }
+        .admin-select option { background: #0d0e1f; }
+        .admin-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .verify-hint { font-size: 0.74rem; color: var(--text-muted); margin-top: 5px; min-height: 18px; }
+
+        /* header banner */
+        .admin-banner { background: linear-gradient(135deg, rgba(138,43,226,0.12), rgba(0,212,255,0.08)); border: 1px solid rgba(138,43,226,0.25); border-radius: 16px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
+        .admin-banner-title { font-size: 1.4rem; font-family: var(--font-heading); font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; }
+        .admin-banner-meta { font-size: 0.78rem; color: var(--text-muted); margin-top: 6px; }
+        .admin-banner-meta a { color: var(--primary); text-decoration: none; font-family: monospace; }
+        .admin-banner-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+        /* activity log */
+        .admin-log-wrap { max-height: 420px; overflow-y: auto; }
+        .admin-log-wrap::-webkit-scrollbar { width: 4px; }
+        .admin-log-wrap::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 2px; }
+
+        /* Mobile */
+        @media (max-width: 900px) { .admin-grid { grid-template-columns: 1fr 1fr; } }
+        @media (max-width: 768px) {
+            .admin-two-col { grid-template-columns: 1fr; }
+            .admin-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .admin-banner { padding: 16px; }
+            .admin-banner-title { font-size: 1.1rem; }
+            .admin-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 480px) {
+            .admin-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .admin-stat-val { font-size: 1.1rem; }
+            .admin-banner-actions { width: 100%; }
+            .admin-banner-actions .btn { flex: 1; text-align: center; justify-content: center; font-size: 0.78rem; padding: 8px 10px; }
+        }
+    </style>
 </head>
 <body>
 
-    <!-- Canvas Particle Background -->
-    <canvas id="bg-canvas"></canvas>
+<canvas id="bg-canvas"></canvas>
+<div class="ambient-glow glow-top-left"></div>
+<div class="ambient-glow glow-bottom-right"></div>
 
-    <!-- Ambient Glowing Backdrops -->
-    <div class="ambient-glow glow-top-left"></div>
-    <div class="ambient-glow glow-bottom-right"></div>
+<!-- Loading -->
+<div id="loading-screen">
+    <div class="loading-logo-container">
+        <div class="loading-glow-ring"></div>
+        <img src="assets/logo.jpg" alt="MetaPOL Logo">
+    </div>
+    <div class="loading-text">Authenticating Admin Session…</div>
+</div>
 
-    <!-- Premium Loading Screen -->
-    <div id="loading-screen">
-        <div class="loading-logo-container">
-            <div class="loading-glow-ring"></div>
-            <img src="assets/logo.jpg" alt="MetaPOL Logo">
+<!-- Header -->
+<header class="main-header">
+    <div class="header-container">
+        <a href="index.html" class="logo-link">
+            <img src="assets/logo.jpg" alt="MetaPOL Logo" class="logo-img">
+            <span class="logo-text">METAPOL</span>
+        </a>
+        <div class="header-actions" id="header-right">
+            <button id="btn-connect-wallet" class="btn btn-primary btn-glow" onclick="window.metapolApp.connectWallet()">
+                <i id="header-wallet-icon" class="fa-solid fa-wallet"></i>
+                <span id="header-connect-text">Connect Wallet</span>
+            </button>
         </div>
-        <div class="loading-text">Authenticating Admin Session</div>
+    </div>
+</header>
+
+<!-- Access Denied / Connect Prompt -->
+<div id="connect-prompt-overlay" class="wallet-prompt-wrapper" style="display:flex;">
+    <div class="glass-card wallet-prompt-card">
+        <div class="auth-logo" style="background:rgba(255,59,48,0.1);border:2px solid var(--danger);display:flex;align-items:center;justify-content:center;color:var(--danger);font-size:2.5rem;">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 class="auth-title" id="prompt-title" style="font-size:1.5rem;">Admin Restricted Access</h3>
+        <p class="auth-subtitle" id="prompt-sub" style="margin-bottom:20px;">
+            This portal is strictly authorized for the smart contract owner wallet only.
+        </p>
+        <button class="btn btn-primary btn-glow" style="width:100%;margin-bottom:12px;" onclick="window.metapolApp.connectWallet()">
+            <i class="fa-solid fa-link"></i> Connect Owner Wallet
+        </button>
+        <button class="btn btn-outline" style="width:100%;" onclick="window.location.href='index.html'">
+            <i class="fa-solid fa-house"></i> Return Home
+        </button>
+    </div>
+</div>
+
+<!-- Admin Panel (hidden until owner verified) -->
+<div id="admin-panel" style="display:none; padding: 16px; max-width: 1300px; margin: 80px auto 40px; box-sizing: border-box;">
+
+    <!-- Banner -->
+    <div class="admin-banner">
+        <div>
+            <div class="admin-banner-title">
+                <i class="fa-solid fa-user-gear" style="color:var(--primary);"></i> Contract Back-Office
+            </div>
+            <div class="admin-banner-meta">
+                Contract: <a href="https://polygonscan.com/address/0x03964b371a6256037e8e9f23686fd9f4ce3c1f09" target="_blank">0x03964b371a6256037e8e9f23686fd9f4ce3c1f09</a>
+                &nbsp;|&nbsp; Owner: <span id="admin-owner-wallet" style="color:var(--accent);font-family:monospace;">—</span>
+            </div>
+        </div>
+        <div class="admin-banner-actions">
+            <button class="btn btn-secondary" onclick="syncAdminData()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+            <button class="btn btn-outline" onclick="window.location.href='dashboard.html'"><i class="fa-solid fa-gauge"></i> Dashboard</button>
+            <button class="btn btn-outline" onclick="window.metapolApp.disconnectWallet()"><i class="fa-solid fa-right-from-bracket text-danger"></i> Disconnect</button>
+        </div>
     </div>
 
-    <!-- Sticky Header -->
-    <header class="main-header">
-        <div class="header-container">
-            <a href="index.html" class="logo-link">
-                <img src="assets/logo.jpg" alt="MetaPOL Logo" class="logo-img">
-                <span class="logo-text">METAPOL</span>
-            </a>
-            
-            <div class="header-actions">
-                <button id="btn-connect-wallet" class="btn btn-primary" onclick="window.metapolApp.connectWallet()">
-                    <i id="header-wallet-icon" class="fa-solid fa-wallet text-accent"></i> 
-                    <span id="header-connect-text">Connect Wallet</span>
+    <!-- Stats -->
+    <div class="admin-grid">
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon" style="color:var(--primary);"><i class="fa-solid fa-users"></i></div>
+            <div class="admin-stat-val" id="admin-total-users">—</div>
+            <div class="admin-stat-lbl">Registered Members</div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon" style="color:var(--accent);"><i class="fa-solid fa-microchip"></i></div>
+            <div class="admin-stat-val" id="admin-total-mining">—</div>
+            <div class="admin-stat-lbl">Total Mining Deposited</div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon" style="color:#00FFB3;"><i class="fa-solid fa-vault"></i></div>
+            <div class="admin-stat-val" id="admin-contract-balance">—</div>
+            <div class="admin-stat-lbl">Contract POL Balance</div>
+        </div>
+        <div class="admin-stat-card">
+            <div class="admin-stat-icon" style="color:#FFD700;"><i class="fa-solid fa-circle-dollar-to-slot"></i></div>
+            <div class="admin-stat-val" id="admin-total-fees">—</div>
+            <div class="admin-stat-lbl">Total Admin Fees Collected</div>
+        </div>
+    </div>
+
+    <!-- Two-col: founder actions + global activity -->
+    <div class="admin-two-col">
+
+        <!-- Left: Founder Actions -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+
+            <!-- Grant Founder -->
+            <div class="admin-form-card">
+                <h3><i class="fa-solid fa-crown" style="color:#FFD700;"></i> Grant Founder Status</h3>
+                <p>Registers an unregistered wallet as a Founder member, granting them slots from level <em>fromLevel</em> to <em>toLevel</em> on the contract. The wallet must NOT already be registered.</p>
+                <div class="admin-field">
+                    <label>Recipient Wallet Address</label>
+                    <input type="text" id="input-grant-addr" class="admin-input" placeholder="0x..." oninput="validateGrantAddress(this.value)">
+                    <div class="verify-hint" id="grant-verify-hint">Enter a wallet address to validate</div>
+                </div>
+                <div class="admin-row">
+                    <div class="admin-field">
+                        <label>From Level</label>
+                        <select id="grant-from-level" class="admin-select">
+                            <option value="1" selected>1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                        </select>
+                    </div>
+                    <div class="admin-field">
+                        <label>To Level</label>
+                        <select id="grant-to-level" class="admin-select">
+                            <option value="1">1</option><option value="2">2</option>
+                            <option value="3">3</option><option value="4">4</option>
+                            <option value="5">5</option><option value="6">6</option>
+                            <option value="7">7</option><option value="8">8</option>
+                            <option value="9">9</option><option value="10">10</option>
+                            <option value="11">11</option><option value="12" selected>12</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="btn-grant-founder" class="btn btn-primary btn-glow" style="width:100%;" onclick="executeGrantFounder()" disabled>
+                    <i class="fa-solid fa-user-plus"></i> Grant Founder Status
                 </button>
             </div>
-        </div>
-    </header>
 
-    <!-- Access Denied Card (Visible when wallet connected is not owner) -->
-    <div id="connect-prompt-overlay" class="wallet-prompt-wrapper" style="display: flex;">
-        <div class="glass-card wallet-prompt-card">
-            <div class="auth-logo" style="background: rgba(255, 59, 48, 0.1); border: 2px solid var(--danger); display: flex; align-items: center; justify-content: center; color: var(--danger); font-size: 2.5rem;">
-                <i class="fa-solid fa-shield-halved"></i>
+            <!-- Upgrade Founder Slots -->
+            <div class="admin-form-card">
+                <h3><i class="fa-solid fa-arrow-up-right-dots" style="color:var(--primary);"></i> Upgrade Founder Slots</h3>
+                <p>Upgrades an existing Founder's slot range from <em>fromLevel</em> to <em>toLevel</em>. The wallet must already have Founder status.</p>
+                <div class="admin-field">
+                    <label>Founder Wallet Address</label>
+                    <input type="text" id="input-upgrade-addr" class="admin-input" placeholder="0x..." oninput="validateUpgradeAddress(this.value)">
+                    <div class="verify-hint" id="upgrade-verify-hint">Enter a founder wallet address to validate</div>
+                </div>
+                <div class="admin-row">
+                    <div class="admin-field">
+                        <label>From Level</label>
+                        <select id="upgrade-from-level" class="admin-select">
+                            <option value="1" selected>1</option>
+                            <option value="2">2</option><option value="3">3</option>
+                            <option value="4">4</option><option value="5">5</option>
+                            <option value="6">6</option>
+                        </select>
+                    </div>
+                    <div class="admin-field">
+                        <label>To Level</label>
+                        <select id="upgrade-to-level" class="admin-select">
+                            <option value="7">7</option><option value="8">8</option>
+                            <option value="9">9</option><option value="10">10</option>
+                            <option value="11">11</option><option value="12" selected>12</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="btn-upgrade-founder" class="btn btn-secondary" style="width:100%;" onclick="executeUpgradeFounder()" disabled>
+                    <i class="fa-solid fa-layer-group"></i> Upgrade Founder Slots
+                </button>
             </div>
-            <h3 class="auth-title" style="font-size: 1.5rem;">Admin Restricted Access</h3>
-            <p class="auth-subtitle" style="margin-bottom: 20px;">
-                This portal is strictly authorized for the smart contract owner wallet. Please connect the owner wallet to synchronize.
+
+        </div>
+
+        <!-- Right: Global Activity Log -->
+        <div class="admin-form-card" style="min-height:300px;">
+            <h3><i class="fa-solid fa-globe" style="color:var(--secondary);"></i> Global Ecosystem Timeline</h3>
+            <p>Live registrations, slot purchases, mining withdrawals, and founder grants across the entire network — last 5,000 blocks.</p>
+            <div class="admin-log-wrap" id="global-activity-logs-container">
+                <div style="text-align:center;color:var(--text-muted);padding:40px 0;font-size:0.85rem;">
+                    <i class="fa-solid fa-spinner fa-spin"></i> Synchronizing block scanner…
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Transaction Modal -->
+<div id="tx-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width:450px;text-align:center;padding:30px;">
+        <div id="tx-loading-state">
+            <div class="loading-logo-container" style="width:80px;height:80px;margin:0 auto 20px;">
+                <div class="loading-glow-ring" style="border-top-color:var(--primary);border-bottom-color:var(--secondary);"></div>
+                <i class="fa-solid fa-arrows-spin fa-spin text-primary" style="font-size:2.5rem;position:absolute;top:calc(50% - 1.25rem);left:calc(50% - 1.25rem);"></i>
+            </div>
+            <h4 id="tx-loading-title" style="font-size:1.2rem;font-family:var(--font-heading);margin-bottom:12px;">Authorizing Action</h4>
+            <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.5;margin-bottom:16px;">
+                Please approve the transaction in your wallet. Do not refresh.
             </p>
-            
-            <button class="btn btn-primary btn-glow" style="width: 100%; margin-bottom: 12px;" onclick="window.metapolApp.connectWallet()">
-                <i class="fa-solid fa-link"></i> Connect Owner Wallet
+            <div id="tx-hash-container" style="font-family:monospace;font-size:0.75rem;background:rgba(255,255,255,0.05);padding:8px;border-radius:6px;word-break:break-all;color:var(--primary);">
+                Awaiting authorization…
+            </div>
+        </div>
+        <div id="tx-success-state" style="display:none;">
+            <div style="width:70px;height:70px;border-radius:50%;background:rgba(0,255,179,0.1);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;color:var(--accent);font-size:2rem;">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h4 style="font-size:1.2rem;font-family:var(--font-heading);margin-bottom:12px;">Transaction Confirmed</h4>
+            <p style="color:var(--text-muted);font-size:0.85rem;line-height:1.5;margin-bottom:20px;">Successfully confirmed by Polygon network validators.</p>
+            <a id="tx-explorer-link" href="#" target="_blank" class="btn btn-secondary" style="width:100%;margin-bottom:12px;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> View on Polygonscan
+            </a>
+            <button class="btn btn-primary btn-glow" style="width:100%;" onclick="closeTxModal()">
+                <i class="fa-solid fa-rotate-left"></i> Return to Back-Office
             </button>
-            <button class="btn btn-outline" style="width: 100%;" onclick="window.location.href='index.html'">
-                <i class="fa-solid fa-house"></i> Return Home
+        </div>
+        <div id="tx-fail-state" style="display:none;">
+            <div style="width:70px;height:70px;border-radius:50%;background:rgba(255,59,48,0.1);border:2px solid var(--danger);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;color:var(--danger);font-size:2rem;">
+                <i class="fa-solid fa-circle-xmark"></i>
+            </div>
+            <h4 style="font-size:1.2rem;font-family:var(--font-heading);margin-bottom:12px;">Transaction Failed</h4>
+            <p id="tx-error-msg" style="color:var(--text-muted);font-size:0.85rem;line-height:1.5;margin-bottom:20px;">The action was rejected or reverted.</p>
+            <button class="btn btn-secondary" style="width:100%;" onclick="closeTxModal()">
+                <i class="fa-solid fa-rotate-left"></i> Try Again
             </button>
         </div>
     </div>
+</div>
 
-    <!-- Admin Panel (Hidden until owner wallet is validated) -->
-    <div id="dashboard-layout-wrapper" class="dashboard-container" style="display: none; grid-template-columns: 1fr;">
-        
-        <main class="dash-main">
-            
-            <!-- Admin Header banner -->
-            <div class="glass-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-                <div>
-                    <h2 style="font-size: 1.75rem; font-family: var(--font-heading);"><i class="fa-solid fa-user-gear text-primary"></i> Contract Back-Office Control</h2>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;">Smart Contract: <a href="https://polygonscan.com/address/0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab" target="_blank" style="color: var(--primary); text-decoration: underline; font-family: monospace;">0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab</a></p>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 4px;"><i class="fa-solid fa-shield-check text-secondary"></i> Owner Wallet: <span id="admin-owner-wallet" style="font-family: monospace; color: var(--accent);">—</span></p>
-                </div>
-                <div style="display: flex; gap: 12px;">
-                    <button class="btn btn-secondary" onclick="syncAdminData()"><i class="fa-solid fa-rotate"></i> Refresh Stats</button>
-                    <button class="btn btn-outline" onclick="window.location.href='dashboard.html'"><i class="fa-solid fa-gauge"></i> Client Dashboard</button>
-                </div>
-            </div>
-
-            <!-- Stats grid -->
-            <div class="admin-card-row">
-                <div class="glass-card">
-                    <span class="stat-label">Total Registered Users</span>
-                    <span class="stat-value" id="admin-total-users">0</span>
-                    <span class="stat-footer"><i class="fa-solid fa-users text-primary"></i> Global ID registrations</span>
-                </div>
-                <div class="glass-card">
-                    <span class="stat-label">Total Mining Deposited</span>
-                    <span class="stat-value" id="admin-total-mining">0.00 POL</span>
-                    <span class="stat-footer"><i class="fa-solid fa-bolt text-accent"></i> Passive Capitalization</span>
-                </div>
-                <div class="glass-card">
-                    <span class="stat-label">Contract Balance</span>
-                    <span class="stat-value" id="admin-contract-balance">0.00 POL</span>
-                    <span class="stat-footer"><i class="fa-solid fa-vault text-primary"></i> Polygon Vault Liquid Pool</span>
-                </div>
-                <div class="glass-card">
-                    <span class="stat-label">Total Admin Fees Collected</span>
-                    <span class="stat-value" id="admin-total-fees">0.00 POL</span>
-                    <span class="stat-footer"><i class="fa-solid fa-circle-dollar-to-slot text-secondary"></i> Direct Owner Share</span>
-                </div>
-            </div>
-
-            <!-- Double Column layout -->
-            <div class="overview-grid">
-                
-                <!-- Onboard Founder status -->
-                <div class="glass-card">
-                    <h3 class="panel-section-title"><i class="fa-solid fa-crown"></i> Grant Founder Member Club</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; margin-bottom: 20px;">
-                        Input a member's wallet address to grant them **Founder Status** directly on the blockchain. 
-                        Founders are instantly entered into all 12 matrix levels for free and are exempt from referral limits.
-                    </p>
-
-                    <div class="form-group">
-                        <label class="form-label">Recipient Wallet Address</label>
-                        <div class="input-glow-wrapper">
-                            <input type="text" id="input-founder-address" class="form-input" placeholder="Enter Address (0x...)">
-                        </div>
-                        <span id="founder-verify-text" style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 6px;">
-                            Validating address...
-                        </span>
-                    </div>
-
-                    <button id="btn-grant-founder" class="btn btn-primary btn-glow" style="width: 100%; margin-top: 10px;" onclick="executeGrantFounder()" disabled>
-                        <i class="fa-solid fa-user-plus"></i> Grant Founder Status
-                    </button>
-                </div>
-
-                <!-- Global Activity Feed -->
-                <div class="glass-card">
-                    <h3 class="panel-section-title"><i class="fa-solid fa-globe"></i> Global Ecosystem Timeline</h3>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
-                        Showing live registrations, upgrades, and claims across the entire Polygon contract network.
-                    </p>
-                    <div class="activity-feed-wrapper" id="global-activity-logs-container" style="max-height: 380px;">
-                        <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; padding: 40px 0;">
-                            Synchronizing block scanner...
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-        </main>
-    </div>
-
-    <!-- Upgrade Transaction Confirmation Modal -->
-    <div id="tx-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width: 450px; text-align: center; padding: 30px;">
-            <div id="tx-loading-state">
-                <div class="loading-logo-container" style="width: 80px; height: 80px; margin: 0 auto 20px auto;">
-                    <div class="loading-glow-ring" style="border-top-color: var(--primary); border-bottom-color: var(--secondary);"></div>
-                    <i class="fa-solid fa-arrows-spin fa-spin text-primary" style="font-size: 2.5rem; position: absolute; top: calc(50% - 1.25rem); left: calc(50% - 1.25rem);"></i>
-                </div>
-                <h4 id="tx-loading-title" style="font-size: 1.25rem; font-family: var(--font-heading); margin-bottom: 12px;">Authorizing Back-Office Action</h4>
-                <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 16px;">
-                    Please approve the transaction in your connected wallet. Do not refresh this page.
-                </p>
-                <div id="tx-hash-container" style="font-family: monospace; font-size: 0.75rem; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; word-break: break-all; color: var(--primary);">
-                    Awaiting authorization...
-                </div>
-            </div>
-
-            <div id="tx-success-state" style="display: none;">
-                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(0, 255, 179, 0.1); border: 2px solid var(--accent); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; color: var(--accent); font-size: 2rem;">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-                <h4 style="font-size: 1.25rem; font-family: var(--font-heading); margin-bottom: 12px;">Action Successfully Deployed</h4>
-                <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px;">
-                    The transaction was confirmed by Polygon network validator nodes.
-                </p>
-                <a id="tx-explorer-link" href="#" target="_blank" class="btn btn-secondary" style="width: 100%; margin-bottom: 12px;">
-                    <i class="fa-solid fa-arrow-up-right-from-square"></i> View on Polygonscan
-                </a>
-                <button class="btn btn-primary btn-glow" style="width: 100%;" onclick="closeTxModal()">
-                    <i class="fa-solid fa-rotate-left"></i> Return to Back-Office
-                </button>
-            </div>
-
-            <div id="tx-fail-state" style="display: none;">
-                <div style="width: 70px; height: 70px; border-radius: 50%; background: rgba(255, 59, 48, 0.1); border: 2px solid var(--danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px auto; color: var(--danger); font-size: 2rem;">
-                    <i class="fa-solid fa-circle-xmark"></i>
-                </div>
-                <h4 style="font-size: 1.25rem; font-family: var(--font-heading); margin-bottom: 12px;">Transaction Failed</h4>
-                <p id="tx-error-msg" style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px;">
-                    The action was rejected by your wallet or reverted by the contract logic.
-                </p>
-                <button class="btn btn-secondary" style="width: 100%;" onclick="closeTxModal()">
-                    <i class="fa-solid fa-rotate-left"></i> Try Again
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Presentation PDF Modal Viewer -->
-    <div id="pdf-modal" class="modal-overlay">
-        <div class="modal-content pdf-modal">
-            <div class="modal-header">
-                <h3 class="modal-title"><i class="fa-regular fa-file-pdf text-danger"></i> MetaPOL System PDF Presentation</h3>
-                <div style="display: flex; gap: 12px; align-items: center;">
-                    <a href="assets/MetaPOL.pdf" download class="btn btn-secondary btn-sm" style="padding: 6px 12px; font-size: 0.8rem;">
-                        <i class="fa-solid fa-download"></i> Download PDF
-                    </a>
-                    <button class="modal-close-btn">&times;</button>
-                </div>
-            </div>
-            <iframe class="pdf-iframe-container" src="assets/MetaPOL.pdf"></iframe>
-        </div>
-    </div>
-
-    <!-- Web3 Scripts -->
-    <script src="ethers.umd.min.js"></script>
-    <script src="config.js"></script>
-    <script src="abi.js"></script>
-    <script src="app.js"></script>
-    <script src="admin.js"></script>
+<script src="ethers.umd.min.js"></script>
+<script src="config.js"></script>
+<script src="abi.js"></script>
+<script src="app.js"></script>
+<script src="admin.js"></script>
 </body>
 </html>
