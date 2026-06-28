@@ -429,7 +429,7 @@ class MetaPOLApp {
     async _fetchAndShowBalance() {
         try {
             const bal = await this.provider.getBalance(this.userAddress);
-            const balEth = parseFloat(ethers.formatEther(bal)).toFixed(3);
+            const balEth = parseFloat(ethers.formatEther(bal ?? 0n)).toFixed(3);
             const el = document.getElementById("wp-pol-balance");
             if (el) el.innerText = `${balEth} POL`;
 

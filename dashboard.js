@@ -115,8 +115,15 @@ async function syncDashboardData() {
         ] = userInfo;
 
         // 2. Get earnings from separate getUserEarnings function (new contract)
-        const earningsInfo = await window.metapolApp.contract.getUserEarnings(address);
-        const [totalEarnings, totalMiningDep, totalMiningWith] = earningsInfo;
+        let totalEarnings = 0n, totalMiningDep = 0n, totalMiningWith = 0n;
+        try {
+            const earningsInfo = await window.metapolApp.contract.getUserEarnings(address);
+            totalEarnings  = earningsInfo[0] ?? 0n;
+            totalMiningDep = earningsInfo[1] ?? 0n;
+            totalMiningWith= earningsInfo[2] ?? 0n;
+        } catch(e) {
+            console.warn("getUserEarnings not available:", e.message);
+        }
 
         userMemberId = Number(id);
         userTotalMiningDeposited = totalMiningDep;
@@ -126,8 +133,8 @@ async function syncDashboardData() {
 
         // Display public code instead of real contract ID
         document.getElementById("stat-member-id").innerText = `#${publicCode}`;
-        document.getElementById("stat-total-earnings").innerText = `${parseFloat(ethers.formatEther(totalEarnings)).toFixed(2)} POL`;
-        document.getElementById("stat-mining-capital").innerText = `${parseFloat(ethers.formatEther(totalMiningDep)).toFixed(2)} POL`;
+        document.getElementById("stat-total-earnings").innerText = `${parseFloat(ethers.formatEther(totalEarnings ?? 0n)).toFixed(2)} POL`;
+        document.getElementById("stat-mining-capital").innerText = `${parseFloat(ethers.formatEther(totalMiningDep ?? 0n)).toFixed(2)} POL`;
         document.getElementById("stat-direct-referrals").innerText = Number(referredUsers);
 
         // Team size card
@@ -145,14 +152,14 @@ async function syncDashboardData() {
             const sponsorEvents = await window.metapolApp.contract.queryFilter(sponsorFilter, 0, "latest");
             sponsorEvents.forEach(ev => { totalSponsorPaid += ev.args.amount; });
             const commissionEl = document.getElementById("stat-direct-commission");
-            if (commissionEl) commissionEl.innerText = `${parseFloat(ethers.formatEther(totalSponsorPaid)).toFixed(2)} POL`;
+            if (commissionEl) commissionEl.innerText = `${parseFloat(ethers.formatEther(totalSponsorPaid ?? 0n)).toFixed(2)} POL`;
         } catch(e) { console.warn("Could not fetch sponsor commission:", e); }
 
         // ── Income Breakdown Rows (FutureTon style) ──
         const miningWithdrawnPOL = parseFloat(ethers.formatEther(totalMiningWith || 0n)).toFixed(2);
-        const miningCapPOL       = parseFloat(ethers.formatEther(totalMiningDep)).toFixed(2);
-        const matrixEarningsPOL  = parseFloat(ethers.formatEther(totalEarnings)).toFixed(2);
-        const directCommPOL      = parseFloat(ethers.formatEther(totalSponsorPaid)).toFixed(2);
+        const miningCapPOL       = parseFloat(ethers.formatEther(totalMiningDep ?? 0n)).toFixed(2);
+        const matrixEarningsPOL  = parseFloat(ethers.formatEther(totalEarnings ?? 0n)).toFixed(2);
+        const directCommPOL      = parseFloat(ethers.formatEther(totalSponsorPaid ?? 0n)).toFixed(2);
 
         // Mining row
         const incMining = document.getElementById("income-mining-val");
@@ -227,7 +234,7 @@ async function syncDashboardData() {
         // Populate wallet status fields
         try {
             const bal = await window.metapolApp.provider.getBalance(address);
-            const balFmt = parseFloat(ethers.formatEther(bal)).toFixed(4);
+            const balFmt = parseFloat(ethers.formatEther(bal ?? 0n)).toFixed(4);
             const polBalEl = document.getElementById("profile-pol-balance");
             if (polBalEl) polBalEl.innerText = `${balFmt} POL`;
 
@@ -303,9 +310,9 @@ async function syncMiningData() {
             
             row.innerHTML = `
                 <td>Entry #${entry.index}</td>
-                <td>${parseFloat(ethers.formatEther(entry.capital)).toFixed(2)} POL</td>
-                <td>${parseFloat(ethers.formatEther(entry.cap)).toFixed(2)} POL</td>
-                <td>${parseFloat(ethers.formatEther(entry.withdrawn)).toFixed(2)} POL</td>
+                <td>${parseFloat(ethers.formatEther(entry.capital ?? 0n)).toFixed(2)} POL</td>
+                <td>${parseFloat(ethers.formatEther(entry.cap ?? 0n)).toFixed(2)} POL</td>
+                <td>${parseFloat(ethers.formatEther(entry.withdrawn ?? 0n)).toFixed(2)} POL</td>
                 <td>${date}</td>
                 <td>
                     <span class="slot-status-label ${entry.active ? 'slot-status-active' : 'slot-status-locked'}">
@@ -321,16 +328,16 @@ async function syncMiningData() {
         }
 
         // Set static mining tab stats
-        document.getElementById("tab-mining-capital").innerText = `${parseFloat(ethers.formatEther(totalActiveCapital)).toFixed(2)} POL`;
-        document.getElementById("tab-mining-withdrawn").innerText = `${parseFloat(ethers.formatEther(totalMiningWithdrawn)).toFixed(2)} POL`;
-        document.getElementById("tab-mining-cap").innerText = `${parseFloat(ethers.formatEther(totalMiningCap)).toFixed(2)} POL`;
+        document.getElementById("tab-mining-capital").innerText = `${parseFloat(ethers.formatEther(totalActiveCapital ?? 0n)).toFixed(2)} POL`;
+        document.getElementById("tab-mining-withdrawn").innerText = `${parseFloat(ethers.formatEther(totalMiningWithdrawn ?? 0n)).toFixed(2)} POL`;
+        document.getElementById("tab-mining-cap").innerText = `${parseFloat(ethers.formatEther(totalMiningCap ?? 0n)).toFixed(2)} POL`;
 
         // Calculate Daily (0.15% daily rate is 1_500_000_000 / 1e12)
         const dailyRate = Number(totalActiveCapital) * 0.0015;
-        const dailyRateEth = parseFloat(ethers.formatEther(dailyRate.toString())).toFixed(4);
+        const dailyRateEth = parseFloat(ethers.formatEther((dailyRate ?? 0n).toString())).toFixed(4);
         document.getElementById("mining-est-daily").innerText = `${dailyRateEth} POL`;
         document.getElementById("tab-mining-daily").innerText = `${dailyRateEth} POL`;
-        document.getElementById("mining-total-withdrawn").innerText = `${parseFloat(ethers.formatEther(totalMiningWithdrawn)).toFixed(2)} POL`;
+        document.getElementById("mining-total-withdrawn").innerText = `${parseFloat(ethers.formatEther(totalMiningWithdrawn ?? 0n)).toFixed(2)} POL`;
 
         // Start Live ROI Animation Counter
         startMiningTimer();
@@ -357,7 +364,7 @@ function startMiningTimer() {
         window.metapolApp.contract.getPendingMining(window.metapolApp.userAddress).then(result => {
             // result[0]=gross, result[1]=adminFee, result[2]=net (what user receives)
             const netWei = result[2] !== undefined ? result[2] : result;
-            const claimableVal = parseFloat(ethers.formatEther(netWei)).toFixed(4);
+            const claimableVal = parseFloat(ethers.formatEther(netWei ?? 0n)).toFixed(4);
             const cl1 = document.getElementById("overview-claimable");
             const cl2 = document.getElementById("mining-tab-claimable");
             if (cl1) cl1.innerText = `${claimableVal} POL`;
@@ -378,9 +385,9 @@ function startMiningTimer() {
             if (!entry.active) return;
 
             const elapsed = now - Number(entry.startTime);
-            const earned = Number(ethers.formatEther(entry.capital)) * DAILY_RATE * elapsed / SECONDS_PER_DAY;
-            const available = earned > Number(ethers.formatEther(entry.cap)) ? Number(ethers.formatEther(entry.cap)) : earned;
-            const pending = available > Number(ethers.formatEther(entry.withdrawn)) ? available - Number(ethers.formatEther(entry.withdrawn)) : 0;
+            const earned = Number(ethers.formatEther(entry.capital ?? 0n)) * DAILY_RATE * elapsed / SECONDS_PER_DAY;
+            const available = earned > Number(ethers.formatEther(entry.cap ?? 0n)) ? Number(ethers.formatEther(entry.cap ?? 0n)) : earned;
+            const pending = available > Number(ethers.formatEther(entry.withdrawn ?? 0n)) ? available - Number(ethers.formatEther(entry.withdrawn ?? 0n)) : 0;
             
             totalTickingPending += pending;
         });
@@ -399,7 +406,7 @@ function startMiningTimer() {
             if (window.metapolApp && window.metapolApp.contract && window.metapolApp.userAddress) {
                 window.metapolApp.contract.getPendingMining(window.metapolApp.userAddress).then(result => {
                     const netWei = result[2] !== undefined ? result[2] : result;
-                    const claimableVal = parseFloat(ethers.formatEther(netWei)).toFixed(4);
+                    const claimableVal = parseFloat(ethers.formatEther(netWei ?? 0n)).toFixed(4);
                     const cl1 = document.getElementById("overview-claimable");
                     const cl2 = document.getElementById("mining-tab-claimable");
                     if (cl1) cl1.innerText = `${claimableVal} POL`;
@@ -767,7 +774,7 @@ async function syncTeamTab() {
                 const slotsInvested = miningDep * 5n;
 
                 // Estimate highest slot from mining deposit
-                const miningNum = parseFloat(ethers.formatEther(miningDep));
+                const miningNum = parseFloat(ethers.formatEther(miningDep ?? 0n));
                 // 20% of slot price goes to mining
                 let highestSlot = 0;
                 for (let s = SLOT_PRICES.length - 1; s >= 0; s--) {
@@ -783,10 +790,10 @@ async function syncTeamTab() {
             results.forEach(r => { referralDetails.push(r); totalTeamVolume += r.invested; });
         }
 
-        const commPOL   = parseFloat(ethers.formatEther(totalSponsorPaid)).toFixed(2);
-        const volPOL    = parseFloat(ethers.formatEther(totalTeamVolume)).toFixed(2);
+        const commPOL   = parseFloat(ethers.formatEther(totalSponsorPaid ?? 0n)).toFixed(2);
+        const volPOL    = parseFloat(ethers.formatEther(totalTeamVolume ?? 0n)).toFixed(2);
         const avgMining = directsCount > 0
-            ? (parseFloat(ethers.formatEther(totalTeamMining)) / directsCount).toFixed(1)
+            ? (parseFloat(ethers.formatEther(totalTeamMining ?? 0n)) / directsCount).toFixed(1)
             : "0";
 
         // ── Hero cards ──
@@ -877,14 +884,14 @@ function renderTeamTable(data) {
     tbody.innerHTML = data.map(ref => {
         const pubCode = window.MetapolRef ? window.MetapolRef.idToCode(ref.id) : ref.id;
         const commData = window._commissionByUser ? window._commissionByUser[ref.addrLower] : null;
-        const commPOL = commData ? parseFloat(ethers.formatEther(commData.total)).toFixed(2) : "0.00";
+        const commPOL = commData ? parseFloat(ethers.formatEther(commData.total ?? 0n)).toFixed(2) : "0.00";
         return `
         <tr>
             <td style="font-family:var(--font-display); font-weight:700; color:var(--cyan);">#${pubCode}</td>
             <td><span class="wallet-badge" style="font-size:0.72rem;">${window.metapolApp.shortenAddress(ref.address)}</span></td>
             <td style="color:var(--text-muted); font-size:0.78rem;">${ref.date}</td>
-            <td style="font-weight:700;">${parseFloat(ethers.formatEther(ref.invested)).toFixed(1)} POL</td>
-            <td style="color:var(--teal); font-weight:700;">${parseFloat(ethers.formatEther(ref.mining)).toFixed(1)} POL</td>
+            <td style="font-weight:700;">${parseFloat(ethers.formatEther(ref.invested ?? 0n)).toFixed(1)} POL</td>
+            <td style="color:var(--teal); font-weight:700;">${parseFloat(ethers.formatEther(ref.mining ?? 0n)).toFixed(1)} POL</td>
             <td>
                 ${ref.isFounder
                     ? '<span class="slot-status-label slot-status-active" style="font-size:0.65rem;"><i class="fa-solid fa-crown"></i> Founder</span>'
@@ -938,7 +945,7 @@ async function syncActivityTab() {
                 type: "mining_deposit",
                 icon: "fa-bolt",
                 class: "reg",
-                text: `Mining Deposit initialized: <strong>${parseFloat(ethers.formatEther(e.args.capital)).toFixed(2)} POL</strong> (Cap: ${parseFloat(ethers.formatEther(e.args.cap)).toFixed(2)} POL)`,
+                text: `Mining Deposit initialized: <strong>${parseFloat(ethers.formatEther(e.args?.capital ?? 0n)).toFixed(2)} POL</strong> (Cap: ${parseFloat(ethers.formatEther(e.args?.cap ?? 0n)).toFixed(2)} POL)`,
                 time: Number(e.args.time)
             });
         });
@@ -948,7 +955,7 @@ async function syncActivityTab() {
                 type: "mining_withdraw",
                 icon: "fa-circle-down",
                 class: "claim",
-                text: `Mining Rewards Claimed: Gross <strong>${parseFloat(ethers.formatEther(e.args.grossAmount)).toFixed(2)} POL</strong> (Net: ${parseFloat(ethers.formatEther(e.args.netAmount)).toFixed(2)} POL)`,
+                text: `Mining Rewards Claimed: Gross <strong>${parseFloat(ethers.formatEther(e.args?.grossAmount ?? 0n)).toFixed(2)} POL</strong> (Net: ${parseFloat(ethers.formatEther(e.args?.netAmount ?? 0n)).toFixed(2)} POL)`,
                 time: Number(e.args.time)
             });
         });
@@ -958,7 +965,7 @@ async function syncActivityTab() {
                 type: "cycle_profit",
                 icon: "fa-rotate",
                 class: "upgrade",
-                text: `Completed Slot level ${e.args.level} Matrix cycle! Earnings payout: <strong>${parseFloat(ethers.formatEther(e.args.profit)).toFixed(2)} POL</strong>`,
+                text: `Completed Slot level ${e.args.level} Matrix cycle! Earnings payout: <strong>${parseFloat(ethers.formatEther(e.args?.profit ?? 0n)).toFixed(2)} POL</strong>`,
                 time: Number(e.args.time)
             });
         });
@@ -968,7 +975,7 @@ async function syncActivityTab() {
                 type: "auto_upgrade",
                 icon: "fa-angles-up",
                 class: "buy",
-                text: `Auto-Upgrade triggered: Upgraded from level ${e.args.fromLevel} to ${e.args.toLevel} (Price: ${parseFloat(ethers.formatEther(e.args.amount)).toFixed(2)} POL)`,
+                text: `Auto-Upgrade triggered: Upgraded from level ${e.args.fromLevel} to ${e.args.toLevel} (Price: ${parseFloat(ethers.formatEther(e.args?.amount ?? 0n)).toFixed(2)} POL)`,
                 time: Number(e.args.time)
             });
         });
@@ -1099,7 +1106,7 @@ async function executeSlotPurchase(level, priceEth) {
 // Claim Mining Rewards
 async function executeClaimMining() {
     const pendingGross = await window.metapolApp.contract.getPendingMining(window.metapolApp.userAddress);
-    const grossEth = Number(ethers.formatEther(pendingGross[0]));
+    const grossEth = Number(ethers.formatEther(pendingGross[0] ?? 0n));
 
     if (grossEth <= 0) {
         window.metapolApp.showToast("No claimable passive mining rewards available at this block.", "warning");
@@ -1301,7 +1308,7 @@ function renderInviteTracker(events, referralDetails, totalSponsorPaid, directsC
     const avgEl    = document.getElementById("itrack-avg");
     if (!feed) return;
 
-    const totalPOL = parseFloat(ethers.formatEther(totalSponsorPaid));
+    const totalPOL = parseFloat(ethers.formatEther(totalSponsorPaid ?? 0n));
     const avg      = directsCount > 0 ? (totalPOL / directsCount).toFixed(2) : "0.00";
 
     if (totalEl) totalEl.textContent  = `${totalPOL.toFixed(2)} POL`;
@@ -1360,7 +1367,7 @@ function renderInviteTracker(events, referralDetails, totalSponsorPaid, directsC
         const contractId  = addrToId[row.userAddr];
         const pubCode     = contractId && window.MetapolRef ? window.MetapolRef.idToCode(contractId) : null;
         const displayCode = pubCode ? `#${pubCode}` : `#——`;
-        const pol         = parseFloat(ethers.formatEther(row.total));
+        const pol         = parseFloat(ethers.formatEther(row.total ?? 0n));
         const rank        = rankColor(pol);
         const timeStr     = timeAgo(row.lastTime);
         const txUrl       = row.lastTx ? `${explorerBase}/tx/${row.lastTx}` : "#";
@@ -1463,7 +1470,7 @@ async function syncLeaderboard(forceRefresh) {
                     isFounder,
                     total: data.total,
                     referrals: data.count,
-                    totalPOL: parseFloat(ethers.formatEther(data.total))
+                    totalPOL: parseFloat(ethers.formatEther(data.total ?? 0n))
                 };
             } catch {
                 return null;
