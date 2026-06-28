@@ -496,7 +496,11 @@ nav.desktop-nav {
     flex-direction: column;
     align-items: center;
     gap: 12px;
-    z-index: 999;
+    z-index: 1100;
+    /* Force GPU layer — fixes fixed positioning inside overflow:hidden body on mobile */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
 }
 
 .fab-btn {
@@ -514,6 +518,9 @@ nav.desktop-nav {
     text-decoration: none;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     -webkit-tap-highlight-color: transparent;
+    /* Ensure each button also composited */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
 }
 
 .fab-telegram {
@@ -1664,6 +1671,10 @@ table.premium-table tr:hover td {
         height: 50px;
         font-size: 1.25rem;
     }
+    /* On dashboard pages with bottom tab bar, lift FABs above it */
+    .has-bottom-tab .fab-stack {
+        bottom: 82px;
+    }
 }
 
 /* Horizontal scrollbar removal for tables & tabs */
@@ -2288,8 +2299,9 @@ img, video, iframe, embed, object {
 
     /* FLOATING BUTTONS */
     .fab-stack { bottom: 16px; right: 16px; gap: 8px; }
-    .fab-btn   { width: 46px; height: 46px; font-size: 1.2rem; }
+    .fab-btn   { width: 48px; height: 48px; font-size: 1.2rem; }
     .fab-tooltip { display: none; }
+    .has-bottom-tab .fab-stack { bottom: 80px; }
 
     /* FOOTER */
     .pro-footer { margin-top: 20px; }

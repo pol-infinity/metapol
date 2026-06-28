@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="style.css">
     <script src="refcode.js"></script>
 </head>
-<body>
+<body class="has-bottom-tab">
 
     <!-- Canvas Particle Background -->
     <canvas id="bg-canvas"></canvas>
@@ -1373,8 +1373,18 @@
     </div>
 
     <!-- Floating PDF Presentation Icon -->
-    <div class="floating-pdf-btn trigger-pdf-modal" title="Open Presentation PDF">
-        <i class="fa-solid fa-file-pdf" style="font-size: 1.5rem;"></i>
+    <div class="floating-pdf-btn trigger-pdf-modal" title="Open Presentation PDF" style="display:none;"></div>
+
+    <!-- Floating Action Button Stack -->
+    <div class="fab-stack">
+        <a href="https://t.me/metapoldapp" target="_blank" class="fab-btn fab-telegram" title="Join MetaPOL on Telegram">
+            <i class="fa-brands fa-telegram"></i>
+            <span class="fab-tooltip">Join Telegram</span>
+        </a>
+        <div class="fab-btn fab-pdf trigger-pdf-modal" title="Open Presentation PDF">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span class="fab-tooltip">Presentation</span>
+        </div>
     </div>
 
     <!-- Presentation PDF Modal Viewer -->
