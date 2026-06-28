@@ -488,28 +488,83 @@ nav.desktop-nav {
 }
 
 /* Floating Elements & Ambience */
-.floating-pdf-btn {
+.fab-stack {
     position: fixed;
     bottom: 30px;
     right: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    z-index: 999;
+}
+
+.fab-btn {
+    position: relative;
     width: 56px;
     height: 56px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
-    box-shadow: 0 4px 20px rgba(138, 43, 226, 0.4);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: white;
+    color: #fff;
     cursor: pointer;
-    z-index: 999;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    border: 1px solid rgba(255,255,255,0.18);
+    font-size: 1.4rem;
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.floating-pdf-btn:hover {
-    transform: scale(1.1) rotate(5deg);
-    box-shadow: 0 6px 25px rgba(138, 43, 226, 0.6);
+.fab-telegram {
+    background: linear-gradient(135deg, #0088cc 0%, #00b4d8 100%);
+    box-shadow: 0 4px 18px rgba(0,136,204,0.45);
+}
+.fab-telegram:hover {
+    transform: scale(1.12) translateY(-2px);
+    box-shadow: 0 8px 28px rgba(0,136,204,0.65);
+    color: #fff;
+}
+
+.fab-pdf {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+    box-shadow: 0 4px 18px rgba(138,43,226,0.45);
+}
+.fab-pdf:hover {
+    transform: scale(1.12) rotate(5deg);
+    box-shadow: 0 8px 28px rgba(138,43,226,0.65);
+}
+
+/* Tooltip */
+.fab-tooltip {
+    position: absolute;
+    right: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(10,12,30,0.92);
+    border: 1px solid var(--card-border);
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    padding: 5px 10px;
+    border-radius: 8px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+    backdrop-filter: blur(6px);
+}
+.fab-tooltip::after {
+    content: '';
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 5px solid transparent;
+    border-left-color: rgba(10,12,30,0.92);
+}
+.fab-btn:hover .fab-tooltip {
+    opacity: 1;
 }
 
 /* Core Modals */
@@ -1599,11 +1654,15 @@ table.premium-table tr:hover td {
         width: 100%;
     }
     
-    .floating-pdf-btn {
+    .fab-stack {
         bottom: 20px;
         right: 20px;
-        width: 48px;
-        height: 48px;
+        gap: 10px;
+    }
+    .fab-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 1.25rem;
     }
 }
 
@@ -2227,11 +2286,10 @@ img, video, iframe, embed, object {
     .connect-prompt-inner { padding: 22px 14px; margin: 0 8px; }
     .auth-title { font-size: 1.2rem !important; }
 
-    /* FLOATING PDF */
-    .floating-pdf-btn {
-        width: 46px; height: 46px;
-        bottom: 16px; right: 16px;
-    }
+    /* FLOATING BUTTONS */
+    .fab-stack { bottom: 16px; right: 16px; gap: 8px; }
+    .fab-btn   { width: 46px; height: 46px; font-size: 1.2rem; }
+    .fab-tooltip { display: none; }
 
     /* FOOTER */
     .pro-footer { margin-top: 20px; }
