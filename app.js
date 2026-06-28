@@ -394,16 +394,16 @@ class MetaPOLApp {
     }
 
     _renderWalletPanel() {
-        // Append to header-container so it's never hidden by mobile CSS on .header-actions
-        const headerContainer = document.querySelector(".header-container");
-        if (!headerContainer) return;
+        // Append to #header-right — always visible, never hidden by mobile CSS
+        const headerRight = document.getElementById("header-right");
+        if (!headerRight) return;
 
         let panel = document.getElementById("wallet-info-panel-header");
         if (!panel) {
             panel = document.createElement("div");
             panel.id = "wallet-info-panel-header";
             panel.className = "wallet-info-panel";
-            headerContainer.appendChild(panel);
+            headerRight.appendChild(panel);
         }
 
         const shortAddr = this.shortenAddress(this.userAddress);

@@ -44,8 +44,8 @@
                     <span class="logo-text">METAPOL</span>
                 </a>
             </div>
-            <!-- Right: wallet actions -->
-            <div class="header-actions">
+            <!-- Right: wallet actions — outside header-actions so never hidden on mobile -->
+            <div id="header-right">
                 <button id="btn-connect-wallet" class="btn btn-primary" onclick="window.metapolApp.connectWallet()">
                     <i id="header-wallet-icon" class="fa-solid fa-wallet text-accent"></i> 
                     <span id="header-connect-text">Connect Wallet</span>

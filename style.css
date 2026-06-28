@@ -7266,3 +7266,24 @@ header.main-header {
     .header-container #wallet-info-panel-header .wallet-info-bal  { display: none; }
     .header-container #wallet-info-panel-header .wallet-info-net  { display: none; }
 }
+
+/* ── #header-right: always visible on all screen sizes ── */
+#header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+    flex-shrink: 0;
+}
+
+/* On mobile, shrink connect button text */
+@media (max-width: 480px) {
+    #header-right #btn-connect-wallet span {
+        display: none;
+    }
+    #header-right #btn-connect-wallet {
+        padding: 8px 10px;
+    }
+    .wallet-info-panel .wallet-info-addr { max-width: 70px; }
+    .wallet-info-panel .wallet-info-bal  { display: none; }
+}
