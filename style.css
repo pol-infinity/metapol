@@ -7602,3 +7602,11 @@ header.main-header {
     .roi-table-header span:nth-child(3),
     .roi-table-row span:nth-child(3) { display: none; }
 }
+
+/* ── Admin link: hidden for everyone by default, JS reveals for owner only ── */
+#sidebar-admin-link {
+    display: none !important;
+}
+#sidebar-admin-link.admin-visible {
+    display: flex !important;
+}

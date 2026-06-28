@@ -202,7 +202,13 @@ async function syncDashboardData() {
 
         // Show Admin Panel link in sidebar only for owner wallet
         const adminSidebarLink = document.getElementById("sidebar-admin-link");
-        if (adminSidebarLink) adminSidebarLink.style.display = isOwner ? "flex" : "none";
+        if (adminSidebarLink) {
+            if (isOwner) {
+                adminSidebarLink.classList.add("admin-visible");
+            } else {
+                adminSidebarLink.classList.remove("admin-visible");
+            }
+        }
 
         const eligibilityBadge = document.getElementById("stat-eligibility-badge");
         const eligibilityProfile = document.getElementById("profile-matrix-eligibility");
