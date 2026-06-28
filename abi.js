@@ -849,3 +849,5 @@ const METAPOL_ABI = [
     "type": "receive"
   }
 ];
+
+window.METAPOL_ABI = METAPOL_ABI;

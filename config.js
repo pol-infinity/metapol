@@ -8,12 +8,21 @@ const CONFIG = {
     CHAIN_ID_DECIMAL: 137,
     CHAIN_NAME: "Polygon Mainnet",
     RPC_URL: "https://polygon-rpc.com",
+    // Fallback RPCs if primary fails
+    RPC_FALLBACKS: [
+        "https://rpc-mainnet.matic.quiknode.pro",
+        "https://rpc-mainnet.maticvigil.com",
+        "https://matic-mainnet.chainstacklabs.com"
+    ],
     BLOCK_EXPLORER: "https://polygonscan.com",
     NATIVE_CURRENCY: {
         name: "POL",
         symbol: "POL",
         decimals: 18
     },
+
+    // Contract deployment block (used to limit event query range and avoid RPC timeouts)
+    CONTRACT_DEPLOY_BLOCK: 69800000,
 
     // Default Settings
     DEFAULT_SPONSOR_ID: 1, // Fallback sponsor (Owner Wallet)

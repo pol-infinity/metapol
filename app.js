@@ -12,17 +12,22 @@ class MetaPOLApp {
         this.contractReadOnly = null;
         this.isConnected = false;
         
-        // DOM Elements
-        this.loadingScreen = document.getElementById("loading-screen");
-        this.btnConnectWallet = document.getElementById("btn-connect-wallet");
-        this.walletStatus = document.getElementById("wallet-status");
-        this.walletAddressDisplay = document.getElementById("wallet-address-display");
+        // DOM Elements — initialized in init() after DOMContentLoaded
+        this.loadingScreen = null;
+        this.btnConnectWallet = null;
+        this.walletStatus = null;
+        this.walletAddressDisplay = null;
         
         // Listeners & Initialization
         document.addEventListener("DOMContentLoaded", () => this.init());
     }
 
     async init() {
+        // Bind DOM elements now that DOM is ready
+        this.loadingScreen = document.getElementById("loading-screen");
+        this.btnConnectWallet = document.getElementById("btn-connect-wallet");
+        this.walletStatus = document.getElementById("wallet-status");
+        this.walletAddressDisplay = document.getElementById("wallet-address-display");
         // Setup Canvas Particle Background
         this.initCanvasBackground();
 
@@ -230,10 +235,17 @@ class MetaPOLApp {
                 if (!switchSuccess) {
                     throw new Error("Wrong network. Please connect to Polygon Mainnet.");
                 }
+                // Give wallet a moment to settle after network switch
+                await new Promise(r => setTimeout(r, 500));
                 // Refresh provider and signer after network switch
                 this.provider = new ethers.BrowserProvider(window.ethereum);
                 this.signer = await this.provider.getSigner();
                 this.userAddress = await this.signer.getAddress();
+                // Confirm we're now on the right chain
+                const newNetwork = await this.provider.getNetwork();
+                if (Number(newNetwork.chainId) !== window.CONFIG.CHAIN_ID_DECIMAL) {
+                    throw new Error("Network switch did not complete. Please manually switch to Polygon Mainnet.");
+                }
             }
 
             // Build writeable contract instance

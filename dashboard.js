@@ -149,7 +149,7 @@ async function syncDashboardData() {
         let directCount = Number(referredUsers);
         try {
             const sponsorFilter = window.metapolApp.contract.filters.SponsorPaid(address);
-            const sponsorEvents = await window.metapolApp.contract.queryFilter(sponsorFilter, 0, "latest");
+            const sponsorEvents = await window.metapolApp.contract.queryFilter(sponsorFilter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
             sponsorEvents.forEach(ev => { totalSponsorPaid += ev.args.amount; });
             const commissionEl = document.getElementById("stat-direct-commission");
             if (commissionEl) commissionEl.innerText = `${parseFloat(ethers.formatEther(totalSponsorPaid ?? 0n)).toFixed(2)} POL`;
@@ -719,11 +719,11 @@ async function syncTeamTab() {
         const filterSkipped  = window.metapolApp.contract.filters.IncomeSkipped(null, null, address);
 
         const [regEvents, sponsorEvents, upgradeEvents, repurchEvents, skippedEvents] = await Promise.all([
-            window.metapolApp.contract.queryFilter(filterReg, 0, "latest"),
-            window.metapolApp.contract.queryFilter(filterSponsor, 0, "latest"),
-            window.metapolApp.contract.queryFilter(filterUpgrade, 0, "latest"),
-            window.metapolApp.contract.queryFilter(filterRepurch, 0, "latest").catch(() => []),
-            window.metapolApp.contract.queryFilter(filterSkipped, 0, "latest").catch(() => [])
+            window.metapolApp.contract.queryFilter(filterReg, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest"),
+            window.metapolApp.contract.queryFilter(filterSponsor, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest"),
+            window.metapolApp.contract.queryFilter(filterUpgrade, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest"),
+            window.metapolApp.contract.queryFilter(filterRepurch, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest").catch(() => []),
+            window.metapolApp.contract.queryFilter(filterSkipped, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest").catch(() => [])
         ]);
 
         const directsCount  = regEvents.length;
@@ -931,11 +931,11 @@ async function syncActivityTab() {
         const filterReg = window.metapolApp.contract.filters.RegUser(address);
 
         const [depEvents, withEvents, cycleEvents, upgEvents, regEvents] = await Promise.all([
-            window.metapolApp.contract.queryFilter(filterMiningDep, 0, "latest"),
-            window.metapolApp.contract.queryFilter(filterMiningWith, 0, "latest"),
-            window.metapolApp.contract.queryFilter(filterCycle, 0, "latest"),
-            window.metapolApp.contract.queryFilter(filterUpgrade, 0, "latest"),
-            window.metapolApp.contract.queryFilter(filterReg, 0, "latest")
+            window.metapolApp.contract.queryFilter(filterMiningDep, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest"),
+            window.metapolApp.contract.queryFilter(filterMiningWith, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest"),
+            window.metapolApp.contract.queryFilter(filterCycle, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest"),
+            window.metapolApp.contract.queryFilter(filterUpgrade, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest"),
+            window.metapolApp.contract.queryFilter(filterReg, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest")
         ]);
 
         const allLogs = [];
