@@ -98,6 +98,8 @@ function switchTab(tabId) {
     if (tabId === "team") syncTeamTab();
     if (tabId === "leaderboard") syncLeaderboard(false);
     if (tabId === "activity") syncActivityTab();
+    if (tabId === "roi" && window.syncROICalculator) syncROICalculator();
+    if (tabId === "tree" && window.syncNetworkTree) syncNetworkTree(false);
 }
 
 // Synchronize all basic dashboard metrics
@@ -1439,7 +1441,7 @@ async function syncLeaderboard(forceRefresh) {
     try {
         // Fetch ALL SponsorPaid events (no filter = all sponsors)
         const allSponsorEvents = await window.metapolApp.contract.queryFilter(
-            window.metapolApp.contract.filters.SponsorPaid(), 0, "latest"
+            window.metapolApp.contract.filters.SponsorPaid(), window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest"
         );
 
         // Aggregate commission per sponsor address

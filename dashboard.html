@@ -114,6 +114,8 @@
                 <div class="sidebar-link" data-tab="team"><i class="fa-solid fa-users"></i> Team & Referrals</div>
                 <div class="sidebar-link" data-tab="activity"><i class="fa-solid fa-clock-rotate-left"></i> Activity Feed</div>
                 <div class="sidebar-link" data-tab="leaderboard"><i class="fa-solid fa-trophy"></i> Leaderboard</div>
+                <div class="sidebar-link" data-tab="roi"><i class="fa-solid fa-calculator"></i> ROI Calculator</div>
+                <div class="sidebar-link" data-tab="tree"><i class="fa-solid fa-sitemap"></i> Network Tree</div>
                 <div class="sidebar-link" data-tab="profile"><i class="fa-solid fa-circle-user"></i> Member Profile</div>
                 <div class="sidebar-link" id="sidebar-admin-link" style="display:none;" onclick="window.location.href='admin.html'"><i class="fa-solid fa-user-gear" style="color:var(--accent);"></i> Admin Panel</div>
                 <div class="sidebar-link" onclick="window.metapolApp.changeWallet()"><i class="fa-solid fa-arrows-rotate" style="color:var(--primary);"></i> Change Wallet</div>
@@ -133,6 +135,8 @@
                 <button class="mobile-tab-btn" data-tab="team"><i class="fa-solid fa-users"></i> Team</button>
                 <button class="mobile-tab-btn" data-tab="activity"><i class="fa-solid fa-clock-rotate-left"></i> Activity</button>
                 <button class="mobile-tab-btn" data-tab="leaderboard"><i class="fa-solid fa-trophy"></i> Leaders</button>
+                <button class="mobile-tab-btn" data-tab="roi"><i class="fa-solid fa-calculator"></i> ROI</button>
+                <button class="mobile-tab-btn" data-tab="tree"><i class="fa-solid fa-sitemap"></i> Tree</button>
                 <button class="mobile-tab-btn" data-tab="profile"><i class="fa-solid fa-circle-user"></i> Profile</button>
             </div>
 
@@ -984,8 +988,8 @@
                     <div class="lb-hero-content">
                         <div class="lb-hero-icon">🏆</div>
                         <div>
-                            <h2 class="lb-hero-title">Top Earners Leaderboard</h2>
-                            <p class="lb-hero-sub">Top 10 members ranked by total direct commission earned</p>
+                            <h2 class="lb-hero-title">Global Leaderboard</h2>
+                            <p class="lb-hero-sub">Live rankings pulled directly from the Polygon blockchain</p>
                         </div>
                     </div>
                     <div class="lb-hero-refresh">
@@ -994,6 +998,19 @@
                         </button>
                         <div class="lb-last-updated" id="lb-last-updated">Not loaded yet</div>
                     </div>
+                </div>
+
+                <!-- Category Tabs -->
+                <div class="lb-category-tabs">
+                    <button class="lb-cat-btn active" data-cat="earners" onclick="switchLbCategory('earners', this)">
+                        <i class="fa-solid fa-coins"></i> Top Earners
+                    </button>
+                    <button class="lb-cat-btn" data-cat="miners" onclick="switchLbCategory('miners', this)">
+                        <i class="fa-solid fa-microchip"></i> Top Miners
+                    </button>
+                    <button class="lb-cat-btn" data-cat="recruiters" onclick="switchLbCategory('recruiters', this)">
+                        <i class="fa-solid fa-users"></i> Top Recruiters
+                    </button>
                 </div>
 
                 <!-- Your Rank Card -->
@@ -1007,14 +1024,12 @@
                     </div>
                     <div class="lb-my-rank-right">
                         <div class="lb-my-rank-amount" id="lb-my-rank-amount">0.00 POL</div>
-                        <div class="lb-my-rank-label">Total Commission</div>
+                        <div class="lb-my-rank-label" id="lb-my-rank-label">Total Commission</div>
                     </div>
                 </div>
 
                 <!-- Podium Top 3 -->
-                <div class="lb-podium" id="lb-podium">
-                    <!-- Rendered by JS -->
-                </div>
+                <div class="lb-podium" id="lb-podium"></div>
 
                 <!-- Full Leaderboard Table -->
                 <div class="glass-card" style="margin-top:14px;">
@@ -1029,6 +1044,143 @@
                     </div>
                 </div>
 
+            </div>
+
+            <!-- ==================== ROI CALCULATOR TAB ==================== -->
+            <div id="tab-roi" class="tab-panel">
+                <div class="lb-hero-banner" style="background: linear-gradient(135deg, rgba(0,212,255,0.08), rgba(138,43,226,0.12));">
+                    <div class="lb-hero-orb lb-hero-orb1" style="background:radial-gradient(circle, rgba(0,212,255,0.3) 0%, transparent 70%);"></div>
+                    <div class="lb-hero-orb lb-hero-orb2" style="background:radial-gradient(circle, rgba(0,255,179,0.2) 0%, transparent 70%);"></div>
+                    <div class="lb-hero-content">
+                        <div class="lb-hero-icon">💡</div>
+                        <div>
+                            <h2 class="lb-hero-title">Personal ROI Calculator</h2>
+                            <p class="lb-hero-sub">Projections based on your actual active slots and mining capital</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Summary Cards -->
+                <div class="roi-summary-grid" id="roi-summary-grid">
+                    <div class="roi-sum-card">
+                        <div class="roi-sum-icon" style="color:var(--primary);"><i class="fa-solid fa-layer-group"></i></div>
+                        <div class="roi-sum-val" id="roi-active-slots">—</div>
+                        <div class="roi-sum-label">Active Slots</div>
+                    </div>
+                    <div class="roi-sum-card">
+                        <div class="roi-sum-icon" style="color:var(--accent);"><i class="fa-solid fa-microchip"></i></div>
+                        <div class="roi-sum-val" id="roi-mining-capital">— POL</div>
+                        <div class="roi-sum-label">Mining Capital</div>
+                    </div>
+                    <div class="roi-sum-card">
+                        <div class="roi-sum-icon" style="color:#FFD700;"><i class="fa-solid fa-sun"></i></div>
+                        <div class="roi-sum-val" id="roi-daily-earn">— POL</div>
+                        <div class="roi-sum-label">Daily Mining</div>
+                    </div>
+                    <div class="roi-sum-card">
+                        <div class="roi-sum-icon" style="color:#FF6B9D;"><i class="fa-solid fa-chart-line"></i></div>
+                        <div class="roi-sum-val" id="roi-total-cap">— POL</div>
+                        <div class="roi-sum-label">Total Mining Cap</div>
+                    </div>
+                </div>
+
+                <!-- Projection Table -->
+                <div class="glass-card" style="margin-top:14px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+                        <h3 class="panel-section-title" style="margin:0; font-size:0.85rem;">
+                            <i class="fa-solid fa-calendar-days"></i> Earnings Projection
+                        </h3>
+                        <div class="roi-directs-toggle">
+                            <span style="font-size:0.78rem; color:var(--text-muted);">Direct referrals I have:</span>
+                            <select id="roi-directs-select" class="roi-select" onchange="recalcROI()">
+                                <option value="0">0 (Matrix locked)</option>
+                                <option value="1">1</option>
+                                <option value="2" selected>2+ (Matrix active)</option>
+                                <option value="5">5</option>
+                                <option value="10">10+</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="roi-projection-table">
+                        <div class="lb-loading"><i class="fa-solid fa-spinner fa-spin"></i><span>Syncing your slot data...</span></div>
+                    </div>
+                </div>
+
+                <!-- Slot-by-Slot Breakdown -->
+                <div class="glass-card" style="margin-top:14px;">
+                    <h3 class="panel-section-title" style="font-size:0.85rem;">
+                        <i class="fa-solid fa-table-cells"></i> Slot-by-Slot Breakdown
+                    </h3>
+                    <div id="roi-slot-breakdown">
+                        <div class="lb-loading"><i class="fa-solid fa-spinner fa-spin"></i><span>Loading...</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ==================== NETWORK TREE TAB ==================== -->
+            <div id="tab-tree" class="tab-panel">
+                <div class="lb-hero-banner" style="background: linear-gradient(135deg, rgba(138,43,226,0.1), rgba(0,255,179,0.06));">
+                    <div class="lb-hero-orb lb-hero-orb1" style="background:radial-gradient(circle, rgba(138,43,226,0.3) 0%, transparent 70%);"></div>
+                    <div class="lb-hero-orb lb-hero-orb2" style="background:radial-gradient(circle, rgba(0,255,179,0.15) 0%, transparent 70%);"></div>
+                    <div class="lb-hero-content">
+                        <div class="lb-hero-icon">🌐</div>
+                        <div>
+                            <h2 class="lb-hero-title">Network Tree</h2>
+                            <p class="lb-hero-sub">Your referral genealogy — 2 levels deep, color-coded by slot tier</p>
+                        </div>
+                    </div>
+                    <div class="lb-hero-refresh">
+                        <button class="lb-refresh-btn" onclick="syncNetworkTree(true)" id="tree-refresh-btn">
+                            <i class="fa-solid fa-rotate"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Legend -->
+                <div class="tree-legend glass-card" style="margin-bottom:14px;">
+                    <span class="tree-legend-title"><i class="fa-solid fa-circle-info"></i> Slot Tier Legend</span>
+                    <div class="tree-legend-items" id="tree-legend-items">
+                        <span class="tree-legend-item" style="--lc:#6B7280;">⬡ No Slot</span>
+                        <span class="tree-legend-item" style="--lc:#00D4FF;">⬡ S1–S3</span>
+                        <span class="tree-legend-item" style="--lc:#00FFB3;">⬡ S4–S6</span>
+                        <span class="tree-legend-item" style="--lc:#FFD700;">⬡ S7–S9</span>
+                        <span class="tree-legend-item" style="--lc:#FF6B9D;">⬡ S10–S12</span>
+                        <span class="tree-legend-item" style="--lc:#FF9500;">⬡ Founder</span>
+                    </div>
+                </div>
+
+                <!-- Tree Canvas Area -->
+                <div class="glass-card tree-container" id="tree-container">
+                    <div class="lb-loading" id="tree-loading">
+                        <i class="fa-solid fa-spinner fa-spin"></i>
+                        <span>Building your network tree...</span>
+                    </div>
+                    <div id="tree-svg-wrap" style="display:none; overflow-x:auto; overflow-y:auto; max-height:600px;"></div>
+                </div>
+
+                <!-- Tree Stats Row -->
+                <div class="roi-summary-grid" style="margin-top:14px;" id="tree-stats-grid">
+                    <div class="roi-sum-card">
+                        <div class="roi-sum-icon" style="color:var(--primary);"><i class="fa-solid fa-user-plus"></i></div>
+                        <div class="roi-sum-val" id="tree-stat-l1">—</div>
+                        <div class="roi-sum-label">Level 1 Members</div>
+                    </div>
+                    <div class="roi-sum-card">
+                        <div class="roi-sum-icon" style="color:var(--secondary);"><i class="fa-solid fa-users"></i></div>
+                        <div class="roi-sum-val" id="tree-stat-l2">—</div>
+                        <div class="roi-sum-label">Level 2 Members</div>
+                    </div>
+                    <div class="roi-sum-card">
+                        <div class="roi-sum-icon" style="color:#FFD700;"><i class="fa-solid fa-crown"></i></div>
+                        <div class="roi-sum-val" id="tree-stat-founders">—</div>
+                        <div class="roi-sum-label">Founders in Network</div>
+                    </div>
+                    <div class="roi-sum-card">
+                        <div class="roi-sum-icon" style="color:var(--accent);"><i class="fa-solid fa-bolt"></i></div>
+                        <div class="roi-sum-val" id="tree-stat-active">—</div>
+                        <div class="roi-sum-label">Active Slot Holders</div>
+                    </div>
+                </div>
             </div>
 
             <!-- ==================== ACTIVITY TAB ==================== -->
@@ -1538,6 +1690,7 @@
     <script src="abi.js"></script>
     <script src="app.js"></script>
     <script src="dashboard.js"></script>
+    <script src="premium-addons.js"></script>
     <!-- Pre-Footer: Share Center + Milestones + Slot Progress -->
     <script src="pre-footer.js"></script>
     <!-- Upgrade Conversion System -->

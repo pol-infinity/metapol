@@ -7287,3 +7287,248 @@ header.main-header {
     .wallet-info-panel .wallet-info-addr { max-width: 70px; }
     .wallet-info-panel .wallet-info-bal  { display: none; }
 }
+
+/* ================================================================
+   PREMIUM ADD-ONS: Leaderboard Categories, ROI Calculator, Network Tree
+   ================================================================ */
+
+/* ── Leaderboard Category Tabs ── */
+.lb-category-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 14px 0;
+    flex-wrap: wrap;
+}
+.lb-cat-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: rgba(255,255,255,0.03);
+    color: var(--text-muted);
+    font-family: var(--font-heading);
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+}
+.lb-cat-btn:hover {
+    background: rgba(0,212,255,0.07);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+.lb-cat-btn.active {
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(138,43,226,0.15));
+    border-color: var(--primary);
+    color: #fff;
+    box-shadow: 0 0 12px rgba(0,212,255,0.2);
+}
+
+/* Animated rank badges */
+.lb-rank-badge {
+    font-size: 0.55rem;
+    font-weight: 800;
+    padding: 2px 5px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    animation: badgePulse 2s ease-in-out infinite;
+    display: block;
+    margin-top: 2px;
+    text-align: center;
+}
+.lb-rank-badge-1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
+.lb-rank-badge-2 { background: linear-gradient(135deg, #C0C0C0, #888); color: #000; }
+.lb-rank-badge-3 { background: linear-gradient(135deg, #CD7F32, #8B4513); color: #fff; }
+
+@keyframes badgePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.8; transform: scale(1.05); }
+}
+
+/* ── ROI Calculator ── */
+.roi-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-top: 14px;
+}
+.roi-sum-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--card-border);
+    border-radius: 14px;
+    padding: 16px 12px;
+    text-align: center;
+    transition: border-color 0.2s;
+}
+.roi-sum-card:hover { border-color: var(--primary); }
+.roi-sum-icon { font-size: 1.3rem; margin-bottom: 6px; }
+.roi-sum-val {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 4px;
+    font-family: var(--font-heading);
+}
+.roi-sum-label { font-size: 0.72rem; color: var(--text-muted); }
+
+.roi-directs-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.roi-select {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    color: #fff;
+    padding: 6px 10px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+.roi-select option { background: #0d0e1f; }
+
+.roi-table-wrap {
+    overflow-x: auto;
+}
+.roi-table-header,
+.roi-table-row {
+    display: grid;
+    grid-template-columns: 100px 1fr 1fr 1fr;
+    gap: 8px;
+    align-items: center;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+}
+.roi-table-header {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--card-border);
+    margin-bottom: 4px;
+}
+.roi-table-row {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.15s;
+}
+.roi-table-row:hover { background: rgba(255,255,255,0.03); }
+.roi-period-label { color: var(--text-muted); font-weight: 600; }
+.roi-val-mining  { color: var(--accent); font-weight: 700; }
+.roi-val-matrix  { color: var(--primary); font-weight: 700; }
+.roi-val-matrix.roi-locked { color: var(--text-muted); font-style: italic; }
+.roi-val-total   { color: #FFD700; font-weight: 800; }
+.roi-table-note  {
+    padding: 12px 14px;
+    font-size: 0.74rem;
+    color: var(--text-muted);
+    border-top: 1px solid var(--card-border);
+    margin-top: 6px;
+    line-height: 1.6;
+}
+
+.roi-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    padding: 4px 0;
+}
+.roi-slot-card {
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 14px 12px;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+}
+.roi-slot-active {
+    border-color: var(--sc, var(--primary));
+    background: linear-gradient(135deg, rgba(var(--sc-rgb, 0,212,255),0.06), transparent);
+    box-shadow: 0 0 14px rgba(var(--sc-rgb, 0,212,255),0.08);
+}
+.roi-slot-inactive {
+    opacity: 0.45;
+}
+.roi-slot-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+.roi-slot-num {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--sc, #6B7280);
+    font-family: var(--font-heading);
+}
+.roi-slot-status { font-size: 0.68rem; color: var(--text-muted); }
+.roi-slot-price {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 8px;
+    font-family: var(--font-heading);
+}
+.roi-slot-stats { display: flex; flex-direction: column; gap: 4px; }
+.roi-slot-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.72rem;
+}
+.roi-slot-stat span { color: var(--text-muted); }
+.roi-slot-stat strong { color: var(--sc, #fff); font-weight: 700; }
+
+/* ── Network Tree ── */
+.tree-container {
+    min-height: 200px;
+    position: relative;
+}
+.tree-legend {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 10px 16px;
+}
+.tree-legend-title {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+}
+.tree-legend-items {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.tree-legend-item {
+    font-size: 0.75rem;
+    color: var(--lc, #fff);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* ── Mobile responsive for new features ── */
+@media (max-width: 768px) {
+    .roi-summary-grid { grid-template-columns: repeat(2, 1fr); }
+    .lb-category-tabs { gap: 6px; }
+    .lb-cat-btn { font-size: 0.76rem; padding: 8px 10px; min-width: 90px; }
+    .roi-table-header,
+    .roi-table-row { grid-template-columns: 80px 1fr 1fr 1fr; font-size: 0.74rem; padding: 8px 10px; }
+}
+@media (max-width: 480px) {
+    .roi-summary-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .roi-sum-val { font-size: 0.95rem; }
+    .roi-slots-grid { grid-template-columns: repeat(2, 1fr); }
+    .roi-table-header,
+    .roi-table-row { grid-template-columns: 65px 1fr 1fr; font-size: 0.7rem; padding: 7px 8px; }
+    .roi-table-header span:nth-child(3),
+    .roi-table-row span:nth-child(3) { display: none; }
+}
