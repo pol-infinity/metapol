@@ -1,6 +1,6 @@
 /**
  * MetaPOL Admin Back-Office
- * grantFounderStatus(address, fromLevel, toLevel)  — address must NOT be registered
+ * grantFounderStatus(address, fromLevel, toLevel)  — works for both registered and unregistered wallets
  * upgradeFounderSlots(address, fromLevel, toLevel) — address must already be a Founder
  */
 
@@ -104,17 +104,16 @@ window.checkGrantAddress = async function (address) {
         const isFounder = info[4];
 
         if (isFounder) {
-            hint.className = 'verify-hint hint-warn';
-            hint.innerHTML = `<i class="fa-solid fa-crown"></i> Already a Founder — use <strong>Upgrade Founder Slots</strong> below instead`;
-            btn.disabled = true;
+            hint.className = 'verify-hint hint-ok';
+            hint.innerHTML = `<i class="fa-solid fa-crown"></i> Already a Founder — will grant additional slots in the selected range`;
+            btn.disabled = false;
         } else if (isReg) {
-            hint.className = 'verify-hint hint-error';
-            hint.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> This wallet is already registered as a regular member. 
-                Contract requires an <strong>unregistered</strong> wallet for grantFounderStatus.`;
-            btn.disabled = true;
+            hint.className = 'verify-hint hint-ok';
+            hint.innerHTML = `<i class="fa-solid fa-circle-check"></i> Registered member — will be promoted to Founder and slots will be granted`;
+            btn.disabled = false;
         } else {
             hint.className = 'verify-hint hint-ok';
-            hint.innerHTML = `<i class="fa-solid fa-circle-check"></i> Unregistered wallet — ready to be onboarded as Founder`;
+            hint.innerHTML = `<i class="fa-solid fa-circle-check"></i> Unregistered wallet — will be registered and onboarded as Founder`;
             btn.disabled = false;
         }
     } catch {
@@ -136,13 +135,10 @@ window.executeGrantFounder = async function () {
         window.metapolApp.showToast('From Level must be ≤ To Level', 'error'); return;
     }
 
-    // Pre-flight check — prevent wasting gas on a known revert
+    // Pre-flight check — only block if already a founder with all slots covered
     try {
         const info  = await window.metapolApp.contract.getUserInfo(addr);
-        if (info[0]) {
-            window.metapolApp.showToast('Address is already registered — contract will reject this', 'error');
-            return;
-        }
+        // No blocking — contract handles registered, unregistered, and founders
     } catch { /* proceed */ }
 
     openTxModal(`Granting Founder Status — Slots ${fromLevel} → ${toLevel}`);
@@ -288,8 +284,8 @@ window.executeUpgradeFounder = async function () {
    GIVE SLOTS TO REGISTERED MEMBER
    Checks member status and uses the right contract function:
    - If Founder → upgradeFounderSlots
-   - If regular registered → grantFounderStatus is blocked by contract;
-     show clear error explaining the limitation
+   - If regular registered → grantFounderStatus (promotes to Founder and grants slots)
+   - If unregistered → use Grant Founder Status above
    ═══════════════════════════════════════════ */
 
 let _memberIsFounder = false;
@@ -337,11 +333,10 @@ window.checkMemberAddress = async function (address) {
             if (wrap) wrap.style.display = 'block';
             if (btn)  { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-arrow-up-right-dots"></i> Upgrade Founder Slots'; }
         } else {
-            hint.className = 'verify-hint hint-error';
-            hint.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Registered member (ID #${userId}) but NOT a Founder. Active slots: ${activeSlots.length ? activeSlots.join(', ') : 'none'}.<br>
-                <span style="font-size:0.78rem;color:rgba(255,150,150,0.8);">The contract's <code>grantFounderStatus</code> only works for unregistered wallets. 
-                To give this user slots, they need to purchase via <strong>buySlot1/buyLevel</strong> themselves, 
-                or you need to deploy with admin slot-assign capability.</span>`;
+            hint.className = 'verify-hint hint-ok';
+            hint.innerHTML = `<i class="fa-solid fa-circle-check"></i> Registered member (ID #${userId}) — Active slots: ${activeSlots.length ? activeSlots.join(', ') : 'none'}. Will be promoted to Founder and granted selected slots.`;
+            if (wrap) wrap.style.display = 'block';
+            if (btn)  { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-crown"></i> Grant Founder Slots'; }
         }
     } catch(e) {
         hint.className = 'verify-hint hint-warn';
@@ -356,22 +351,33 @@ window.executeMemberSlots = async function () {
 
     if (!ethers.isAddress(addr)) { window.metapolApp.showToast('Invalid address', 'error'); return; }
     if (fromLevel > toLevel)     { window.metapolApp.showToast('From Level must be ≤ To Level', 'error'); return; }
-    if (!_memberIsFounder)       { window.metapolApp.showToast('Member is not a Founder — cannot upgrade slots', 'error'); return; }
+    if (!_memberIsReg)           { window.metapolApp.showToast('Member is not registered', 'error'); return; }
 
-    openTxModal(`Upgrading Founder Slots ${fromLevel} → ${toLevel} for ${short(addr)}`);
+    const label = _memberIsFounder
+        ? `Upgrading Founder Slots ${fromLevel} → ${toLevel} for ${short(addr)}`
+        : `Granting Founder Slots ${fromLevel} → ${toLevel} for ${short(addr)}`;
+
+    openTxModal(label);
     try {
         let gasLimit;
         try {
-            gasLimit = await window.metapolApp.contract.upgradeFounderSlots.estimateGas(addr, fromLevel, toLevel);
+            if (_memberIsFounder) {
+                gasLimit = await window.metapolApp.contract.upgradeFounderSlots.estimateGas(addr, fromLevel, toLevel);
+            } else {
+                gasLimit = await window.metapolApp.contract.grantFounderStatus.estimateGas(addr, fromLevel, toLevel);
+            }
             gasLimit = (gasLimit * 130n) / 100n;
         } catch(e) { gasLimit = 800000n; }
 
-        const tx      = await window.metapolApp.contract.upgradeFounderSlots(addr, fromLevel, toLevel, { gasLimit });
+        const tx = _memberIsFounder
+            ? await window.metapolApp.contract.upgradeFounderSlots(addr, fromLevel, toLevel, { gasLimit })
+            : await window.metapolApp.contract.grantFounderStatus(addr, fromLevel, toLevel, { gasLimit });
+
         setTxHash(tx.hash);
         const receipt = await tx.wait();
         if (receipt.status === 1) {
             showTxSuccess(tx.hash);
-            window.metapolApp.showToast('Slots upgraded successfully!', 'success');
+            window.metapolApp.showToast('Slots granted successfully!', 'success');
             setTimeout(syncAdminData, 1500);
         } else {
             throw new Error('Transaction reverted');
@@ -386,7 +392,6 @@ function parseRevertReason(err) {
     if (err.code === 'ACTION_REJECTED') return 'Transaction was rejected in your wallet.';
     if (err.reason)  return `Contract rejected: "${err.reason}"`;
     if (err.message) {
-        if (err.message.includes('Already registered'))   return 'Contract rejected: address is already registered.';
         if (err.message.includes('Not owner'))            return 'Contract rejected: caller is not the owner.';
         if (err.message.includes('insufficient funds'))   return 'Insufficient POL for gas fees.';
         if (err.message.includes('user rejected'))        return 'Transaction was rejected in your wallet.';

@@ -358,7 +358,7 @@
             <!-- Grant Founder -->
             <div class="admin-form-card">
                 <h3><i class="fa-solid fa-crown" style="color:#FFD700;"></i> Grant Founder Status</h3>
-                <p>Registers an unregistered wallet as a Founder member, granting them slots from level <em>fromLevel</em> to <em>toLevel</em> on the contract. The wallet must NOT already be registered.</p>
+                <p>Registers an unregistered wallet as a Founder member, or promotes an already-registered member to Founder, granting them slots from level <em>fromLevel</em> to <em>toLevel</em> on the contract. Slots the user already holds are automatically skipped.</p>
                 <div class="admin-field">
                     <label>Recipient Wallet Address</label>
                     <input type="text" id="input-grant-addr" class="admin-input" placeholder="0x..." oninput="checkGrantAddress(this.value)">
