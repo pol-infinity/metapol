@@ -173,31 +173,37 @@ async function syncDashboardData() {
         if (teamSizeEl) teamSizeEl.innerText = teamCount;
         if (teamFooterEl) teamFooterEl.innerText = teamCount === 1 ? "Direct member" : "Direct members";
 
-        // Fetch direct commission via SponsorPaid events
+        // Fetch direct commission via SponsorPaid events (non-blocking — updates card async)
         let totalSponsorPaid = 0n;
         let directCount = directReferralCount;
-        try {
-            const provider = window.metapolApp.provider;
-            const latestBlock = await provider.getBlockNumber();
-            const fromBlock = window.CONFIG.CONTRACT_DEPLOY_BLOCK;
-            const chunkSize = 3500; // safe RPC limit for Polygon
-            const sponsorFilter = window.metapolApp.contract.filters.SponsorPaid(address);
-            for (let from = fromBlock; from <= latestBlock; from += chunkSize) {
-                const to = Math.min(from + chunkSize - 1, latestBlock);
-                try {
-                    const events = await window.metapolApp.contract.queryFilter(sponsorFilter, from, to);
-                    events.forEach(ev => { totalSponsorPaid += ev.args.amount; });
-                } catch(e) { /* skip chunk */ }
-            }
-        } catch(e) { console.warn("Could not fetch SponsorPaid events:", e); }
+        // Run commission fetch async so it doesn't block admin panel / rest of UI
+        (async () => {
+            try {
+                const provider = window.metapolApp.provider;
+                const latestBlock = await provider.getBlockNumber();
+                const fromBlock = window.CONFIG.CONTRACT_DEPLOY_BLOCK;
+                const chunkSize = 3500;
+                const sponsorFilter = window.metapolApp.contract.filters.SponsorPaid(address);
+                let commission = 0n;
+                for (let from = fromBlock; from <= latestBlock; from += chunkSize) {
+                    const to = Math.min(from + chunkSize - 1, latestBlock);
+                    try {
+                        const events = await window.metapolApp.contract.queryFilter(sponsorFilter, from, to);
+                        events.forEach(ev => { commission += ev.args.amount; });
+                    } catch(e) { /* skip chunk */ }
+                }
+                // Fallback to totalEarnings if no events
+                const display = commission === 0n && totalEarnings > 0n ? totalEarnings : commission;
+                const commEl = document.getElementById("stat-direct-commission");
+                if (commEl) commEl.innerText = `${parseFloat(ethers.formatEther(display)).toFixed(2)} POL`;
+                // Also update income breakdown direct row
+                const incDirect = document.getElementById("income-direct-val");
+                if (incDirect) incDirect.innerText = `${parseFloat(ethers.formatEther(display)).toFixed(2)} POL`;
+            } catch(e) { console.warn("Commission fetch failed:", e); }
+        })();
 
-        // Fallback to on-chain totalEarnings if events returned nothing
-        let displayCommission = totalSponsorPaid;
-        if (displayCommission === 0n && totalEarnings > 0n) {
-            displayCommission = totalEarnings;
-        }
-        const commissionEl = document.getElementById("stat-direct-commission");
-        if (commissionEl) commissionEl.innerText = `${parseFloat(ethers.formatEther(displayCommission)).toFixed(2)} POL`;
+        // Commission card updated async above; use totalEarnings as placeholder
+        let displayCommission = totalEarnings;
 
         // ── Income Breakdown Rows (FutureTon style) ──
         const miningWithdrawnPOL = parseFloat(ethers.formatEther(totalMiningWith || 0n)).toFixed(2);
@@ -239,8 +245,12 @@ async function syncDashboardData() {
             document.getElementById("profile-founder-status").innerText = "Standard Member";
         }
 
-        const ownerWallet = await window.metapolApp.contract.ownerWallet();
-        const isOwner = address.toLowerCase() === ownerWallet.toLowerCase();
+        // Check owner separately so admin panel always shows even if events fail
+        let isOwner = false;
+        try {
+            const ownerWallet = await window.metapolApp.contract.ownerWallet();
+            isOwner = address.toLowerCase() === ownerWallet.toLowerCase();
+        } catch(e) { console.warn("ownerWallet check failed:", e); }
 
         // Show Admin Panel link in sidebar only for owner wallet
         const adminSidebarLink = document.getElementById("sidebar-admin-link");
