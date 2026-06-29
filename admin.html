@@ -167,8 +167,8 @@
                 <p>Registers an unregistered wallet as a Founder member, granting them slots from level <em>fromLevel</em> to <em>toLevel</em> on the contract. The wallet must NOT already be registered.</p>
                 <div class="admin-field">
                     <label>Recipient Wallet Address</label>
-                    <input type="text" id="input-grant-addr" class="admin-input" placeholder="0x..." oninput="validateGrantAddress(this.value)">
-                    <div class="verify-hint" id="grant-verify-hint">Enter a wallet address to validate</div>
+                    <input type="text" id="input-grant-addr" class="admin-input" placeholder="0x..." oninput="checkGrantAddress(this.value)">
+                    <div class="verify-hint" id="grant-verify-hint">Enter a wallet address</div>
                 </div>
                 <div class="admin-row">
                     <div class="admin-field">
@@ -202,8 +202,8 @@
                 <p>Upgrades an existing Founder's slot range from <em>fromLevel</em> to <em>toLevel</em>. The wallet must already have Founder status.</p>
                 <div class="admin-field">
                     <label>Founder Wallet Address</label>
-                    <input type="text" id="input-upgrade-addr" class="admin-input" placeholder="0x..." oninput="validateUpgradeAddress(this.value)">
-                    <div class="verify-hint" id="upgrade-verify-hint">Enter a founder wallet address to validate</div>
+                    <input type="text" id="input-upgrade-addr" class="admin-input" placeholder="0x..." oninput="checkUpgradeAddress(this.value)">
+                    <div class="verify-hint" id="upgrade-verify-hint">Enter a founder wallet address</div>
                 </div>
                 <div class="admin-row">
                     <div class="admin-field">
