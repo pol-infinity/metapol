@@ -138,27 +138,56 @@ async function syncDashboardData() {
         document.getElementById("stat-total-earnings").innerText = `${parseFloat(ethers.formatEther(totalEarnings ?? 0n)).toFixed(2)} POL`;
         document.getElementById("stat-mining-capital").innerText = `${parseFloat(ethers.formatEther(totalMiningDep ?? 0n)).toFixed(2)} POL`;
 
-        // ── Direct referral count: use checkIncomeEligibility which reads directly from contract state ──
-        // This is instant (single call), accurate, and doesn't depend on events.
-        let directReferralCount = Number(referredUsers); // from getUserInfo
-        try {
-            const eligData = await window.metapolApp.contract.checkIncomeEligibility(address);
-            // eligData[1] = directReferrals (actual on-chain count)
-            const contractDirects = Number(eligData[1]);
-            if (contractDirects >= directReferralCount) directReferralCount = contractDirects;
-        } catch(e) { console.warn("checkIncomeEligibility fallback to referredUsers:", e); }
+        // ── Direct referral count: read directly from on-chain referredUsers (getUserInfo[3]) ──
+        // This is the exact counter incremented by regUser() on every registration.
+        // We do NOT mix with event counts (Math.max) because:
+        //   - Events can miss founder-granted members
+        //   - RPC gaps can return duplicate events
+        //   - Math.max can only ever inflate, never correct, the count
+        const directReferralCount = Number(referredUsers);
 
-        // Store globally so syncTeamTab can use it without re-querying
+        // Cache so Team tab can read it without another RPC call
         window._cachedDirectReferrals = directReferralCount;
 
-        // Display immediately (definitive value — not overridden later)
+        // Render immediately — this value is authoritative and never overridden
         document.getElementById("stat-direct-referrals").innerText = directReferralCount;
 
-        // Team size card: show directs now; syncTeamTab will update to L1+L2 total when it runs
+        // ── Team size (L1 + L2): compute on-chain right now so the overview card is always correct ──
         const teamSizeEl   = document.getElementById("stat-team-size");
         const teamFooterEl = document.getElementById("stat-team-footer");
+        // Show L1 immediately while L2 resolves in the background
         if (teamSizeEl)   teamSizeEl.innerText   = directReferralCount;
         if (teamFooterEl) teamFooterEl.innerText  = `${directReferralCount} direct member${directReferralCount !== 1 ? "s" : ""}`;
+
+        // Background: fetch each direct's referredUsers (L2) in parallel, then update card
+        (async () => {
+            try {
+                const _filterReg = window.metapolApp.contract.filters.RegUser(null, address);
+                let _regEvts = [];
+                try {
+                    _regEvts = await window.metapolApp.contract.queryFilter(_filterReg, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
+                } catch(_) {
+                    const _latest = await window.metapolApp.provider.getBlockNumber();
+                    for (let _f = window.CONFIG.CONTRACT_DEPLOY_BLOCK; _f <= _latest; _f += 5000) {
+                        try { _regEvts = _regEvts.concat(await window.metapolApp.contract.queryFilter(_filterReg, _f, Math.min(_f + 4999, _latest))); } catch(e) {}
+                    }
+                }
+                // Batch getUserInfo for all directs (10 at a time) to get their referredUsers (L2)
+                let _l2Total = 0;
+                for (let _i = 0; _i < _regEvts.length; _i += 10) {
+                    const _batch = _regEvts.slice(_i, _i + 10);
+                    const _infos = await Promise.all(_batch.map(ev =>
+                        window.metapolApp.contract.getUserInfo(ev.args.user).catch(() => null)
+                    ));
+                    _infos.forEach(info => { if (info) _l2Total += Number(info[3]); });
+                }
+                const _totalTeam = directReferralCount + _l2Total;
+                window._cachedL2Count   = _l2Total;
+                window._cachedTotalTeam = _totalTeam;
+                if (teamSizeEl)   teamSizeEl.innerText   = _totalTeam;
+                if (teamFooterEl) teamFooterEl.innerText = `${directReferralCount} direct · ${_l2Total} indirect`;
+            } catch(e) { console.warn("Team size L2 background fetch failed:", e); }
+        })();
 
         // Fetch direct commission via SponsorPaid events (non-blocking — updates card async)
         let totalSponsorPaid = 0n;
@@ -799,12 +828,14 @@ async function syncTeamTab() {
         const autoRepurch   = repurchEvents.length;
         const incomeSkips   = skippedEvents.length;
 
-        // Use the contract-verified direct count (from checkIncomeEligibility, set during syncDashboardData).
-        // Events may miss founder-granted members; the contract value is authoritative.
-        const directsCount = Math.max(
-            directsFromEvents,
-            window._cachedDirectReferrals || 0
-        );
+        // Use the on-chain referredUsers value cached from syncDashboardData.
+        // This is the exact counter from getUserInfo[3] — authoritative and already verified.
+        // We do NOT use Math.max(eventsCount, cachedCount) because:
+        //   - Events can have RPC gaps, duplicates, or miss founder grants
+        //   - Math.max only inflates; it cannot correct an over-count from events
+        const directsCount = window._cachedDirectReferrals != null
+            ? window._cachedDirectReferrals
+            : directsFromEvents; // fallback only if syncDashboardData hasn't run yet
 
         let totalSponsorPaid = 0n;
         sponsorEvents.forEach(ev => { totalSponsorPaid += ev.args.amount; });
@@ -897,8 +928,9 @@ async function syncTeamTab() {
         set("team-total-earnings", `${commPOL} POL`);
         set("team-total-volume",   `${volPOL} POL`);
 
-        // ── Update overview stat cards: ONLY update team size (L1+L2 total), NOT direct-referrals ──
-        // stat-direct-referrals is set authoritatively in syncDashboardData from checkIncomeEligibility
+        // ── Update overview stat cards ──
+        // stat-direct-referrals is set from on-chain referredUsers in syncDashboardData and must not be touched here.
+        // Team size = L1 (directsCount) + L2 (l2Count from each direct's referredUsers on-chain).
         const teamSizeOverview   = document.getElementById("stat-team-size");
         const teamFooterOverview = document.getElementById("stat-team-footer");
         if (teamSizeOverview)   teamSizeOverview.innerText   = totalTeam;
