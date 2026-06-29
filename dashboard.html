@@ -357,11 +357,11 @@
                         </div>
                     </div>
 
-                    <!-- Global Matrix Queue status -->
+                    <!-- Global Payout Line status -->
                     <div class="glass-card">
                         <h3 class="panel-section-title"><i class="fa-solid fa-diagram-next"></i> Matrix Queue Status</h3>
                         <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 20px;">
-                            Displaying your active queue positions for Slot levels. New registrations push the active index forward, completing payout cycles.
+                            Your active earning positions across all slot levels. New members joining ahead of you move the payout forward automatically.
                         </p>
                         
                         <div style="display: flex; flex-direction: column; gap: 16px;" id="overview-matrix-slots-list">
@@ -661,8 +661,8 @@
                 <div class="glass-card" style="margin-bottom: 30px;">
                     <h3 class="panel-section-title"><i class="fa-solid fa-layer-group"></i> Slot Purchasing & Level Upgrades</h3>
                     <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
-                        Buy Slot 1 to enter the matrix pool and activate passive mining. Slots 2 through 12 require holding the previous level. 
-                        <strong>20%</strong> of slot price goes to mining capital; <strong>80%</strong> goes to the matrix queue.
+                        Buy Slot 1 to start earning and activate passive mining. Slots 2 through 12 require holding the previous level. 
+                        <strong>20%</strong> of slot price goes to mining capital; <strong>80%</strong> goes to the earning pool.
                     </p>
                 </div>
 
@@ -719,19 +719,19 @@
                     <div style="flex:1; min-width:0;">
                         <div class="section-eyebrow" style="color:#00C8FF;">
                             <span style="width:16px;height:2px;background:#00C8FF;display:inline-block;border-radius:2px;"></span>
-                            Global Matrix Queue
+                            Global Payout Line
                         </div>
                         <div style="font-family:var(--font-display); font-size:1.2rem; font-weight:900; color:#fff; margin-bottom:6px; line-height:1.2;">
                             Every New Member <span style="background:linear-gradient(90deg,#00C8FF,#00FFD1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">Pays You Forward</span>
                         </div>
                         <div style="font-size:0.78rem; color:rgba(255,255,255,0.4); font-family:var(--font-display); margin-bottom:10px;">
-                            72% of every slot enters the auto-fill queue → cycles trigger → POL lands in your wallet instantly
+                            72% of every slot goes into the earning pool → payouts trigger automatically → POL lands in your wallet instantly
                         </div>
                         <!-- Flow diagram -->
                         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                             <div style="background:rgba(130,71,229,0.15); border:1px solid rgba(130,71,229,0.35); border-radius:10px; padding:6px 12px; font-family:var(--font-display); font-size:0.72rem; font-weight:700; color:#C0A0FF;">🎯 New Join</div>
                             <div style="color:rgba(0,200,255,0.5); font-size:1rem;">→</div>
-                            <div style="background:rgba(0,200,255,0.1); border:1px solid rgba(0,200,255,0.25); border-radius:10px; padding:6px 12px; font-family:var(--font-display); font-size:0.72rem; font-weight:700; color:#00C8FF;">📋 Queue Fill</div>
+                            <div style="background:rgba(0,200,255,0.1); border:1px solid rgba(0,200,255,0.25); border-radius:10px; padding:6px 12px; font-family:var(--font-display); font-size:0.72rem; font-weight:700; color:#00C8FF;">📋 Auto Payout</div>
                             <div style="color:rgba(0,200,255,0.5); font-size:1rem;">→</div>
                             <div style="background:rgba(0,255,209,0.1); border:1px solid rgba(0,255,209,0.25); border-radius:10px; padding:6px 12px; font-family:var(--font-display); font-size:0.72rem; font-weight:700; color:#00FFD1;">⚡ Cycle Complete</div>
                             <div style="color:rgba(0,200,255,0.5); font-size:1rem;">→</div>
@@ -743,7 +743,7 @@
                     <h3 class="panel-section-title"><i class="fa-solid fa-diagram-next"></i> Global Queue Matrix Details</h3>
                     <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
                         MetaPOL runs a global, decentralized straight-line single-line matrix. 
-                        Users cycle automatically after receiving the required payments in queue. Completed cycles automatically re-enter users at the end of the queue.
+                        Members receive payouts automatically after the required number of payments. Completed rounds re-enter members for the next payout automatically.
                     </p>
                 </div>
 
@@ -774,7 +774,7 @@
                         <span class="stat-label">Your Queue Status</span>
                         <div id="matrix-user-position-card" style="margin-top: 10px;">
                             <div style="font-size: 1.5rem; font-weight: 700; color: white;">Not Purchased</div>
-                            <span style="font-size: 0.75rem; color: var(--text-muted);">Please purchase this level to enter queue.</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted);">Purchase this slot level to start receiving payouts.</span>
                         </div>
                     </div>
                 </div>
@@ -785,13 +785,13 @@
                         <div class="queue-line" id="matrix-queue-line-container">
                             <!-- Rendered dynamically -->
                             <div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; width: 100%;">
-                                Connect wallet and select an active slot to view queue.
+                                Connect your wallet and select an active slot to view your earning position.
                             </div>
                         </div>
                         <div style="display: flex; gap: 20px; font-size: 0.75rem; justify-content: center; color: var(--text-muted); margin-top: 10px;">
-                            <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 2px; background: rgba(0, 255, 179, 0.2); border: 1px solid var(--accent);"></span> Current Active Node</span>
-                            <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 2px; background: rgba(0, 212, 255, 0.2); border: 1px solid var(--primary);"></span> Your Node</span>
-                            <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 2px; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);"></span> Global Queue Nodes</span>
+                            <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 2px; background: rgba(0, 255, 179, 0.2); border: 1px solid var(--accent);"></span> Currently Paying Out</span>
+                            <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 2px; background: rgba(0, 212, 255, 0.2); border: 1px solid var(--primary);"></span> Your Position</span>
+                            <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 10px; height: 10px; border-radius: 2px; background: rgba(255,255,255,0.05); border: 1px solid var(--card-border);"></span> Other Members</span>
                         </div>
                     </div>
                 </div>
@@ -1442,7 +1442,7 @@
                 </div>
                 <h4 style="font-size: 1.25rem; font-family: var(--font-heading); margin-bottom: 12px;">Transaction Failed</h4>
                 <p id="tx-error-msg" style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.5; margin-bottom: 20px;">
-                    The transaction was rejected by your wallet or network nodes.
+                    The transaction was rejected by your wallet or the network.
                 </p>
                 <button class="btn btn-secondary" style="width: 100%;" onclick="closeTxModal()">
                     <i class="fa-solid fa-rotate-left"></i> Try Again

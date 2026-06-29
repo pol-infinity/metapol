@@ -166,12 +166,13 @@ async function syncDashboardData() {
 
         document.getElementById("stat-direct-referrals").innerText = directReferralCount;
 
-        // Team size card
-        const teamCount = directReferralCount;
+        // Team size card — show total (L1 + L2 via contract referredUsers field)
+        const l2EstFromContract = Number(referredUsers); // contract counts all referrals made by user
+        const totalTeamOverview = directReferralCount + l2EstFromContract;
         const teamSizeEl = document.getElementById("stat-team-size");
         const teamFooterEl = document.getElementById("stat-team-footer");
-        if (teamSizeEl) teamSizeEl.innerText = teamCount;
-        if (teamFooterEl) teamFooterEl.innerText = teamCount === 1 ? "Direct member" : "Direct members";
+        if (teamSizeEl) teamSizeEl.innerText = directReferralCount; // updated after team tab loads full L2
+        if (teamFooterEl) teamFooterEl.innerText = `${directReferralCount} direct member${directReferralCount !== 1 ? "s" : ""}`;
 
         // Fetch direct commission via SponsorPaid events (non-blocking — updates card async)
         let totalSponsorPaid = 0n;
@@ -627,18 +628,17 @@ async function syncMatrixTab(level) {
 
         if (isExist) {
             const pos = userIdInPool - activeID;
-            let displayPos = pos >= 0 ? `${pos} users ahead` : "Cycling / Completed";
-            if (pos === 0) displayPos = "Active Receiver ⚡";
+            let displayPos = pos > 0 ? `${pos} member${pos !== 1 ? 's' : ''} ahead of you` : pos === 0 ? '⚡ Receiving Payout Now' : 'Payout Cycle Complete';
 
             positionCard.innerHTML = `
-                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">ID #${userIdInPool}</div>
-                <span style="font-size: 0.85rem; color: var(--accent); font-weight: 600; display: block; margin-top: 4px;">Queue Position: ${displayPos}</span>
-                <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 4px;">Cycles Completed: ${paymentsReceived} / ${threshold} payments</span>
+                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">Position #${userIdInPool}</div>
+                <span style="font-size: 0.85rem; color: var(--accent); font-weight: 600; display: block; margin-top: 4px;">Payout Status: ${displayPos}</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 4px;">Payments Received: ${paymentsReceived} / ${threshold}</span>
             `;
         } else {
             positionCard.innerHTML = `
                 <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-muted);">Not Entered</div>
-                <span style="font-size: 0.75rem; color: var(--text-muted);">Purchase slot level to enter matrix.</span>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Purchase this slot level to start earning.</span>
             `;
         }
 
@@ -647,27 +647,25 @@ async function syncMatrixTab(level) {
         queueContainer.innerHTML = "";
 
         if (currID === 0) {
-            queueContainer.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; width: 100%;">Ecosystem pool empty.</div>`;
+            queueContainer.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.85rem; width: 100%;">No members in this level yet.</div>`;
             return;
         }
 
-        // We show the queue starting from activeID up to 8 positions
+        // Show payout line starting from active position up to 8 positions
         const endNode = Math.min(activeID + 6, currID);
         for (let i = activeID; i <= endNode; i++) {
-            // Fetch address at index i in poolUserList
             const addrAtNode = await window.metapolApp.contract.poolUserList(level - 1, i);
-            const isUserNode = addrAtNode.toLowerCase() === address.toLowerCase();
+            const isUserNode   = addrAtNode.toLowerCase() === address.toLowerCase();
             const isActiveNode = i === activeID;
 
             const node = document.createElement("div");
             node.className = `queue-node ${isActiveNode ? 'active' : ''} ${isUserNode ? 'user' : ''}`;
             node.innerHTML = `
                 <span class="queue-node-id">#${i}</span>
-                <span class="queue-node-lbl">${isActiveNode ? 'Active' : isUserNode ? 'You' : 'Queue'}</span>
+                <span class="queue-node-lbl">${isActiveNode ? 'Paying Out' : isUserNode ? 'You' : 'Waiting'}</span>
             `;
             queueContainer.appendChild(node);
 
-            // Add arrow if not last node
             if (i < endNode) {
                 const arrow = document.createElement("div");
                 arrow.className = "queue-arrow";
@@ -676,7 +674,6 @@ async function syncMatrixTab(level) {
             }
         }
 
-        // Show trailing dots if there are more nodes
         if (currID > endNode) {
             const arrow = document.createElement("div");
             arrow.className = "queue-arrow";
@@ -688,7 +685,7 @@ async function syncMatrixTab(level) {
             dots.style.opacity = "0.4";
             dots.innerHTML = `
                 <span class="queue-node-id">+${currID - endNode}</span>
-                <span class="queue-node-lbl">Nodes</span>
+                <span class="queue-node-lbl">Members</span>
             `;
             queueContainer.appendChild(dots);
         }
@@ -734,7 +731,7 @@ async function syncOverviewMatrixList() {
                 const progressPct = Math.min((progress / threshold) * 100, 100);
 
                 const ahead = id - activeID;
-                let queuePos = ahead > 0 ? `${ahead} nodes ahead` : ahead === 0 ? "⚡ Receiving Payout" : "Completed";
+                let queuePos = ahead > 0 ? `${ahead} member${ahead !== 1 ? 's' : ''} ahead` : ahead === 0 ? "⚡ Receiving Payout" : "Payout Complete";
 
                 htmlContent += `
                     <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 8px;">
@@ -857,7 +854,7 @@ async function syncTeamTab() {
                 if (isFounder) foundersCount++;
                 totalTeamMining += miningDep;
 
-                return { id: refId, address: refAddr, addrLower: refAddr.toLowerCase(), date: new Date(regTime*1000).toLocaleDateString(), invested: slotsInvested, mining: miningDep, isFounder, highestSlot };
+                return { id: refId, address: refAddr, addrLower: refAddr.toLowerCase(), date: new Date(regTime*1000).toLocaleDateString(), invested: slotsInvested, mining: miningDep, isFounder, highestSlot, l2Count: Number(info[3]) };
             }));
             results.forEach(r => { referralDetails.push(r); totalTeamVolume += r.invested; });
         }
@@ -868,13 +865,17 @@ async function syncTeamTab() {
             ? (parseFloat(ethers.formatEther(totalTeamMining ?? 0n)) / directsCount).toFixed(1)
             : "0";
 
+        // Total team = L1 (directs) + L2 (their referrals)
+        const l2Count   = referralDetails.reduce((sum, r) => sum + (r.l2Count || 0), 0);
+        const totalTeam = directsCount + l2Count;
+
         // ── Hero cards ──
         const set = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
-        set("lhero-team-size",    directsCount);
+        set("lhero-team-size",    totalTeam);
         set("lhero-volume",       `${volPOL} POL`);
         set("lhero-earned",       `${commPOL} POL`);
         set("lhero-auto-upgrades", autoUpgrades);
-        set("lhero-team-sub",     `${directsCount} direct member${directsCount !== 1 ? "s" : ""}`);
+        set("lhero-team-sub",     `${directsCount} direct · ${l2Count} indirect`);
 
         // ── Performance stats ──
         set("lp-directs",     directsCount);
@@ -886,7 +887,7 @@ async function syncTeamTab() {
 
         // ── Legacy IDs ──
         set("team-directs-count",  directsCount);
-        set("team-total-count",    directsCount);
+        set("team-total-count",    totalTeam);
         set("team-total-earnings", `${commPOL} POL`);
         set("team-total-volume",   `${volPOL} POL`);
 
@@ -938,6 +939,12 @@ async function syncTeamTab() {
         window._commissionByUser = commissionByUser;
         renderTeamTable(referralDetails);
         renderInviteTracker(commissionEvents, referralDetails, totalSponsorPaid, directsCount);
+
+        // Update overview total team size card with real L1+L2 total
+        const teamSizeOverview = document.getElementById("stat-team-size");
+        const teamFooterOverview = document.getElementById("stat-team-footer");
+        if (teamSizeOverview) teamSizeOverview.innerText = totalTeam;
+        if (teamFooterOverview) teamFooterOverview.innerText = `${directsCount} direct · ${l2Count} indirect`;
 
     } catch(err) {
         console.error("Team tab error:", err);
