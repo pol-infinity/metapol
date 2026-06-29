@@ -324,6 +324,9 @@ async function syncDashboardData() {
         // 3. Populate Overview matrix slots list
         await syncOverviewMatrixList();
 
+        // 4. Pre-load team stats so hero cards are never stuck at 0
+        syncTeamTab().catch(() => {});
+
     } catch (err) {
         console.error("Dashboard synchronization error:", err);
         window.metapolApp.showToast("Failed to refresh client portal metrics", "error");
@@ -937,13 +940,14 @@ async function syncTeamTab() {
         window._teamData = referralDetails;
         window._commissionEvents = commissionEvents;
         window._commissionByUser = commissionByUser;
+        window._teamData = referralDetails;
         renderTeamTable(referralDetails);
         renderInviteTracker(commissionEvents, referralDetails, totalSponsorPaid, directsCount);
 
         // Update overview total team size card with real L1+L2 total
-        const teamSizeOverview = document.getElementById("stat-team-size");
+        const teamSizeOverview   = document.getElementById("stat-team-size");
         const teamFooterOverview = document.getElementById("stat-team-footer");
-        if (teamSizeOverview) teamSizeOverview.innerText = totalTeam;
+        if (teamSizeOverview)   teamSizeOverview.innerText   = totalTeam;
         if (teamFooterOverview) teamFooterOverview.innerText = `${directsCount} direct · ${l2Count} indirect`;
 
     } catch(err) {
@@ -963,14 +967,15 @@ function renderTeamTable(data) {
     tbody.innerHTML = data.map(ref => {
         const pubCode = window.MetapolRef ? window.MetapolRef.idToCode(ref.id) : ref.id;
         const commData = window._commissionByUser ? window._commissionByUser[ref.addrLower] : null;
-        const commPOL = commData ? parseFloat(ethers.formatEther(commData.total ?? 0n)).toFixed(2) : "0.00";
+        const commPOL  = commData ? parseFloat(ethers.formatEther(commData.total ?? 0n)).toFixed(2) : "0.00";
+        const l2       = ref.l2Count || 0;
         return `
         <tr>
             <td style="font-family:var(--font-display); font-weight:700; color:var(--cyan);">#${pubCode}</td>
             <td><span class="wallet-badge" style="font-size:0.72rem;">${window.metapolApp.shortenAddress(ref.address)}</span></td>
             <td style="color:var(--text-muted); font-size:0.78rem;">${ref.date}</td>
+            <td style="font-weight:700; color:var(--accent);">${l2} indirect</td>
             <td style="font-weight:700;">${parseFloat(ethers.formatEther(ref.invested ?? 0n)).toFixed(1)} POL</td>
-            <td style="color:var(--teal); font-weight:700;">${parseFloat(ethers.formatEther(ref.mining ?? 0n)).toFixed(1)} POL</td>
             <td>
                 ${ref.isFounder
                     ? '<span class="slot-status-label slot-status-active" style="font-size:0.65rem;"><i class="fa-solid fa-crown"></i> Founder</span>'
@@ -1387,8 +1392,9 @@ function renderInviteTracker(events, referralDetails, totalSponsorPaid, directsC
     const avgEl    = document.getElementById("itrack-avg");
     if (!feed) return;
 
-    const totalPOL = parseFloat(ethers.formatEther(totalSponsorPaid ?? 0n));
-    const avg      = directsCount > 0 ? (totalPOL / directsCount).toFixed(2) : "0.00";
+    const totalPOL  = parseFloat(ethers.formatEther(totalSponsorPaid ?? 0n));
+    const payerCount = Object.keys(Object.fromEntries(events.map(e => [e.userAddr, 1]))).length || directsCount;
+    const avg       = payerCount > 0 ? (totalPOL / payerCount).toFixed(2) : "0.00";
 
     if (totalEl) totalEl.textContent  = `${totalPOL.toFixed(2)} POL`;
     if (countEl) countEl.textContent  = directsCount;
