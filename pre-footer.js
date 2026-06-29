@@ -93,12 +93,36 @@
       const d = document.getElementById("pfs-directs-count");
       const t = document.getElementById("pfs-team-count");
       const e = document.getElementById("pfs-ref-earnings");
-      const srcD = document.getElementById("team-directs-count") || document.getElementById("stat-direct-referrals");
-      const srcT = document.getElementById("team-total-count") || document.getElementById("stat-team-size");
-      const srcE = document.getElementById("team-total-earnings") || document.getElementById("stat-commission");
-      if (d && srcD) d.textContent = srcD.textContent || "0";
-      if (t && srcT) t.textContent = srcT.textContent || "0";
-      if (e && srcE) e.textContent = parseFloat(srcE.textContent || "0").toFixed(2);
+
+      // Direct count — most reliable source
+      const directsEl = document.getElementById("stat-direct-referrals")
+                     || document.getElementById("team-directs-count");
+      const directs = parseInt(directsEl?.textContent || "0") || 0;
+
+      // Total team — from team tab if loaded, else fall back to directs
+      const teamEl = document.getElementById("team-total-count")
+                  || document.getElementById("stat-team-size");
+      const teamRaw = parseInt(teamEl?.textContent?.replace(/[^0-9]/g,"") || "0") || 0;
+      const total = teamRaw >= directs ? teamRaw : directs;
+
+      // Indirect = total - direct
+      const indirect = Math.max(0, total - directs);
+
+      if (d) d.textContent = directs;
+      if (t) {
+        t.textContent = total;
+        // Update label to show breakdown
+        const lbl = t.closest(".pfs-share-stat")?.querySelector(".pfs-share-stat-lbl");
+        if (lbl) lbl.textContent = indirect > 0 ? `${directs} direct · ${indirect} indirect` : "Total Team";
+      }
+
+      // Earnings
+      const earningsEl = document.getElementById("team-total-earnings")
+                      || document.getElementById("stat-direct-commission");
+      if (e && earningsEl) {
+        const raw = earningsEl.textContent?.replace(/[^0-9.]/g,"") || "0";
+        e.textContent = parseFloat(raw || "0").toFixed(2);
+      }
     },
   };
 
@@ -277,11 +301,66 @@
     pfsShareCenter.syncLink();
     pfsShareCenter.syncStats();
 
-    // Read directs count from hidden DOM elements
-    const directsEl = document.getElementById("team-directs-count")
-      || document.getElementById("stat-direct-referrals");
-    const directs = parseInt(directsEl?.textContent || "0") || 0;
-    pfsMilestonePopup.check(directs);
+    // Fetch accurate direct + indirect counts from contract
+    try {
+      if (window.metapolApp?.isConnected && window.metapolApp?.contract) {
+        const addr = window.metapolApp.userAddress;
+        const info = await window.metapolApp.contract.getUserInfo(addr);
+        // New contract: [isExist, id, referrerID, referredUsers, isFounder, incomeEligible]
+        const directs = Number(info[3]); // referredUsers = direct referrals
+
+        // Update direct count in portal
+        const dEl = document.getElementById("pfs-directs-count");
+        if (dEl) dEl.textContent = directs;
+
+        // Update stat card
+        const statDirect = document.getElementById("stat-direct-referrals");
+        if (statDirect) statDirect.textContent = directs;
+
+        // Fetch L2 count — sum up referredUsers of each direct
+        let indirect = 0;
+        if (directs > 0) {
+          try {
+            // Get direct referral addresses from RegUser events filtered by referrer
+            const filterReg = window.metapolApp.contract.filters.RegUser(null, addr);
+            const regEvts = await window.metapolApp.contract.queryFilter(filterReg, 0, "latest");
+            const l2Promises = regEvts.map(ev =>
+              window.metapolApp.contract.getUserInfo(ev.args.user)
+                .then(i => Number(i[3]))
+                .catch(() => 0)
+            );
+            const l2Counts = await Promise.all(l2Promises);
+            indirect = l2Counts.reduce((a, b) => a + b, 0);
+          } catch(e) {}
+        }
+
+        const total = directs + indirect;
+
+        // Update portal total team
+        const tEl = document.getElementById("pfs-team-count");
+        if (tEl) {
+          tEl.textContent = total;
+          const lbl = tEl.closest(".pfs-share-stat")?.querySelector(".pfs-share-stat-lbl");
+          if (lbl) lbl.textContent = indirect > 0 ? `${directs} direct · ${indirect} indirect` : "Total Team";
+        }
+
+        // Update overview stat-team-size card
+        const teamSizeEl   = document.getElementById("stat-team-size");
+        const teamFooterEl = document.getElementById("stat-team-footer");
+        if (teamSizeEl)   teamSizeEl.innerText   = total;
+        if (teamFooterEl) teamFooterEl.innerText  = `${directs} direct · ${indirect} indirect`;
+
+        // Update lhero-team-size and lhero-team-sub in team tab
+        const lheroSize = document.getElementById("lhero-team-size");
+        const lheroSub  = document.getElementById("lhero-team-sub");
+        if (lheroSize) lheroSize.innerText = total;
+        if (lheroSub)  lheroSub.innerText  = `${directs} direct · ${indirect} indirect`;
+
+        pfsMilestonePopup.check(directs);
+      }
+    } catch(e) {
+      console.warn("syncAll stats error:", e);
+    }
 
     // Query contract directly for active slot status
     let highest = 0;

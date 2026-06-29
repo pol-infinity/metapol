@@ -166,13 +166,11 @@ async function syncDashboardData() {
 
         document.getElementById("stat-direct-referrals").innerText = directReferralCount;
 
-        // Team size card — show total (L1 + L2 via contract referredUsers field)
-        const l2EstFromContract = Number(referredUsers); // contract counts all referrals made by user
-        const totalTeamOverview = directReferralCount + l2EstFromContract;
-        const teamSizeEl = document.getElementById("stat-team-size");
+        // Team size card — use contract's referredUsers as direct count (most accurate)
+        const teamSizeEl   = document.getElementById("stat-team-size");
         const teamFooterEl = document.getElementById("stat-team-footer");
-        if (teamSizeEl) teamSizeEl.innerText = directReferralCount; // updated after team tab loads full L2
-        if (teamFooterEl) teamFooterEl.innerText = `${directReferralCount} direct member${directReferralCount !== 1 ? "s" : ""}`;
+        if (teamSizeEl)   teamSizeEl.innerText   = directReferralCount;
+        if (teamFooterEl) teamFooterEl.innerText  = `${directReferralCount} direct member${directReferralCount !== 1 ? "s" : ""}`;
 
         // Fetch direct commission via SponsorPaid events (non-blocking — updates card async)
         let totalSponsorPaid = 0n;
