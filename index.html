@@ -589,7 +589,7 @@
                 const threshold = thresholds[slot - 1];
                 
                 const miningCap = slotPrice * 0.20;
-                const dailyMining = miningCap * 0.015;
+                const dailyMining = miningCap * 0.0015;   // 0.15% per day — contract DAILY_RATE_X1e12
                 const totalMiningCap = miningCap * 5;
                 
                 const matrixPayout = slotPrice * threshold * 0.72;
@@ -613,26 +613,31 @@
             radios.forEach(r => r.addEventListener("change", calculateROI));
             calculateROI(); // Initial load
 
-            // Fetch public global stats via JSON-RPC
-            try {
-                const provider = new ethers.JsonRpcProvider(window.CONFIG.RPC_URL);
-                const contract = new ethers.Contract(window.CONFIG.CONTRACT_ADDRESS, window.METAPOL_ABI, provider);
-
-                // Fetch concurrent queries
-                const [balance, totalUsers, totalMining] = await Promise.all([
-                    provider.getBalance(window.CONFIG.CONTRACT_ADDRESS),
-                    contract.currUserID(),
-                    contract.totalMiningDeposited()
-                ]);
-
-                document.getElementById("pub-contract-balance").innerText = `${parseFloat(ethers.formatEther(balance)).toFixed(2)} POL`;
-                document.getElementById("pub-total-users").innerText = Number(totalUsers).toLocaleString();
-                document.getElementById("pub-total-mining").innerText = `${parseFloat(ethers.formatEther(totalMining)).toFixed(2)} POL`;
-            } catch (err) {
-                console.warn("Public RPC call failed. Falling back to default landing stats:", err);
-                document.getElementById("pub-contract-balance").innerText = "8,452.20 POL";
-                document.getElementById("pub-total-users").innerText = "1,452";
-                document.getElementById("pub-total-mining").innerText = "24,810.00 POL";
+            // Fetch public global stats via JSON-RPC — try fallback RPCs if primary fails
+            const rpcs = [window.CONFIG.RPC_URL, ...( window.CONFIG.RPC_FALLBACKS || [])];
+            let fetched = false;
+            for (const rpc of rpcs) {
+                try {
+                    const provider = new ethers.JsonRpcProvider(rpc);
+                    const contract = new ethers.Contract(window.CONFIG.CONTRACT_ADDRESS, window.METAPOL_ABI, provider);
+                    const [balance, totalUsers, totalMining] = await Promise.all([
+                        provider.getBalance(window.CONFIG.CONTRACT_ADDRESS),
+                        contract.currUserID(),
+                        contract.totalMiningDeposited()
+                    ]);
+                    document.getElementById("pub-contract-balance").innerText = `${parseFloat(ethers.formatEther(balance)).toFixed(2)} POL`;
+                    document.getElementById("pub-total-users").innerText      = Number(totalUsers).toLocaleString();
+                    document.getElementById("pub-total-mining").innerText     = `${parseFloat(ethers.formatEther(totalMining)).toFixed(2)} POL`;
+                    fetched = true;
+                    break;
+                } catch (e) {
+                    console.warn(`RPC ${rpc} failed:`, e.message);
+                }
+            }
+            if (!fetched) {
+                document.getElementById("pub-contract-balance").innerText = "—";
+                document.getElementById("pub-total-users").innerText      = "—";
+                document.getElementById("pub-total-mining").innerText     = "—";
             }
         });
     </script>

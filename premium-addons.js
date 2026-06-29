@@ -274,7 +274,7 @@ window.syncROICalculator = async function() {
             active:  activeSlots[i],
             miningCap:  price * 0.20,
             miningCapX5: price * 0.20 * 5,
-            dailyMining: price * 0.20 * 0.015
+            dailyMining: price * 0.20 * 0.0015
         }));
 
         const activeOnes = _roiSlotData.filter(s => s.active);
@@ -294,7 +294,7 @@ window.syncROICalculator = async function() {
             }
         }
 
-        const dailyMining  = totalMiningCapital * 0.015;
+        const dailyMining  = totalMiningCapital * 0.0015;
         const remaining    = Math.max(0, totalMiningCapLimit - totalMiningWithdrawn);
 
         // Summary cards
@@ -323,7 +323,7 @@ function recalcROI(slotData, miningCapital, dailyMining, remaining) {
 
     const activeOnes = slotData.filter(s => s.active);
     miningCapital = miningCapital ?? activeOnes.reduce((s, sl) => s + sl.miningCap, 0);
-    dailyMining   = dailyMining   ?? miningCapital * 0.015;
+    dailyMining   = dailyMining   ?? miningCapital * 0.0015;
     remaining     = remaining     ?? miningCapital * 5;
 
     const periods = [

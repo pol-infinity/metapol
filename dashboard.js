@@ -142,8 +142,8 @@ async function syncDashboardData() {
         // So: query RegUser events (sponsor==address) + check FounderGranted events referrerID
         let directReferralCount = Number(referredUsers);
         try {
-            // 1. Count normal registrations where admin is sponsor
-            const regFilter = window.metapolApp.contract.filters.RegUser(address, null);
+            // 1. Count normal registrations where address is referrer (param 2, not param 1)
+            const regFilter = window.metapolApp.contract.filters.RegUser(null, address);
             const regEvents = await window.metapolApp.contract.queryFilter(regFilter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
             let countFromEvents = regEvents.length;
 
@@ -211,13 +211,12 @@ async function syncDashboardData() {
         const matrixEarningsPOL  = parseFloat(ethers.formatEther(totalEarnings ?? 0n)).toFixed(2);
         const directCommPOL      = parseFloat(ethers.formatEther(displayCommission ?? 0n)).toFixed(2);
 
-        // Mining row
+        // Mining row — show withdrawn earnings, daily rate = 0.15% of active capital (contract rate)
         const incMining = document.getElementById("income-mining-val");
         const incMiningDay = document.getElementById("income-mining-daily");
         if (incMining) incMining.innerText = `${miningWithdrawnPOL} POL`;
         if (incMiningDay) {
-            // Estimate daily = 1% of capital
-            const dailyEst = (parseFloat(miningCapPOL) * 0.01).toFixed(2);
+            const dailyEst = (parseFloat(miningCapPOL) * 0.0015).toFixed(4);
             incMiningDay.innerText = `~${dailyEst}/day`;
         }
 
@@ -392,11 +391,12 @@ async function syncMiningData() {
         document.getElementById("tab-mining-withdrawn").innerText = `${parseFloat(ethers.formatEther(totalMiningWithdrawn ?? 0n)).toFixed(2)} POL`;
         document.getElementById("tab-mining-cap").innerText = `${parseFloat(ethers.formatEther(totalMiningCap ?? 0n)).toFixed(2)} POL`;
 
-        // Calculate Daily (0.15% daily rate is 1_500_000_000 / 1e12)
-        const dailyRate = Number(totalActiveCapital) * 0.0015;
-        const dailyRateEth = parseFloat(ethers.formatEther((dailyRate ?? 0n).toString())).toFixed(4);
-        document.getElementById("mining-est-daily").innerText = `${dailyRateEth} POL`;
-        document.getElementById("tab-mining-daily").innerText = `${dailyRateEth} POL`;
+        // Calculate Daily (0.15% daily = DAILY_RATE_X1e12 / 1e12 = 0.0015)
+        const activeCapitalNum = parseFloat(ethers.formatEther(totalActiveCapital ?? 0n));
+        const dailyRateNum = activeCapitalNum * 0.0015;
+        const dailyRateStr = dailyRateNum.toFixed(4);
+        document.getElementById("mining-est-daily").innerText = `${dailyRateStr} POL`;
+        document.getElementById("tab-mining-daily").innerText = `${dailyRateStr} POL`;
         document.getElementById("mining-total-withdrawn").innerText = `${parseFloat(ethers.formatEther(totalMiningWithdrawn ?? 0n)).toFixed(2)} POL`;
 
         // Start Live ROI Animation Counter
@@ -439,7 +439,7 @@ function startMiningTimer() {
         let totalTickingPending = 0;
         const now = Date.now() / 1000;
         const SECONDS_PER_DAY = 86400;
-        const DAILY_RATE = 1500000000 / 1e12; // 0.0015 (0.15% per day)
+        const DAILY_RATE = 1_500_000_000 / 1e12; // 0.0015 = 0.15% per day (contract DAILY_RATE_X1e12 / 1e12)
 
         miningEntries.forEach(entry => {
             if (!entry.active) return;
