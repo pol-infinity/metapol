@@ -22,7 +22,7 @@ const CONFIG = {
     },
 
     // Contract deployment block (used to limit event query range and avoid RPC timeouts)
-    CONTRACT_DEPLOY_BLOCK: 69800000,
+    CONTRACT_DEPLOY_BLOCK: 89300000,
 
     // Default Settings
     DEFAULT_SPONSOR_ID: 1, // Fallback sponsor (Owner Wallet)

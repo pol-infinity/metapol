@@ -173,17 +173,25 @@ async function syncDashboardData() {
         if (teamSizeEl) teamSizeEl.innerText = teamCount;
         if (teamFooterEl) teamFooterEl.innerText = teamCount === 1 ? "Direct member" : "Direct members";
 
-        // Fetch direct commission:
-        // SponsorPaid events for event-based amount + fallback to on-chain totalEarnings
+        // Fetch direct commission via SponsorPaid events
         let totalSponsorPaid = 0n;
         let directCount = directReferralCount;
         try {
+            const provider = window.metapolApp.provider;
+            const latestBlock = await provider.getBlockNumber();
+            const fromBlock = window.CONFIG.CONTRACT_DEPLOY_BLOCK;
+            const chunkSize = 3500; // safe RPC limit for Polygon
             const sponsorFilter = window.metapolApp.contract.filters.SponsorPaid(address);
-            const sponsorEvents = await window.metapolApp.contract.queryFilter(sponsorFilter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
-            sponsorEvents.forEach(ev => { totalSponsorPaid += ev.args.amount; });
+            for (let from = fromBlock; from <= latestBlock; from += chunkSize) {
+                const to = Math.min(from + chunkSize - 1, latestBlock);
+                try {
+                    const events = await window.metapolApp.contract.queryFilter(sponsorFilter, from, to);
+                    events.forEach(ev => { totalSponsorPaid += ev.args.amount; });
+                } catch(e) { /* skip chunk */ }
+            }
         } catch(e) { console.warn("Could not fetch SponsorPaid events:", e); }
 
-        // If no SponsorPaid events found, fallback to on-chain totalEarnings (includes all payouts)
+        // Fallback to on-chain totalEarnings if events returned nothing
         let displayCommission = totalSponsorPaid;
         if (displayCommission === 0n && totalEarnings > 0n) {
             displayCommission = totalEarnings;
@@ -760,12 +768,24 @@ async function syncTeamTab() {
         const filterRepurch  = window.metapolApp.contract.filters.AutoRepurchase(address);
         const filterSkipped  = window.metapolApp.contract.filters.IncomeSkipped(null, null, address);
 
+        // Chunked query helper to avoid RPC block range limits
+        async function queryAllEvents(filter) {
+            const latest = await window.metapolApp.provider.getBlockNumber();
+            const chunk  = 3500;
+            let all = [];
+            for (let f = window.CONFIG.CONTRACT_DEPLOY_BLOCK; f <= latest; f += chunk) {
+                const t = Math.min(f + chunk - 1, latest);
+                try { all = all.concat(await window.metapolApp.contract.queryFilter(filter, f, t)); } catch(e) {}
+            }
+            return all;
+        }
+
         const [regEvents, sponsorEvents, upgradeEvents, repurchEvents, skippedEvents] = await Promise.all([
-            window.metapolApp.contract.queryFilter(filterReg, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest"),
-            window.metapolApp.contract.queryFilter(filterSponsor, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest"),
-            window.metapolApp.contract.queryFilter(filterUpgrade, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest"),
-            window.metapolApp.contract.queryFilter(filterRepurch, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest").catch(() => []),
-            window.metapolApp.contract.queryFilter(filterSkipped, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest").catch(() => [])
+            queryAllEvents(filterReg),
+            queryAllEvents(filterSponsor),
+            queryAllEvents(filterUpgrade),
+            queryAllEvents(filterRepurch).catch(() => []),
+            queryAllEvents(filterSkipped).catch(() => [])
         ]);
 
         const directsCount  = regEvents.length;
