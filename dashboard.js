@@ -137,36 +137,24 @@ async function syncDashboardData() {
         document.getElementById("stat-member-id").innerText = `#${publicCode}`;
         document.getElementById("stat-total-earnings").innerText = `${parseFloat(ethers.formatEther(totalEarnings ?? 0n)).toFixed(2)} POL`;
         document.getElementById("stat-mining-capital").innerText = `${parseFloat(ethers.formatEther(totalMiningDep ?? 0n)).toFixed(2)} POL`;
-        // Count direct referrals accurately:
-        // contract referredUsers misses founder-granted members (grantFounderStatus doesn't increment it)
-        // So: query RegUser events (sponsor==address) + check FounderGranted events referrerID
-        let directReferralCount = Number(referredUsers);
+
+        // ── Direct referral count: use checkIncomeEligibility which reads directly from contract state ──
+        // This is instant (single call), accurate, and doesn't depend on events.
+        let directReferralCount = Number(referredUsers); // from getUserInfo
         try {
-            // 1. Count normal registrations where address is referrer (param 2, not param 1)
-            const regFilter = window.metapolApp.contract.filters.RegUser(null, address);
-            const regEvents = await window.metapolApp.contract.queryFilter(regFilter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
-            let countFromEvents = regEvents.length;
+            const eligData = await window.metapolApp.contract.checkIncomeEligibility(address);
+            // eligData[1] = directReferrals (actual on-chain count)
+            const contractDirects = Number(eligData[1]);
+            if (contractDirects >= directReferralCount) directReferralCount = contractDirects;
+        } catch(e) { console.warn("checkIncomeEligibility fallback to referredUsers:", e); }
 
-            // 2. Count founder-granted members whose referrerID == admin's id
-            const founderFilter = window.metapolApp.contract.filters.FounderGranted();
-            const founderEvents = await window.metapolApp.contract.queryFilter(founderFilter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
-            const adminId = Number(id);
-            const founderAddresses = [...new Set(founderEvents.map(e => e.args.addr))];
-            let founderReferredByAdmin = 0;
-            for (const fAddr of founderAddresses) {
-                try {
-                    const fInfo = await window.metapolApp.contract.getUserInfo(fAddr);
-                    if (Number(fInfo[2]) === adminId) founderReferredByAdmin++;
-                } catch(e) {}
-            }
+        // Store globally so syncTeamTab can use it without re-querying
+        window._cachedDirectReferrals = directReferralCount;
 
-            countFromEvents += founderReferredByAdmin;
-            if (countFromEvents > directReferralCount) directReferralCount = countFromEvents;
-        } catch(e) { console.warn("Could not count referrals from events:", e); }
-
+        // Display immediately (definitive value — not overridden later)
         document.getElementById("stat-direct-referrals").innerText = directReferralCount;
 
-        // Team size card — use contract's referredUsers as direct count (most accurate)
+        // Team size card: show directs now; syncTeamTab will update to L1+L2 total when it runs
         const teamSizeEl   = document.getElementById("stat-team-size");
         const teamFooterEl = document.getElementById("stat-team-footer");
         if (teamSizeEl)   teamSizeEl.innerText   = directReferralCount;
@@ -175,34 +163,42 @@ async function syncDashboardData() {
         // Fetch direct commission via SponsorPaid events (non-blocking — updates card async)
         let totalSponsorPaid = 0n;
         let directCount = directReferralCount;
-        // Run commission fetch async so it doesn't block admin panel / rest of UI
+        // ── Commission fetch (non-blocking, only touches commission element) ──
+        // Uses totalEarnings from getUserEarnings as the reliable on-chain source.
+        // Background event scan will update commission card after main render is stable.
+        let displayCommission = totalEarnings;
+        // Update commission card immediately with on-chain earnings value
+        const commElImmediate = document.getElementById("stat-direct-commission");
+        if (commElImmediate) commElImmediate.innerText = `${parseFloat(ethers.formatEther(totalEarnings ?? 0n)).toFixed(2)} POL`;
+
+        // Background: refine commission from SponsorPaid events (updates only commission fields, never referral counts)
         (async () => {
             try {
-                const provider = window.metapolApp.provider;
-                const latestBlock = await provider.getBlockNumber();
-                const fromBlock = window.CONFIG.CONTRACT_DEPLOY_BLOCK;
-                const chunkSize = 3500;
+                const latestBlock = await window.metapolApp.provider.getBlockNumber();
                 const sponsorFilter = window.metapolApp.contract.filters.SponsorPaid(address);
+                // Use a single wide query — most RPCs support this now; fall back to chunks on error
                 let commission = 0n;
-                for (let from = fromBlock; from <= latestBlock; from += chunkSize) {
-                    const to = Math.min(from + chunkSize - 1, latestBlock);
-                    try {
-                        const events = await window.metapolApp.contract.queryFilter(sponsorFilter, from, to);
-                        events.forEach(ev => { commission += ev.args.amount; });
-                    } catch(e) { /* skip chunk */ }
+                try {
+                    const events = await window.metapolApp.contract.queryFilter(sponsorFilter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
+                    events.forEach(ev => { commission += ev.args.amount; });
+                } catch(_) {
+                    // Chunked fallback
+                    const chunkSize = 5000;
+                    for (let from = window.CONFIG.CONTRACT_DEPLOY_BLOCK; from <= latestBlock; from += chunkSize) {
+                        const to = Math.min(from + chunkSize - 1, latestBlock);
+                        try {
+                            const events = await window.metapolApp.contract.queryFilter(sponsorFilter, from, to);
+                            events.forEach(ev => { commission += ev.args.amount; });
+                        } catch(e) { /* skip chunk */ }
+                    }
                 }
-                // Fallback to totalEarnings if no events
                 const display = commission === 0n && totalEarnings > 0n ? totalEarnings : commission;
-                const commEl = document.getElementById("stat-direct-commission");
-                if (commEl) commEl.innerText = `${parseFloat(ethers.formatEther(display)).toFixed(2)} POL`;
-                // Also update income breakdown direct row
-                const incDirect = document.getElementById("income-direct-val");
-                if (incDirect) incDirect.innerText = `${parseFloat(ethers.formatEther(display)).toFixed(2)} POL`;
-            } catch(e) { console.warn("Commission fetch failed:", e); }
+                const commEl2 = document.getElementById("stat-direct-commission");
+                if (commEl2) commEl2.innerText = `${parseFloat(ethers.formatEther(display)).toFixed(2)} POL`;
+                const incDirect2 = document.getElementById("income-direct-val");
+                if (incDirect2) incDirect2.innerText = `${parseFloat(ethers.formatEther(display)).toFixed(2)} POL`;
+            } catch(e) { console.warn("Commission background fetch failed:", e); }
         })();
-
-        // Commission card updated async above; use totalEarnings as placeholder
-        let displayCommission = totalEarnings;
 
         // ── Income Breakdown Rows (FutureTon style) ──
         const miningWithdrawnPOL = parseFloat(ethers.formatEther(totalMiningWith || 0n)).toFixed(2);
@@ -321,9 +317,6 @@ async function syncDashboardData() {
 
         // 3. Populate Overview matrix slots list
         await syncOverviewMatrixList();
-
-        // 4. Pre-load team stats so hero cards are never stuck at 0
-        syncTeamTab().catch(() => {});
 
     } catch (err) {
         console.error("Dashboard synchronization error:", err);
@@ -776,16 +769,21 @@ async function syncTeamTab() {
         const filterRepurch  = window.metapolApp.contract.filters.AutoRepurchase(address);
         const filterSkipped  = window.metapolApp.contract.filters.IncomeSkipped(null, null, address);
 
-        // Chunked query helper to avoid RPC block range limits
+        // Single wide query helper — falls back to chunks only on RPC error
         async function queryAllEvents(filter) {
-            const latest = await window.metapolApp.provider.getBlockNumber();
-            const chunk  = 3500;
-            let all = [];
-            for (let f = window.CONFIG.CONTRACT_DEPLOY_BLOCK; f <= latest; f += chunk) {
-                const t = Math.min(f + chunk - 1, latest);
-                try { all = all.concat(await window.metapolApp.contract.queryFilter(filter, f, t)); } catch(e) {}
+            try {
+                return await window.metapolApp.contract.queryFilter(filter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
+            } catch(_) {
+                // Chunked fallback
+                const latest = await window.metapolApp.provider.getBlockNumber();
+                const chunk  = 5000;
+                let all = [];
+                for (let f = window.CONFIG.CONTRACT_DEPLOY_BLOCK; f <= latest; f += chunk) {
+                    const t = Math.min(f + chunk - 1, latest);
+                    try { all = all.concat(await window.metapolApp.contract.queryFilter(filter, f, t)); } catch(e) {}
+                }
+                return all;
             }
-            return all;
         }
 
         const [regEvents, sponsorEvents, upgradeEvents, repurchEvents, skippedEvents] = await Promise.all([
@@ -796,10 +794,17 @@ async function syncTeamTab() {
             queryAllEvents(filterSkipped).catch(() => [])
         ]);
 
-        const directsCount  = regEvents.length;
+        const directsFromEvents = regEvents.length;
         const autoUpgrades  = upgradeEvents.length;
         const autoRepurch   = repurchEvents.length;
         const incomeSkips   = skippedEvents.length;
+
+        // Use the contract-verified direct count (from checkIncomeEligibility, set during syncDashboardData).
+        // Events may miss founder-granted members; the contract value is authoritative.
+        const directsCount = Math.max(
+            directsFromEvents,
+            window._cachedDirectReferrals || 0
+        );
 
         let totalSponsorPaid = 0n;
         sponsorEvents.forEach(ev => { totalSponsorPaid += ev.args.amount; });
@@ -892,6 +897,13 @@ async function syncTeamTab() {
         set("team-total-earnings", `${commPOL} POL`);
         set("team-total-volume",   `${volPOL} POL`);
 
+        // ── Update overview stat cards: ONLY update team size (L1+L2 total), NOT direct-referrals ──
+        // stat-direct-referrals is set authoritatively in syncDashboardData from checkIncomeEligibility
+        const teamSizeOverview   = document.getElementById("stat-team-size");
+        const teamFooterOverview = document.getElementById("stat-team-footer");
+        if (teamSizeOverview)   teamSizeOverview.innerText   = totalTeam;
+        if (teamFooterOverview) teamFooterOverview.innerText = `${directsCount} direct · ${l2Count} indirect`;
+
         // ── Leader Rank ──
         const ranks = [
             { min:0,  max:4,  icon:"🥉", title:"Building Leader",   color:"#CD7F32", next:"Silver Leader",   nextAt:5  },
@@ -945,12 +957,6 @@ async function syncTeamTab() {
         if (window.pfsMilestonePopup) {
             window.pfsMilestonePopup.check(directsCount);
         }
-
-        // Update overview total team size card with real L1+L2 total
-        const teamSizeOverview   = document.getElementById("stat-team-size");
-        const teamFooterOverview = document.getElementById("stat-team-footer");
-        if (teamSizeOverview)   teamSizeOverview.innerText   = totalTeam;
-        if (teamFooterOverview) teamFooterOverview.innerText = `${directsCount} direct · ${l2Count} indirect`;
 
     } catch(err) {
         console.error("Team tab error:", err);
