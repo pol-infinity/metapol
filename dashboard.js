@@ -141,7 +141,7 @@ async function syncDashboardData() {
         // Also query RegUser events (referrer == address) for accurate count
         let directReferralCount = Number(referredUsers);
         try {
-            const regFilter = window.metapolApp.contract.filters.RegUser(null, address);
+            const regFilter = window.metapolApp.contract.filters.RegUser(address, null);
             const regEvents = await window.metapolApp.contract.queryFilter(regFilter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
             // RegUser event: indexed[0]=user, indexed[1]=referrer, indexed[2]=userId
             // Use max of contract value vs event count (founder grants may not emit RegUser)
