@@ -390,6 +390,43 @@
                 </button>
             </div>
 
+            <!-- Give Slots to Registered Member -->
+            <div class="admin-form-card" style="border-color:rgba(255,181,71,0.25);">
+                <h3><i class="fa-solid fa-layer-group" style="color:var(--warning);"></i> Give Slots to Registered Member</h3>
+                <p>Check a registered member's status and give them Founder slots. If already a Founder, uses <strong>Upgrade Founder Slots</strong>. Regular registered members must first be handled via the contract owner — enter address to see available action.</p>
+                <div class="admin-field">
+                    <label>Member Wallet Address</label>
+                    <input type="text" id="input-member-addr" class="admin-input" placeholder="0x..." oninput="checkMemberAddress(this.value)">
+                    <div class="verify-hint" id="member-verify-hint">Enter a member wallet address to check status</div>
+                </div>
+                <div id="member-action-wrap" style="display:none;">
+                    <div class="admin-row">
+                        <div class="admin-field">
+                            <label>From Level</label>
+                            <select id="member-from-level" class="admin-select">
+                                <option value="1" selected>1</option><option value="2">2</option>
+                                <option value="3">3</option><option value="4">4</option>
+                                <option value="5">5</option><option value="6">6</option>
+                            </select>
+                        </div>
+                        <div class="admin-field">
+                            <label>To Level</label>
+                            <select id="member-to-level" class="admin-select">
+                                <option value="1">1</option><option value="2">2</option>
+                                <option value="3">3</option><option value="4">4</option>
+                                <option value="5">5</option><option value="6">6</option>
+                                <option value="7">7</option><option value="8">8</option>
+                                <option value="9">9</option><option value="10">10</option>
+                                <option value="11">11</option><option value="12" selected>12</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="btn-member-slots" class="btn btn-primary btn-glow" style="width:100%;" onclick="executeMemberSlots()" disabled>
+                        <i class="fa-solid fa-bolt"></i> Give Slots
+                    </button>
+                </div>
+            </div>
+
             <!-- Upgrade Founder Slots -->
             <div class="admin-form-card">
                 <h3><i class="fa-solid fa-arrow-up-right-dots" style="color:var(--primary);"></i> Upgrade Founder Slots</h3>

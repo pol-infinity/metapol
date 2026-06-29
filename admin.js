@@ -283,6 +283,105 @@ window.executeUpgradeFounder = async function () {
 };
 
 /* ── Parse revert reason cleanly ── */
+
+/* ═══════════════════════════════════════════
+   GIVE SLOTS TO REGISTERED MEMBER
+   Checks member status and uses the right contract function:
+   - If Founder → upgradeFounderSlots
+   - If regular registered → grantFounderStatus is blocked by contract;
+     show clear error explaining the limitation
+   ═══════════════════════════════════════════ */
+
+let _memberIsFounder = false;
+let _memberIsReg = false;
+
+window.checkMemberAddress = async function (address) {
+    const hint    = document.getElementById('member-verify-hint');
+    const wrap    = document.getElementById('member-action-wrap');
+    const btn     = document.getElementById('btn-member-slots');
+    if (!hint) return;
+
+    _memberIsFounder = false;
+    _memberIsReg = false;
+    if (wrap) wrap.style.display = 'none';
+    if (btn)  btn.disabled = true;
+
+    if (!address) { hint.className = 'verify-hint'; hint.innerHTML = 'Enter a member wallet address to check status'; return; }
+    if (!ethers.isAddress(address)) {
+        hint.className = 'verify-hint hint-error';
+        hint.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Invalid address format`; return;
+    }
+
+    hint.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking on-chain…`;
+    try {
+        const info = await window.metapolApp.contract.getUserInfo(address);
+        _memberIsReg     = info[0];
+        const userId     = Number(info[1]);
+        _memberIsFounder = info[4];
+
+        // Check active slots
+        const slotChecks = [];
+        for (let i = 1; i <= 12; i++) slotChecks.push(window.metapolApp.contract.isUserInSlot(address, i));
+        const slotResults = await Promise.all(slotChecks);
+        const activeSlots = slotResults.map((a, i) => a ? i + 1 : null).filter(Boolean);
+
+        if (!_memberIsReg) {
+            hint.className = 'verify-hint hint-warn';
+            hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Not registered — use <strong>Grant Founder Status</strong> above`;
+            return;
+        }
+
+        if (_memberIsFounder) {
+            hint.className = 'verify-hint hint-ok';
+            hint.innerHTML = `<i class="fa-solid fa-crown"></i> Founder (ID #${userId}) — Active slots: ${activeSlots.length ? activeSlots.join(', ') : 'none'}. Ready to upgrade.`;
+            if (wrap) wrap.style.display = 'block';
+            if (btn)  { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-arrow-up-right-dots"></i> Upgrade Founder Slots'; }
+        } else {
+            hint.className = 'verify-hint hint-error';
+            hint.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Registered member (ID #${userId}) but NOT a Founder. Active slots: ${activeSlots.length ? activeSlots.join(', ') : 'none'}.<br>
+                <span style="font-size:0.78rem;color:rgba(255,150,150,0.8);">The contract's <code>grantFounderStatus</code> only works for unregistered wallets. 
+                To give this user slots, they need to purchase via <strong>buySlot1/buyLevel</strong> themselves, 
+                or you need to deploy with admin slot-assign capability.</span>`;
+        }
+    } catch(e) {
+        hint.className = 'verify-hint hint-warn';
+        hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Could not verify — check RPC`;
+    }
+};
+
+window.executeMemberSlots = async function () {
+    const addr      = document.getElementById('input-member-addr').value.trim();
+    const fromLevel = parseInt(document.getElementById('member-from-level').value);
+    const toLevel   = parseInt(document.getElementById('member-to-level').value);
+
+    if (!ethers.isAddress(addr)) { window.metapolApp.showToast('Invalid address', 'error'); return; }
+    if (fromLevel > toLevel)     { window.metapolApp.showToast('From Level must be ≤ To Level', 'error'); return; }
+    if (!_memberIsFounder)       { window.metapolApp.showToast('Member is not a Founder — cannot upgrade slots', 'error'); return; }
+
+    openTxModal(`Upgrading Founder Slots ${fromLevel} → ${toLevel} for ${short(addr)}`);
+    try {
+        let gasLimit;
+        try {
+            gasLimit = await window.metapolApp.contract.upgradeFounderSlots.estimateGas(addr, fromLevel, toLevel);
+            gasLimit = (gasLimit * 130n) / 100n;
+        } catch(e) { gasLimit = 800000n; }
+
+        const tx      = await window.metapolApp.contract.upgradeFounderSlots(addr, fromLevel, toLevel, { gasLimit });
+        setTxHash(tx.hash);
+        const receipt = await tx.wait();
+        if (receipt.status === 1) {
+            showTxSuccess(tx.hash);
+            window.metapolApp.showToast('Slots upgraded successfully!', 'success');
+            setTimeout(syncAdminData, 1500);
+        } else {
+            throw new Error('Transaction reverted');
+        }
+    } catch(err) {
+        showTxFail(parseRevertReason(err));
+        window.metapolApp.showToast('Transaction failed', 'error');
+    }
+};
+
 function parseRevertReason(err) {
     if (err.code === 'ACTION_REJECTED') return 'Transaction was rejected in your wallet.';
     if (err.reason)  return `Contract rejected: "${err.reason}"`;
