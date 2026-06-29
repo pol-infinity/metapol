@@ -220,7 +220,7 @@ async function syncDashboardData() {
             eligibilityProfile.innerHTML = `<span style="color: var(--danger); font-weight: 700;">Ineligible (Needs 2 Direct Referrals, current: ${referredUsers})</span>`;
         }
 
-        // Referral link: use origin root with ?ref=USER_ID (auto-detects domain)
+        // Referral link: random-looking public code, decoded back to exact sponsor ID.
         const referralBase = window.location.origin;
         const referralLink = window.MetapolRef
             ? `${referralBase}/?ref=${publicCode}`

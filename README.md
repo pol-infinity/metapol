@@ -32,7 +32,7 @@ MetaPOL is a premium, international-grade Web3 decentralized matrix and passive 
 ---
 
 ## Smart Contract Details
-* **Contract Address**: `0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab`
+* **Contract Address**: `0x25484ce626b04af9986982ab794a53195992758c`
 * **Ecosystem Fee Allocations**:
   * **Matrix Pools**: 72%
   * **Passive Mining Capital**: 20%
@@ -47,7 +47,7 @@ MetaPOL is a premium, international-grade Web3 decentralized matrix and passive 
 All contract variables and network targets are configured in [config.js](config.js):
 ```javascript
 const CONFIG = {
-    CONTRACT_ADDRESS: "0x9820ea1ad8bbff1f6a8a8efe26a20b4447ecb1ab",
+    CONTRACT_ADDRESS: "0x25484ce626b04af9986982ab794a53195992758c",
     CHAIN_ID: "0x89", // Hex representation of 137 (Polygon Mainnet)
     RPC_URL: "https://polygon-rpc.com",
     BLOCK_EXPLORER: "https://polygonscan.com",

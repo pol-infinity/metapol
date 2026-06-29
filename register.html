@@ -500,6 +500,8 @@
             inputSponsor.addEventListener("input", (e) => {
                 validateSponsorInput(e.target.value);
             });
+
+            validateSponsorInput(sponsorId);
         }
 
         // Validate Sponsor input fields
@@ -547,6 +549,11 @@
                 return;
             }
 
+            if (sponsorId > maxUserIds) {
+                window.metapolApp.showToast(`Sponsor ID ${sponsorId} does not exist`, "error");
+                return;
+            }
+
             const txModal = document.getElementById("tx-modal");
             const txLoading = document.getElementById("tx-loading-state");
             const txSuccess = document.getElementById("tx-success-state");
@@ -563,6 +570,11 @@
 
             try {
                 const regFee = ethers.parseEther(window.CONFIG.REGISTRATION_FEE);
+
+                const sponsorAddress = await window.metapolApp.contract.userList(sponsorId);
+                if (sponsorAddress === ethers.ZeroAddress) {
+                    throw new Error(`Sponsor ID ${sponsorId} is invalid. Please use a valid referral link.`);
+                }
                 
                 // Fetch current user balance
                 const balance = await window.metapolApp.provider.getBalance(window.metapolApp.userAddress);

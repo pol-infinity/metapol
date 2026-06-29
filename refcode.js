@@ -5,7 +5,7 @@
  * Public Member Codes. Fully deterministic, no backend required.
  *
  * Algorithm:
- *   1. Map contractId → a position in a pre-shuffled table
+ *   1. Apply a modular permutation to contractId
  *   2. Return a 6-digit code that looks random but is reversible
  *
  * Security: codes look random to users but are mathematically
@@ -14,41 +14,16 @@
 
 (function (window) {
 
-    // ── Secret permutation seed (change only before first user) ──
-    // This creates a deterministic but non-obvious mapping
-    const SEED = 0x4D455441; // "META" in hex
+    // Six digit code space: 100000..999999.
+    // A and CODE_SPACE are coprime, so each member ID maps to exactly one code.
+    const CODE_SPACE = 900000;
+    const MAX_USERS = 899999;
+    const MULTIPLIER = 65537;
+    const MULTIPLIER_INVERSE = 273473;
+    const OFFSET = 499771; // Keeps member ID 7 as public code 158530.
 
-    // Max users we support (contract will never reach 1M realistically)
-    const MAX_USERS = 999999;
-
-    /**
-     * Simple Feistel-network cipher over 20-bit space
-     * Gives a bijective mapping: every input → unique output
-     * Fully reversible (encrypt == decrypt with swapped halves)
-     */
-    function _feistel(x, rounds, encrypt) {
-        // Work in 0..MAX_USERS range
-        // Split x into two 10-bit halves
-        let L = (x >> 10) & 0x3FF;
-        let R = x & 0x3FF;
-
-        const round_keys = [
-            0x1A3, 0x27F, 0x3C1, 0x0B5,
-            0x2E9, 0x14D, 0x38B, 0x0F7
-        ];
-
-        if (!encrypt) round_keys.reverse();
-
-        for (let i = 0; i < rounds; i++) {
-            const F = ((R * round_keys[i % round_keys.length] + SEED + i * 0x6B) ^ (R >> 3)) & 0x3FF;
-            const newR = L ^ F;
-            L = R;
-            R = newR;
-        }
-
-        if (!encrypt) round_keys.reverse(); // restore
-
-        return ((L << 10) | R) & 0xFFFFF; // 20-bit result
+    function _mod(n, m) {
+        return ((n % m) + m) % m;
     }
 
     /**
@@ -57,11 +32,8 @@
      */
     function idToCode(contractId) {
         if (!contractId || contractId <= 0) return null;
-        // Encrypt the ID
-        const enc = _feistel(contractId, 8, true);
-        // Map 20-bit result (0–1048575) into 100000–999999
-        const code = 100000 + (enc % 900000);
-        return code;
+        if (contractId > MAX_USERS) return null;
+        return 100000 + _mod(contractId * MULTIPLIER + OFFSET, CODE_SPACE);
     }
 
     /**
@@ -72,23 +44,9 @@
         const n = parseInt(code, 10);
         if (isNaN(n) || n < 100000 || n > 999999) return null;
 
-        // Reverse the modulo mapping: try all possible 20-bit values
-        // that map to this code
-        const remainder = n - 100000; // 0..899999
-        const range = 900000;
-
-        // There are ceil(1048576 / 900000) ≈ 2 candidates max
-        for (let k = 0; k * range + remainder <= 0xFFFFF; k++) {
-            const enc = k * range + remainder;
-            const contractId = _feistel(enc, 8, false);
-            // Re-encode to verify (eliminates false positives)
-            if (contractId >= 1 && contractId <= MAX_USERS) {
-                if (idToCode(contractId) === n) {
-                    return contractId;
-                }
-            }
-        }
-        return null;
+        const encoded = n - 100000;
+        const contractId = _mod((encoded - OFFSET) * MULTIPLIER_INVERSE, CODE_SPACE);
+        return contractId >= 1 && contractId <= MAX_USERS ? contractId : null;
     }
 
     /**
@@ -125,6 +83,12 @@
          */
         parseUrlRef() {
             const params = new URLSearchParams(window.location.search);
+            const rawId = params.get('refid');
+            if (rawId) {
+                const asId = parseInt(rawId, 10);
+                return !isNaN(asId) && asId > 0 ? asId : null;
+            }
+
             const raw = params.get('ref');
             if (!raw) return null;
             // Support both old-style (numeric ID) and new public codes
