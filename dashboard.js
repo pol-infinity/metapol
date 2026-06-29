@@ -173,22 +173,29 @@ async function syncDashboardData() {
         if (teamSizeEl) teamSizeEl.innerText = teamCount;
         if (teamFooterEl) teamFooterEl.innerText = teamCount === 1 ? "Direct member" : "Direct members";
 
-        // Fetch direct commission (SponsorPaid events) for overview stat card + income breakdown
+        // Fetch direct commission:
+        // SponsorPaid events for event-based amount + fallback to on-chain totalEarnings
         let totalSponsorPaid = 0n;
         let directCount = directReferralCount;
         try {
             const sponsorFilter = window.metapolApp.contract.filters.SponsorPaid(address);
             const sponsorEvents = await window.metapolApp.contract.queryFilter(sponsorFilter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
             sponsorEvents.forEach(ev => { totalSponsorPaid += ev.args.amount; });
-            const commissionEl = document.getElementById("stat-direct-commission");
-            if (commissionEl) commissionEl.innerText = `${parseFloat(ethers.formatEther(totalSponsorPaid ?? 0n)).toFixed(2)} POL`;
-        } catch(e) { console.warn("Could not fetch sponsor commission:", e); }
+        } catch(e) { console.warn("Could not fetch SponsorPaid events:", e); }
+
+        // If no SponsorPaid events found, fallback to on-chain totalEarnings (includes all payouts)
+        let displayCommission = totalSponsorPaid;
+        if (displayCommission === 0n && totalEarnings > 0n) {
+            displayCommission = totalEarnings;
+        }
+        const commissionEl = document.getElementById("stat-direct-commission");
+        if (commissionEl) commissionEl.innerText = `${parseFloat(ethers.formatEther(displayCommission)).toFixed(2)} POL`;
 
         // ── Income Breakdown Rows (FutureTon style) ──
         const miningWithdrawnPOL = parseFloat(ethers.formatEther(totalMiningWith || 0n)).toFixed(2);
         const miningCapPOL       = parseFloat(ethers.formatEther(totalMiningDep ?? 0n)).toFixed(2);
         const matrixEarningsPOL  = parseFloat(ethers.formatEther(totalEarnings ?? 0n)).toFixed(2);
-        const directCommPOL      = parseFloat(ethers.formatEther(totalSponsorPaid ?? 0n)).toFixed(2);
+        const directCommPOL      = parseFloat(ethers.formatEther(displayCommission ?? 0n)).toFixed(2);
 
         // Mining row
         const incMining = document.getElementById("income-mining-val");
