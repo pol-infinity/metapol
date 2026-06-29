@@ -137,17 +137,32 @@ async function syncDashboardData() {
         document.getElementById("stat-member-id").innerText = `#${publicCode}`;
         document.getElementById("stat-total-earnings").innerText = `${parseFloat(ethers.formatEther(totalEarnings ?? 0n)).toFixed(2)} POL`;
         document.getElementById("stat-mining-capital").innerText = `${parseFloat(ethers.formatEther(totalMiningDep ?? 0n)).toFixed(2)} POL`;
-        // Count direct referrals — contract referredUsers may miss founder-granted members
-        // Also query RegUser events (referrer == address) for accurate count
+        // Count direct referrals accurately:
+        // contract referredUsers misses founder-granted members (grantFounderStatus doesn't increment it)
+        // So: query RegUser events (sponsor==address) + check FounderGranted events referrerID
         let directReferralCount = Number(referredUsers);
         try {
+            // 1. Count normal registrations where admin is sponsor
             const regFilter = window.metapolApp.contract.filters.RegUser(address, null);
             const regEvents = await window.metapolApp.contract.queryFilter(regFilter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
-            // RegUser event: indexed[0]=user, indexed[1]=referrer, indexed[2]=userId
-            // Use max of contract value vs event count (founder grants may not emit RegUser)
-            const eventCount = regEvents.length;
-            if (eventCount > directReferralCount) directReferralCount = eventCount;
-        } catch(e) { console.warn("Could not count RegUser events:", e); }
+            let countFromEvents = regEvents.length;
+
+            // 2. Count founder-granted members whose referrerID == admin's id
+            const founderFilter = window.metapolApp.contract.filters.FounderGranted();
+            const founderEvents = await window.metapolApp.contract.queryFilter(founderFilter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
+            const adminId = Number(id);
+            const founderAddresses = [...new Set(founderEvents.map(e => e.args.addr))];
+            let founderReferredByAdmin = 0;
+            for (const fAddr of founderAddresses) {
+                try {
+                    const fInfo = await window.metapolApp.contract.getUserInfo(fAddr);
+                    if (Number(fInfo[2]) === adminId) founderReferredByAdmin++;
+                } catch(e) {}
+            }
+
+            countFromEvents += founderReferredByAdmin;
+            if (countFromEvents > directReferralCount) directReferralCount = countFromEvents;
+        } catch(e) { console.warn("Could not count referrals from events:", e); }
 
         document.getElementById("stat-direct-referrals").innerText = directReferralCount;
 
