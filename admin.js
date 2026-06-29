@@ -1,15 +1,13 @@
 /**
- * MetaPOL Admin Back-Office Logic
- * grantFounderStatus(addr, fromLevel, toLevel)
- * upgradeFounderSlots(addr, fromLevel, toLevel)
+ * MetaPOL Admin Back-Office
+ * grantFounderStatus(address, fromLevel, toLevel)  — address must NOT be registered
+ * upgradeFounderSlots(address, fromLevel, toLevel) — address must already be a Founder
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-
     const origUpdateUI = window.metapolApp.updateWalletUI.bind(window.metapolApp);
     window.metapolApp.updateWalletUI = async function () {
         origUpdateUI();
-
         const overlay = document.getElementById('connect-prompt-overlay');
         const panel   = document.getElementById('admin-panel');
         const title   = document.getElementById('prompt-title');
@@ -23,20 +21,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         hide(panel); show(overlay);
-
         try {
             const owner   = await this.contract.ownerWallet();
             const isOwner = this.userAddress.toLowerCase() === owner.toLowerCase();
-
             if (isOwner) {
                 hide(overlay); show(panel);
-                const ownerEl = document.getElementById('admin-owner-wallet');
-                if (ownerEl) ownerEl.textContent = this.userAddress;
+                const el = document.getElementById('admin-owner-wallet');
+                if (el) el.textContent = this.userAddress;
                 syncAdminData();
             } else {
                 show(overlay); hide(panel);
                 if (title) title.textContent = 'Access Denied';
-                if (sub)   sub.innerHTML     = `Connected wallet is not the contract owner.<br><small style="font-family:monospace;color:var(--danger);word-break:break-all;">${this.userAddress}</small>`;
+                if (sub)   sub.innerHTML     = `Connected wallet is not the contract owner.<br>
+                    <small style="font-family:monospace;color:var(--danger);word-break:break-all;">${this.userAddress}</small>`;
             }
         } catch (err) {
             console.error('Owner check failed:', err);
@@ -57,20 +54,17 @@ window.syncAdminData = async function () {
     try {
         const contract = window.metapolApp.contract;
         const provider = window.metapolApp.provider;
-
-        const [totalUsers, totalMining, contractBalance, totalFees] = await Promise.all([
+        const [totalUsers, totalMining, balance, totalFees] = await Promise.all([
             contract.currUserID(),
             contract.totalMiningDeposited(),
             provider.getBalance(window.CONFIG.CONTRACT_ADDRESS),
             contract.totalAdminFees()
         ]);
-
         const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
         set('admin-total-users',      Number(totalUsers).toLocaleString());
         set('admin-total-mining',     `${parseFloat(ethers.formatEther(totalMining)).toFixed(2)} POL`);
-        set('admin-contract-balance', `${parseFloat(ethers.formatEther(contractBalance)).toFixed(2)} POL`);
+        set('admin-contract-balance', `${parseFloat(ethers.formatEther(balance)).toFixed(2)} POL`);
         set('admin-total-fees',       `${parseFloat(ethers.formatEther(totalFees)).toFixed(2)} POL`);
-
         await syncGlobalEvents();
     } catch (err) {
         console.error('Admin sync failed:', err);
@@ -80,71 +74,56 @@ window.syncAdminData = async function () {
     }
 };
 
-/* ── Address hint (non-blocking) ── */
+/* ═══════════════════════════════════════════
+   GRANT FOUNDER STATUS
+   Requires: address NOT already registered
+   Adds user to pools from _fromLevel to _toLevel
+   ═══════════════════════════════════════════ */
+
 window.checkGrantAddress = async function (address) {
     const hint = document.getElementById('grant-verify-hint');
     const btn  = document.getElementById('btn-grant-founder');
     if (!hint || !btn) return;
 
-    if (!address) {
-        hint.innerHTML = 'Enter a wallet address'; btn.disabled = true; return;
-    }
-    if (!ethers.isAddress(address)) {
-        hint.innerHTML = `<i class="fa-solid fa-circle-xmark text-danger"></i> Invalid address format`;
-        btn.disabled = true; return;
-    }
-
-    // Valid format — enable button immediately, then show advisory hint
-    btn.disabled = false;
-    hint.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking registration status…`;
-
-    try {
-        const info  = await window.metapolApp.contract.getUserInfo(address);
-        const isReg = info[0];
-        if (isReg) {
-            hint.innerHTML = `<i class="fa-solid fa-circle-info" style="color:#FFD700;"></i> Already registered — contract will register as Founder and add slots`;
-        } else {
-            hint.innerHTML = `<i class="fa-solid fa-circle-check text-accent"></i> Unregistered wallet — will be onboarded as new Founder member`;
-        }
-    } catch {
-        hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:var(--warning);"></i> Could not verify — you can still proceed`;
-    }
-};
-
-window.checkUpgradeAddress = async function (address) {
-    const hint = document.getElementById('upgrade-verify-hint');
-    const btn  = document.getElementById('btn-upgrade-founder');
-    if (!hint || !btn) return;
+    // Reset
+    btn.disabled = true;
+    hint.className = 'verify-hint';
 
     if (!address) {
-        hint.innerHTML = 'Enter a founder wallet address'; btn.disabled = true; return;
+        hint.innerHTML = 'Enter the wallet address to grant Founder status'; return;
     }
     if (!ethers.isAddress(address)) {
-        hint.innerHTML = `<i class="fa-solid fa-circle-xmark text-danger"></i> Invalid address format`;
-        btn.disabled = true; return;
+        hint.className = 'verify-hint hint-error';
+        hint.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Invalid Ethereum address format`; return;
     }
 
-    // Valid format — enable button immediately
-    btn.disabled = false;
-    hint.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Checking founder status…`;
-
+    hint.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Verifying on-chain…`;
     try {
         const info      = await window.metapolApp.contract.getUserInfo(address);
         const isReg     = info[0];
         const isFounder = info[4];
-        if (!isReg) {
-            hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:var(--warning);"></i> Not registered — use Grant Founder Status instead`;
-        } else if (!isFounder) {
-            hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:var(--warning);"></i> Registered but not a Founder yet — grant founder first`;
+
+        if (isFounder) {
+            hint.className = 'verify-hint hint-warn';
+            hint.innerHTML = `<i class="fa-solid fa-crown"></i> Already a Founder — use <strong>Upgrade Founder Slots</strong> below instead`;
+            btn.disabled = true;
+        } else if (isReg) {
+            hint.className = 'verify-hint hint-error';
+            hint.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> This wallet is already registered as a regular member. 
+                Contract requires an <strong>unregistered</strong> wallet for grantFounderStatus.`;
+            btn.disabled = true;
         } else {
-            hint.innerHTML = `<i class="fa-solid fa-circle-check text-accent"></i> Confirmed Founder — ready to upgrade slots`;
+            hint.className = 'verify-hint hint-ok';
+            hint.innerHTML = `<i class="fa-solid fa-circle-check"></i> Unregistered wallet — ready to be onboarded as Founder`;
+            btn.disabled = false;
         }
     } catch {
-        hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:var(--warning);"></i> Could not verify — you can still proceed`;
+        hint.className = 'verify-hint hint-warn';
+        hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Could not verify on-chain — check RPC connection`;
+        btn.disabled = true;
     }
 };
 
-/* ── Execute Grant Founder Status ── */
 window.executeGrantFounder = async function () {
     const addr      = document.getElementById('input-grant-addr').value.trim();
     const fromLevel = parseInt(document.getElementById('grant-from-level').value);
@@ -157,15 +136,24 @@ window.executeGrantFounder = async function () {
         window.metapolApp.showToast('From Level must be ≤ To Level', 'error'); return;
     }
 
-    openTxModal(`Granting Founder Status (S${fromLevel}→S${toLevel})…`);
+    // Pre-flight check — prevent wasting gas on a known revert
+    try {
+        const info  = await window.metapolApp.contract.getUserInfo(addr);
+        if (info[0]) {
+            window.metapolApp.showToast('Address is already registered — contract will reject this', 'error');
+            return;
+        }
+    } catch { /* proceed */ }
+
+    openTxModal(`Granting Founder Status — Slots ${fromLevel} → ${toLevel}`);
     try {
         let gasLimit;
         try {
             gasLimit = await window.metapolApp.contract.grantFounderStatus.estimateGas(addr, fromLevel, toLevel);
             gasLimit = (gasLimit * 130n) / 100n;
         } catch (e) {
-            console.warn('Gas estimate failed, using fallback:', e);
-            gasLimit = 500000n;
+            console.warn('Gas estimate failed:', e);
+            gasLimit = 800000n;
         }
 
         const tx      = await window.metapolApp.contract.grantFounderStatus(addr, fromLevel, toLevel, { gasLimit });
@@ -174,24 +162,70 @@ window.executeGrantFounder = async function () {
 
         if (receipt.status === 1) {
             showTxSuccess(tx.hash);
-            window.metapolApp.showToast('Founder status granted!', 'success');
-            document.getElementById('input-grant-addr').value     = '';
-            document.getElementById('grant-verify-hint').textContent = 'Enter a wallet address';
+            window.metapolApp.showToast('Founder status granted successfully!', 'success');
+            document.getElementById('input-grant-addr').value = '';
+            document.getElementById('grant-verify-hint').innerHTML = 'Enter the wallet address to grant Founder status';
+            document.getElementById('grant-verify-hint').className = 'verify-hint';
             document.getElementById('btn-grant-founder').disabled = true;
             setTimeout(syncAdminData, 1500);
         } else {
             throw new Error('Transaction reverted by contract');
         }
     } catch (err) {
-        console.error('Grant founder failed:', err);
-        const msg = err.code === 'ACTION_REJECTED' ? 'Transaction rejected in wallet.'
-                  : err.reason || err.message || 'Transaction failed.';
-        showTxFail(msg);
-        window.metapolApp.showToast('Grant failed', 'error');
+        console.error('Grant failed:', err);
+        showTxFail(parseRevertReason(err));
+        window.metapolApp.showToast('Transaction failed', 'error');
     }
 };
 
-/* ── Execute Upgrade Founder Slots ── */
+/* ═══════════════════════════════════════════
+   UPGRADE FOUNDER SLOTS
+   Requires: address IS already a Founder
+   Upgrades from _fromLevel to _toLevel
+   ═══════════════════════════════════════════ */
+
+window.checkUpgradeAddress = async function (address) {
+    const hint = document.getElementById('upgrade-verify-hint');
+    const btn  = document.getElementById('btn-upgrade-founder');
+    if (!hint || !btn) return;
+
+    btn.disabled = true;
+    hint.className = 'verify-hint';
+
+    if (!address) {
+        hint.innerHTML = 'Enter the Founder wallet address to upgrade'; return;
+    }
+    if (!ethers.isAddress(address)) {
+        hint.className = 'verify-hint hint-error';
+        hint.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Invalid Ethereum address format`; return;
+    }
+
+    hint.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Verifying on-chain…`;
+    try {
+        const info      = await window.metapolApp.contract.getUserInfo(address);
+        const isReg     = info[0];
+        const isFounder = info[4];
+
+        if (!isReg) {
+            hint.className = 'verify-hint hint-error';
+            hint.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Not registered — use <strong>Grant Founder Status</strong> above first`;
+            btn.disabled = true;
+        } else if (!isFounder) {
+            hint.className = 'verify-hint hint-error';
+            hint.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Registered but not a Founder — use <strong>Grant Founder Status</strong> above first`;
+            btn.disabled = true;
+        } else {
+            hint.className = 'verify-hint hint-ok';
+            hint.innerHTML = `<i class="fa-solid fa-circle-check"></i> Confirmed Founder — ready to upgrade slot range`;
+            btn.disabled = false;
+        }
+    } catch {
+        hint.className = 'verify-hint hint-warn';
+        hint.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Could not verify on-chain — check RPC connection`;
+        btn.disabled = true;
+    }
+};
+
 window.executeUpgradeFounder = async function () {
     const addr      = document.getElementById('input-upgrade-addr').value.trim();
     const fromLevel = parseInt(document.getElementById('upgrade-from-level').value);
@@ -204,15 +238,26 @@ window.executeUpgradeFounder = async function () {
         window.metapolApp.showToast('From Level must be ≤ To Level', 'error'); return;
     }
 
-    openTxModal(`Upgrading Founder Slots (S${fromLevel}→S${toLevel})…`);
+    // Pre-flight check
+    try {
+        const info = await window.metapolApp.contract.getUserInfo(addr);
+        if (!info[0]) {
+            window.metapolApp.showToast('Address not registered — grant Founder status first', 'error'); return;
+        }
+        if (!info[4]) {
+            window.metapolApp.showToast('Address is not a Founder — grant Founder status first', 'error'); return;
+        }
+    } catch { /* proceed */ }
+
+    openTxModal(`Upgrading Founder Slots ${fromLevel} → ${toLevel}`);
     try {
         let gasLimit;
         try {
             gasLimit = await window.metapolApp.contract.upgradeFounderSlots.estimateGas(addr, fromLevel, toLevel);
             gasLimit = (gasLimit * 130n) / 100n;
         } catch (e) {
-            console.warn('Gas estimate failed, using fallback:', e);
-            gasLimit = 500000n;
+            console.warn('Gas estimate failed:', e);
+            gasLimit = 800000n;
         }
 
         const tx      = await window.metapolApp.contract.upgradeFounderSlots(addr, fromLevel, toLevel, { gasLimit });
@@ -221,35 +266,48 @@ window.executeUpgradeFounder = async function () {
 
         if (receipt.status === 1) {
             showTxSuccess(tx.hash);
-            window.metapolApp.showToast('Founder slots upgraded!', 'success');
-            document.getElementById('input-upgrade-addr').value      = '';
-            document.getElementById('upgrade-verify-hint').textContent = 'Enter a founder wallet address';
-            document.getElementById('btn-upgrade-founder').disabled  = true;
+            window.metapolApp.showToast('Founder slots upgraded successfully!', 'success');
+            document.getElementById('input-upgrade-addr').value = '';
+            document.getElementById('upgrade-verify-hint').innerHTML = 'Enter the Founder wallet address to upgrade';
+            document.getElementById('upgrade-verify-hint').className = 'verify-hint';
+            document.getElementById('btn-upgrade-founder').disabled = true;
             setTimeout(syncAdminData, 1500);
         } else {
             throw new Error('Transaction reverted by contract');
         }
     } catch (err) {
-        console.error('Upgrade founder failed:', err);
-        const msg = err.code === 'ACTION_REJECTED' ? 'Transaction rejected in wallet.'
-                  : err.reason || err.message || 'Transaction failed.';
-        showTxFail(msg);
-        window.metapolApp.showToast('Upgrade failed', 'error');
+        console.error('Upgrade failed:', err);
+        showTxFail(parseRevertReason(err));
+        window.metapolApp.showToast('Transaction failed', 'error');
     }
 };
+
+/* ── Parse revert reason cleanly ── */
+function parseRevertReason(err) {
+    if (err.code === 'ACTION_REJECTED') return 'Transaction was rejected in your wallet.';
+    if (err.reason)  return `Contract rejected: "${err.reason}"`;
+    if (err.message) {
+        if (err.message.includes('Already registered'))   return 'Contract rejected: address is already registered.';
+        if (err.message.includes('Not owner'))            return 'Contract rejected: caller is not the owner.';
+        if (err.message.includes('insufficient funds'))   return 'Insufficient POL for gas fees.';
+        if (err.message.includes('user rejected'))        return 'Transaction was rejected in your wallet.';
+        return err.message.length > 120 ? err.message.slice(0, 120) + '…' : err.message;
+    }
+    return 'Transaction failed. Check Polygonscan for details.';
+}
 
 /* ── Global Events Timeline ── */
 async function syncGlobalEvents() {
     const container = document.getElementById('global-activity-logs-container');
     if (!container) return;
-    container.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:30px;"><i class="fa-solid fa-spinner fa-spin"></i> Scanning blocks…</div>`;
-
+    container.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:30px;">
+        <i class="fa-solid fa-spinner fa-spin"></i> Scanning recent blocks…</div>`;
     try {
         const contract     = window.metapolApp.contract;
         const currentBlock = await window.metapolApp.provider.getBlockNumber();
         const startBlock   = Math.max(window.CONFIG.CONTRACT_DEPLOY_BLOCK, currentBlock - 5000);
 
-        const [regEvents, slotEvents, withdrawEvents, founderGranted, founderUpgraded] = await Promise.all([
+        const [regEvs, slotEvs, withdrawEvs, founderGrantedEvs, founderUpgradedEvs] = await Promise.all([
             contract.queryFilter(contract.filters.RegUser(),              startBlock, 'latest'),
             contract.queryFilter(contract.filters.RegPoolEntry(),         startBlock, 'latest'),
             contract.queryFilter(contract.filters.MiningWithdraw(),       startBlock, 'latest'),
@@ -258,35 +316,25 @@ async function syncGlobalEvents() {
         ]);
 
         const logs = [];
-        regEvents.forEach(e => logs.push({
-            icon: 'fa-user-plus', cls: 'reg',
-            html: `<strong>${shortAddr(e.args.user)}</strong> registered — Member ID #${e.args.userId}`,
-            time: Number(e.args.time)
-        }));
-        slotEvents.forEach(e => logs.push({
-            icon: 'fa-layer-group', cls: 'buy',
-            html: `<strong>${shortAddr(e.args.user)}</strong> entered Slot ${e.args.level} pool — ${parseFloat(ethers.formatEther(e.args.value ?? 0n)).toFixed(2)} POL`,
-            time: Number(e.args.time)
-        }));
-        withdrawEvents.forEach(e => logs.push({
-            icon: 'fa-circle-down', cls: 'claim',
-            html: `<strong>${shortAddr(e.args.user)}</strong> withdrew mining — ${parseFloat(ethers.formatEther(e.args.netAmount ?? 0n)).toFixed(2)} POL net`,
-            time: Number(e.args.time)
-        }));
-        founderGranted.forEach(e => logs.push({
-            icon: 'fa-crown', cls: 'upgrade',
-            html: `<strong>${shortAddr(e.args.addr)}</strong> granted Founder — slots ${e.args.fromLevel}→${e.args.toLevel} (ID #${e.args.userId})`,
-            time: Number(e.args.time)
-        }));
-        founderUpgraded.forEach(e => logs.push({
-            icon: 'fa-arrow-up-right-dots', cls: 'upgrade',
-            html: `<strong>${shortAddr(e.args.addr)}</strong> upgraded Founder slots — ${e.args.fromLevel}→${e.args.toLevel}`,
-            time: Number(e.args.time)
-        }));
+        regEvs.forEach(e => logs.push({ icon: 'fa-user-plus', cls: 'reg',
+            html: `<strong>${short(e.args.user)}</strong> registered — ID #${e.args.userId}`,
+            time: Number(e.args.time) }));
+        slotEvs.forEach(e => logs.push({ icon: 'fa-layer-group', cls: 'buy',
+            html: `<strong>${short(e.args.user)}</strong> entered Slot ${e.args.level} — ${fmt(e.args.value)} POL`,
+            time: Number(e.args.time) }));
+        withdrawEvs.forEach(e => logs.push({ icon: 'fa-circle-down', cls: 'claim',
+            html: `<strong>${short(e.args.user)}</strong> withdrew mining — ${fmt(e.args.netAmount)} POL net`,
+            time: Number(e.args.time) }));
+        founderGrantedEvs.forEach(e => logs.push({ icon: 'fa-crown', cls: 'upgrade',
+            html: `<strong>${short(e.args.addr)}</strong> granted Founder (ID #${e.args.userId}) — slots ${e.args.fromLevel}→${e.args.toLevel}`,
+            time: Number(e.args.time) }));
+        founderUpgradedEvs.forEach(e => logs.push({ icon: 'fa-arrow-up-right-dots', cls: 'upgrade',
+            html: `<strong>${short(e.args.addr)}</strong> upgraded Founder slots — ${e.args.fromLevel}→${e.args.toLevel}`,
+            time: Number(e.args.time) }));
 
         logs.sort((a, b) => b.time - a.time);
         if (!logs.length) {
-            container.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:40px;font-size:0.85rem;">No activity in the last 5,000 blocks.</div>`;
+            container.innerHTML = `<div style="text-align:center;color:var(--text-muted);padding:40px;font-size:0.85rem;">No activity in last 5,000 blocks.</div>`;
             return;
         }
         container.innerHTML = '';
@@ -302,8 +350,9 @@ async function syncGlobalEvents() {
             container.appendChild(el);
         });
     } catch (err) {
-        console.error('Global events failed:', err);
-        container.innerHTML = `<div style="text-align:center;color:rgba(255,80,80,0.7);padding:30px;font-size:0.85rem;"><i class="fa-solid fa-triangle-exclamation"></i> Failed to load events. Try Refresh.</div>`;
+        console.error('Events failed:', err);
+        container.innerHTML = `<div style="text-align:center;color:rgba(255,80,80,0.7);padding:30px;font-size:0.85rem;">
+            <i class="fa-solid fa-triangle-exclamation"></i> Failed to load events. Try Refresh.</div>`;
     }
 }
 
@@ -334,6 +383,5 @@ window.closeTxModal = function () {
     document.getElementById('tx-modal').classList.remove('active');
 };
 
-function shortAddr(addr) {
-    return addr ? `${addr.slice(0,6)}…${addr.slice(-4)}` : '—';
-}
+function short(addr) { return addr ? `${addr.slice(0,6)}…${addr.slice(-4)}` : '—'; }
+function fmt(val)    { return val  ? parseFloat(ethers.formatEther(val)).toFixed(2) : '0.00'; }

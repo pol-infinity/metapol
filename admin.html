@@ -29,7 +29,10 @@
         .admin-select { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); border-radius: 10px; padding: 10px 14px; color: #fff; font-size: 0.85rem; outline: none; cursor: pointer; box-sizing: border-box; }
         .admin-select option { background: #0d0e1f; }
         .admin-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .verify-hint { font-size: 0.74rem; color: var(--text-muted); margin-top: 5px; min-height: 18px; }
+        .verify-hint { font-size: 0.74rem; color: var(--text-muted); margin-top: 5px; min-height: 18px; line-height: 1.5; }
+        .verify-hint.hint-ok   { color: var(--accent); }
+        .verify-hint.hint-error{ color: var(--danger); }
+        .verify-hint.hint-warn { color: #FFD700; }
 
         /* header banner */
         .admin-banner { background: linear-gradient(135deg, rgba(138,43,226,0.12), rgba(0,212,255,0.08)); border: 1px solid rgba(138,43,226,0.25); border-radius: 16px; padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
@@ -168,7 +171,7 @@
                 <div class="admin-field">
                     <label>Recipient Wallet Address</label>
                     <input type="text" id="input-grant-addr" class="admin-input" placeholder="0x..." oninput="checkGrantAddress(this.value)">
-                    <div class="verify-hint" id="grant-verify-hint">Enter a wallet address</div>
+                    <div class="verify-hint" id="grant-verify-hint">Enter the wallet address to grant Founder status</div>
                 </div>
                 <div class="admin-row">
                     <div class="admin-field">
@@ -203,7 +206,7 @@
                 <div class="admin-field">
                     <label>Founder Wallet Address</label>
                     <input type="text" id="input-upgrade-addr" class="admin-input" placeholder="0x..." oninput="checkUpgradeAddress(this.value)">
-                    <div class="verify-hint" id="upgrade-verify-hint">Enter a founder wallet address</div>
+                    <div class="verify-hint" id="upgrade-verify-hint">Enter the Founder wallet address to upgrade</div>
                 </div>
                 <div class="admin-row">
                     <div class="admin-field">
