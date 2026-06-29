@@ -137,10 +137,22 @@ async function syncDashboardData() {
         document.getElementById("stat-member-id").innerText = `#${publicCode}`;
         document.getElementById("stat-total-earnings").innerText = `${parseFloat(ethers.formatEther(totalEarnings ?? 0n)).toFixed(2)} POL`;
         document.getElementById("stat-mining-capital").innerText = `${parseFloat(ethers.formatEther(totalMiningDep ?? 0n)).toFixed(2)} POL`;
-        document.getElementById("stat-direct-referrals").innerText = Number(referredUsers);
+        // Count direct referrals — contract referredUsers may miss founder-granted members
+        // Also query RegUser events (referrer == address) for accurate count
+        let directReferralCount = Number(referredUsers);
+        try {
+            const regFilter = window.metapolApp.contract.filters.RegUser(null, address);
+            const regEvents = await window.metapolApp.contract.queryFilter(regFilter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
+            // RegUser event: indexed[0]=user, indexed[1]=referrer, indexed[2]=userId
+            // Use max of contract value vs event count (founder grants may not emit RegUser)
+            const eventCount = regEvents.length;
+            if (eventCount > directReferralCount) directReferralCount = eventCount;
+        } catch(e) { console.warn("Could not count RegUser events:", e); }
+
+        document.getElementById("stat-direct-referrals").innerText = directReferralCount;
 
         // Team size card
-        const teamCount = Number(referredUsers);
+        const teamCount = directReferralCount;
         const teamSizeEl = document.getElementById("stat-team-size");
         const teamFooterEl = document.getElementById("stat-team-footer");
         if (teamSizeEl) teamSizeEl.innerText = teamCount;
@@ -148,7 +160,7 @@ async function syncDashboardData() {
 
         // Fetch direct commission (SponsorPaid events) for overview stat card + income breakdown
         let totalSponsorPaid = 0n;
-        let directCount = Number(referredUsers);
+        let directCount = directReferralCount;
         try {
             const sponsorFilter = window.metapolApp.contract.filters.SponsorPaid(address);
             const sponsorEvents = await window.metapolApp.contract.queryFilter(sponsorFilter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
@@ -216,8 +228,8 @@ async function syncDashboardData() {
             eligibilityBadge.innerHTML = `<i class="fa-solid fa-circle-check text-accent"></i> Matrix Eligible`;
             eligibilityProfile.innerHTML = `<span style="color: var(--accent); font-weight: 700;">Eligible</span>`;
         } else {
-            eligibilityBadge.innerHTML = `<i class="fa-solid fa-circle-xmark text-danger"></i> Ineligible (${referredUsers}/2 Referrals)`;
-            eligibilityProfile.innerHTML = `<span style="color: var(--danger); font-weight: 700;">Ineligible (Needs 2 Direct Referrals, current: ${referredUsers})</span>`;
+            eligibilityBadge.innerHTML = `<i class="fa-solid fa-circle-xmark text-danger"></i> Ineligible (${directReferralCount}/2 Referrals)`;
+            eligibilityProfile.innerHTML = `<span style="color: var(--danger); font-weight: 700;">Ineligible (Needs 2 Direct Referrals, current: ${directReferralCount})</span>`;
         }
 
         // Referral link: random-looking public code, decoded back to exact sponsor ID.
@@ -264,7 +276,7 @@ async function syncDashboardData() {
                 connEl.style.color = "var(--accent)";
             }
         } catch(e) { console.warn("Profile wallet info fetch failed", e); }
-        document.getElementById("profile-referred-count").innerText = Number(referredUsers);
+        document.getElementById("profile-referred-count").innerText = directReferralCount;
 
         // 2. Fetch and synchronize Mining Entries
         await syncMiningData();
