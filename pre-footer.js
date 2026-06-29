@@ -140,7 +140,7 @@
       const state = loadPFS();
       state.seenMilestones = state.seenMilestones || [];
 
-      // Build milestone list UI
+      // Always render the milestone list with current count
       pfsMilestonePopup._renderList(directs);
 
       // Check if any new milestone just crossed
@@ -149,9 +149,18 @@
           state.seenMilestones.push(ms.refs);
           savePFS(state);
           setTimeout(() => pfsMilestonePopup._showPopup(ms, directs), 1200);
-          break; // show one at a time
+          break;
         }
       }
+    },
+
+    /** Force re-render with latest directs from DOM */
+    refresh() {
+      const el = document.getElementById("stat-direct-referrals")
+              || document.getElementById("pfs-directs-count")
+              || document.getElementById("team-directs-count");
+      const directs = parseInt(el?.textContent || "0") || 0;
+      pfsMilestonePopup._renderList(directs);
     },
 
     _renderList(directs) {
@@ -696,8 +705,11 @@
     injectStyles();
     pfsMilestonePopup.init();
 
+    // Render milestones immediately with 0 so list is never blank
+    pfsMilestonePopup._renderList(0);
+
     // Initial sync after dashboard loads
-    setTimeout(syncAll, 3000);
+    setTimeout(syncAll, 2000);
     // Periodic sync every 15 sec
     setInterval(syncAll, 15000);
 
@@ -716,6 +728,16 @@
       }
     }, 400);
     setTimeout(() => clearInterval(waitApp), 15000);
+
+    // Re-sync when Team tab is opened to update milestone counts
+    document.addEventListener("click", (e) => {
+      const el = e.target.closest("[data-tab='team']");
+      if (el) setTimeout(() => {
+        const directsEl = document.getElementById("stat-direct-referrals");
+        const directs = parseInt(directsEl?.textContent || "0") || 0;
+        pfsMilestonePopup.check(directs);
+      }, 1500);
+    });
 
     console.log("%c[MetaPOL] Pre-Footer Section ✓", "color:#00e5b4;font-weight:bold");
   }

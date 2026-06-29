@@ -938,9 +938,13 @@ async function syncTeamTab() {
         window._teamData = referralDetails;
         window._commissionEvents = commissionEvents;
         window._commissionByUser = commissionByUser;
-        window._teamData = referralDetails;
         renderTeamTable(referralDetails);
         renderInviteTracker(commissionEvents, referralDetails, totalSponsorPaid, directsCount);
+
+        // Update milestone list with real directs count
+        if (window.pfsMilestonePopup) {
+            window.pfsMilestonePopup.check(directsCount);
+        }
 
         // Update overview total team size card with real L1+L2 total
         const teamSizeOverview   = document.getElementById("stat-team-size");
