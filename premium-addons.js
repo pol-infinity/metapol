@@ -124,9 +124,11 @@ window.syncLeaderboard = async function(forceRefresh) {
         const latestBlock = await provider.getBlockNumber();
 
         // Fetch all SponsorPaid (commissions) + all RegUser (recruitments)
+        // RegUser uses the shared cache (also used by the network tree) to
+        // avoid scanning the same full history twice.
         const [sponsorEvents, regEvents, miningDepEvents] = await Promise.all([
             queryFilterChunked(contract, contract.filters.SponsorPaid(),   deployBlock, latestBlock),
-            queryFilterChunked(contract, contract.filters.RegUser(),       deployBlock, latestBlock),
+            getAllRegUserEvents(contract, deployBlock, latestBlock, forceRefresh),
             queryFilterChunked(contract, contract.filters.MiningDeposit(), deployBlock, latestBlock).catch(() => [])
         ]);
 
@@ -483,7 +485,7 @@ window.syncNetworkTree = async function(forceRefresh) {
     const wrap    = document.getElementById('tree-svg-wrap');
     const btn     = document.getElementById('tree-refresh-btn');
 
-    if (loading) loading.style.display = 'flex';
+    if (loading) { loading.style.display = 'flex'; loading.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Scanning network…</span>`; }
     if (wrap)    wrap.style.display    = 'none';
     if (btn)     { btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Loading`; }
 
@@ -506,17 +508,27 @@ window.syncNetworkTree = async function(forceRefresh) {
         const myMiningDep = parseFloat(ethers.formatEther(myEarnings[1] ?? 0n));
         const mySlot = getHighestSlot(myMiningDep, SLOT_PRICES);
 
-        // Level 1: all users who registered with me as referrer
-        const filterL1 = contract.filters.RegUser(null, addr);
-        const l1Events = await queryFilterChunked(contract, filterL1, deployBlock, latestBlock);
+        // ── ONE bulk scan for ALL RegUser events (cached + reused across
+        // tab switches), instead of a separate scan per referral. This is
+        // the single biggest speed win: O(1) full-history scan instead of
+        // O(number of referrals) scans. ──
+        const regEvents = await getAllRegUserEvents(contract, deployBlock, latestBlock, forceRefresh);
 
-        // Resolve L1 (and their L2) info with limited concurrency — firing
-        // dozens of parallel RPC calls at once is what trips up mobile
-        // wallet RPC bridges (WalletConnect, in-app browsers), even when
-        // each individual call would have succeeded on its own.
-        const L1_CONCURRENCY = 3;
-        const resolved = await mapWithConcurrency(l1Events, L1_CONCURRENCY, async (ev) => {
-            const refAddr = ev.args.user;
+        // Build referrer(lowercased) -> [referred user addresses] map, in memory.
+        const byReferrer = new Map();
+        for (const ev of regEvents) {
+            const ref = ev.args.referrer.toLowerCase();
+            if (!byReferrer.has(ref)) byReferrer.set(ref, []);
+            byReferrer.get(ref).push(ev.args.user);
+        }
+
+        const myAddrLc = addr.toLowerCase();
+        const l1Addrs  = byReferrer.get(myAddrLc) || [];
+
+        // Resolve L1 (and their L2) info with limited concurrency — purely
+        // contract reads now, no further event scanning needed.
+        const L1_CONCURRENCY = 4;
+        const resolved = await mapWithConcurrency(l1Addrs, L1_CONCURRENCY, async (refAddr) => {
             try {
                 const info     = await retryCall(() => contract.getUserInfo(refAddr), 2, 'getUserInfo(l1)');
                 const earnings = await retryCall(() => contract.getUserEarnings(refAddr), 2, 'getUserEarnings(l1)').catch(() => [0n,0n,0n]);
@@ -526,18 +538,17 @@ window.syncNetworkTree = async function(forceRefresh) {
                 const slot     = getHighestSlot(mDep, SLOT_PRICES);
                 const code     = window.MetapolRef ? window.MetapolRef.idToCode(id) : id;
 
-                // Level 2: users referred by this L1 member
-                const filterL2 = contract.filters.RegUser(null, refAddr);
-                const l2Evs    = await queryFilterChunked(contract, filterL2, deployBlock, latestBlock);
+                // Level 2: looked up locally from the map — no RPC event call.
+                const l2Addrs = (byReferrer.get(refAddr.toLowerCase()) || []).slice(0, 8);
 
-                const children = await mapWithConcurrency(l2Evs.slice(0, 8), L1_CONCURRENCY, async (ev2) => {
+                const children = await mapWithConcurrency(l2Addrs, L1_CONCURRENCY, async (addr2) => {
                     try {
-                        const info2 = await retryCall(() => contract.getUserInfo(ev2.args.user), 2, 'getUserInfo(l2)');
-                        const earn2 = await retryCall(() => contract.getUserEarnings(ev2.args.user), 2, 'getUserEarnings(l2)').catch(() => [0n,0n,0n]);
+                        const info2 = await retryCall(() => contract.getUserInfo(addr2), 2, 'getUserInfo(l2)');
+                        const earn2 = await retryCall(() => contract.getUserEarnings(addr2), 2, 'getUserEarnings(l2)').catch(() => [0n,0n,0n]);
                         const id2   = Number(info2[1]);
                         const dep2  = parseFloat(ethers.formatEther(earn2[1] ?? 0n));
                         return {
-                            addr:      ev2.args.user.toLowerCase(),
+                            addr:      addr2.toLowerCase(),
                             id:        id2,
                             code:      window.MetapolRef ? window.MetapolRef.idToCode(id2) : id2,
                             slot:      getHighestSlot(dep2, SLOT_PRICES),
@@ -557,7 +568,7 @@ window.syncNetworkTree = async function(forceRefresh) {
         const l1Nodes = resolved.filter(Boolean);
 
         const root = {
-            addr: addr.toLowerCase(), id: myId, code: myCode,
+            addr: myAddrLc, id: myId, code: myCode,
             slot: mySlot, isFounder: myFounder, children: l1Nodes, isRoot: true
         };
 
@@ -576,6 +587,23 @@ window.syncNetworkTree = async function(forceRefresh) {
         if (btn) { btn.disabled = false; btn.innerHTML = `<i class="fa-solid fa-rotate"></i> Refresh`; }
     }
 };
+
+// Shared cache for the full RegUser event log — the leaderboard and the
+// network tree both need "every registration ever," so scan once and let
+// both features reuse it within the TTL window instead of re-scanning.
+let _regEventsCache     = null;
+let _regEventsCacheTime = 0;
+const REG_EVENTS_TTL = 5 * 60 * 1000;
+async function getAllRegUserEvents(contract, deployBlock, latestBlock, forceRefresh) {
+    const now = Date.now();
+    if (!forceRefresh && _regEventsCache && (now - _regEventsCacheTime) < REG_EVENTS_TTL) {
+        return _regEventsCache;
+    }
+    const events = await queryFilterChunked(contract, contract.filters.RegUser(), deployBlock, latestBlock);
+    _regEventsCache     = events;
+    _regEventsCacheTime = Date.now();
+    return events;
+}
 
 function getHighestSlot(miningDep, prices) {
     for (let i = prices.length - 1; i >= 0; i--) {
