@@ -45,6 +45,37 @@ async function queryFilterChunked(contract, filter, fromBlock, toBlock) {
     return results;
 }
 
+// Generic retry wrapper for single RPC calls (getUserInfo, getBlockNumber, etc).
+// Mobile/WalletConnect RPC bridges are often more rate-limit-sensitive than
+// desktop extension wallets, so plain calls need backoff too, not just event scans.
+async function retryCall(fn, attempts = 3, label = 'call') {
+    let lastErr;
+    for (let i = 1; i <= attempts; i++) {
+        try {
+            return await fn();
+        } catch (e) {
+            lastErr = e;
+            if (i < attempts) await new Promise(r => setTimeout(r, 350 * i));
+        }
+    }
+    throw lastErr;
+}
+
+// Runs async tasks with limited concurrency so we don't flood mobile RPC
+// bridges with dozens of simultaneous requests.
+async function mapWithConcurrency(items, limit, fn) {
+    const results = new Array(items.length);
+    let idx = 0;
+    async function worker() {
+        while (idx < items.length) {
+            const i = idx++;
+            results[i] = await fn(items[i], i);
+        }
+    }
+    await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+    return results;
+}
+
 /* ================================================================
    1. LEADERBOARD CATEGORIES
    ================================================================ */
@@ -461,17 +492,17 @@ window.syncNetworkTree = async function(forceRefresh) {
         const contract = window.metapolApp.contract;
         const provider = window.metapolApp.provider;
         const deployBlock = window.CONFIG.CONTRACT_DEPLOY_BLOCK;
-        const latestBlock = await provider.getBlockNumber();
+        const latestBlock = await retryCall(() => provider.getBlockNumber(), 3, 'getBlockNumber');
         const SLOT_PRICES = [10,20,40,80,160,320,640,1280,2560,5120,10240,20480];
 
         // Get MY info
-        const myInfo   = await contract.getUserInfo(addr);
+        const myInfo   = await retryCall(() => contract.getUserInfo(addr), 3, 'getUserInfo(me)');
         const myId     = Number(myInfo[1]);
         const myCode   = window.MetapolRef ? window.MetapolRef.idToCode(myId) : myId;
         const myFounder = myInfo[4];
 
         // Estimate my highest slot from mining deposit
-        const myEarnings = await contract.getUserEarnings(addr).catch(() => [0n,0n,0n]);
+        const myEarnings = await retryCall(() => contract.getUserEarnings(addr), 3, 'getUserEarnings(me)').catch(() => [0n,0n,0n]);
         const myMiningDep = parseFloat(ethers.formatEther(myEarnings[1] ?? 0n));
         const mySlot = getHighestSlot(myMiningDep, SLOT_PRICES);
 
@@ -479,54 +510,51 @@ window.syncNetworkTree = async function(forceRefresh) {
         const filterL1 = contract.filters.RegUser(null, addr);
         const l1Events = await queryFilterChunked(contract, filterL1, deployBlock, latestBlock);
 
-        const l1Nodes = [];
-        let l2Nodes   = [];
-        let l2Promises = [];
-
-        for (const ev of l1Events) {
+        // Resolve L1 (and their L2) info with limited concurrency — firing
+        // dozens of parallel RPC calls at once is what trips up mobile
+        // wallet RPC bridges (WalletConnect, in-app browsers), even when
+        // each individual call would have succeeded on its own.
+        const L1_CONCURRENCY = 3;
+        const resolved = await mapWithConcurrency(l1Events, L1_CONCURRENCY, async (ev) => {
             const refAddr = ev.args.user;
-            l2Promises.push((async () => {
-                try {
-                    const [info, earnings] = await Promise.all([
-                        contract.getUserInfo(refAddr),
-                        contract.getUserEarnings(refAddr).catch(() => [0n,0n,0n])
-                    ]);
-                    const id       = Number(info[1]);
-                    const isFounder= info[4];
-                    const mDep     = parseFloat(ethers.formatEther(earnings[1] ?? 0n));
-                    const slot     = getHighestSlot(mDep, SLOT_PRICES);
-                    const code     = window.MetapolRef ? window.MetapolRef.idToCode(id) : id;
+            try {
+                const info     = await retryCall(() => contract.getUserInfo(refAddr), 2, 'getUserInfo(l1)');
+                const earnings = await retryCall(() => contract.getUserEarnings(refAddr), 2, 'getUserEarnings(l1)').catch(() => [0n,0n,0n]);
+                const id       = Number(info[1]);
+                const isFounder= info[4];
+                const mDep     = parseFloat(ethers.formatEther(earnings[1] ?? 0n));
+                const slot     = getHighestSlot(mDep, SLOT_PRICES);
+                const code     = window.MetapolRef ? window.MetapolRef.idToCode(id) : id;
 
-                    // Level 2: users referred by this L1 member
-                    const filterL2 = contract.filters.RegUser(null, refAddr);
-                    const l2Evs    = await queryFilterChunked(contract, filterL2, deployBlock, latestBlock);
+                // Level 2: users referred by this L1 member
+                const filterL2 = contract.filters.RegUser(null, refAddr);
+                const l2Evs    = await queryFilterChunked(contract, filterL2, deployBlock, latestBlock);
 
-                    const children = [];
-                    for (const ev2 of l2Evs.slice(0, 8)) { // cap at 8 per L1 for performance
-                        try {
-                            const [info2, earn2] = await Promise.all([
-                                contract.getUserInfo(ev2.args.user),
-                                contract.getUserEarnings(ev2.args.user).catch(() => [0n,0n,0n])
-                            ]);
-                            const id2   = Number(info2[1]);
-                            const dep2  = parseFloat(ethers.formatEther(earn2[1] ?? 0n));
-                            children.push({
-                                addr:      ev2.args.user.toLowerCase(),
-                                id:        id2,
-                                code:      window.MetapolRef ? window.MetapolRef.idToCode(id2) : id2,
-                                slot:      getHighestSlot(dep2, SLOT_PRICES),
-                                isFounder: info2[4],
-                                children:  []
-                            });
-                        } catch {}
-                    }
-                    return { addr: refAddr.toLowerCase(), id, code, slot, isFounder, children };
-                } catch { return null; }
-            })());
-        }
+                const children = await mapWithConcurrency(l2Evs.slice(0, 8), L1_CONCURRENCY, async (ev2) => {
+                    try {
+                        const info2 = await retryCall(() => contract.getUserInfo(ev2.args.user), 2, 'getUserInfo(l2)');
+                        const earn2 = await retryCall(() => contract.getUserEarnings(ev2.args.user), 2, 'getUserEarnings(l2)').catch(() => [0n,0n,0n]);
+                        const id2   = Number(info2[1]);
+                        const dep2  = parseFloat(ethers.formatEther(earn2[1] ?? 0n));
+                        return {
+                            addr:      ev2.args.user.toLowerCase(),
+                            id:        id2,
+                            code:      window.MetapolRef ? window.MetapolRef.idToCode(id2) : id2,
+                            slot:      getHighestSlot(dep2, SLOT_PRICES),
+                            isFounder: info2[4],
+                            children:  []
+                        };
+                    } catch { return null; }
+                });
 
-        const resolved = (await Promise.all(l2Promises)).filter(Boolean);
-        resolved.forEach(n => l1Nodes.push(n));
+                return { addr: refAddr.toLowerCase(), id, code, slot, isFounder, children: children.filter(Boolean) };
+            } catch (e) {
+                console.warn('Tree: skipping L1 member after retries failed', refAddr, e);
+                return null;
+            }
+        });
+
+        const l1Nodes = resolved.filter(Boolean);
 
         const root = {
             addr: addr.toLowerCase(), id: myId, code: myCode,
@@ -541,7 +569,8 @@ window.syncNetworkTree = async function(forceRefresh) {
     } catch(err) {
         console.error('Tree error:', err);
         const loading = document.getElementById('tree-loading');
-        if (loading) loading.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:rgba(255,80,80,0.7);"></i><span style="color:rgba(255,80,80,0.7);">Failed to load tree. Try again.</span>`;
+        const reason = (err && (err.shortMessage || err.message)) ? String(err.shortMessage || err.message).slice(0, 90) : 'Unknown error';
+        if (loading) loading.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:rgba(255,80,80,0.7);"></i><span style="color:rgba(255,80,80,0.7);">Failed to load tree (${reason}). <a href="#" onclick="syncNetworkTree(true); return false;" style="color:var(--accent); text-decoration:underline;">Retry</a></span>`;
     } finally {
         const btn = document.getElementById('tree-refresh-btn');
         if (btn) { btn.disabled = false; btn.innerHTML = `<i class="fa-solid fa-rotate"></i> Refresh`; }
