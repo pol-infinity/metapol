@@ -568,12 +568,20 @@ function renderTree(root) {
     loading.style.display = 'none';
     wrap.style.display    = 'block';
 
-    // ── Layout constants ──
-    const NODE_W   = 110;
-    const NODE_H   = 64;
-    const H_GAP    = 24;
-    const V_GAP    = 80;
-    const LEVEL_Y  = [20, 20 + NODE_H + V_GAP, 20 + (NODE_H + V_GAP) * 2];
+    // ── Responsive layout constants (shrink nodes on small screens) ──
+    const vw = window.innerWidth;
+    const isSmallMobile = vw <= 380;
+    const isMobile       = vw <= 480;
+    const isTablet       = vw <= 768;
+
+    const NODE_W   = isSmallMobile ? 66  : isMobile ? 74  : isTablet ? 90  : 110;
+    const NODE_H   = isSmallMobile ? 46  : isMobile ? 50  : isTablet ? 56  : 64;
+    const H_GAP    = isSmallMobile ? 10  : isMobile ? 12  : isTablet ? 16  : 24;
+    const V_GAP    = isSmallMobile ? 40  : isMobile ? 48  : isTablet ? 60  : 80;
+    const FS_CODE  = isSmallMobile ? 8   : isMobile ? 8.5 : isTablet ? 9.5 : 11;
+    const FS_SLOT  = isSmallMobile ? 6.5 : isMobile ? 7   : isTablet ? 8   : 9.5;
+    const FS_SUB   = isSmallMobile ? 6   : isMobile ? 6.5 : isTablet ? 7.5 : 8.5;
+    const LEVEL_Y  = [16, 16 + NODE_H + V_GAP, 16 + (NODE_H + V_GAP) * 2];
 
     // Compute positions
     function layoutTree(node, level) {
@@ -615,7 +623,10 @@ function renderTree(root) {
         : LEVEL_Y[0] + NODE_H + 30;
 
     // ── Build SVG ──
-    let svgParts = [`<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="min-width:${svgW}px; font-family:sans-serif;">`];
+    const svgStyle = isMobile
+        ? `width:100%; height:auto; display:block; font-family:sans-serif;`
+        : `min-width:${svgW}px; font-family:sans-serif;`;
+    let svgParts = [`<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="${svgStyle}">`];
 
     function drawNode(node, isRoot) {
         const x  = node._x + 30;
@@ -639,17 +650,18 @@ function renderTree(root) {
 
         // Node box
         const glow = isRoot ? `filter:drop-shadow(0 0 8px ${c})` : '';
+        const crownTxt = node.isFounder ? ' 👑' : '';
         svgParts.push(`
             <g style="${glow}">
-                <rect x="${rx}" y="${y}" width="${NODE_W}" height="${NODE_H}" rx="10"
+                <rect x="${rx}" y="${y}" width="${NODE_W}" height="${NODE_H}" rx="${isMobile ? 6 : 10}"
                     fill="rgba(255,255,255,0.04)" stroke="${c}" stroke-width="${isRoot ? 2 : 1.5}" stroke-opacity="0.8"/>
-                ${isRoot ? `<rect x="${rx}" y="${y}" width="${NODE_W}" height="4" rx="2" fill="${c}" opacity="0.6"/>` : ''}
-                <text x="${x}" y="${y + 22}" text-anchor="middle" fill="${c}" font-size="11" font-weight="700">#${node.code}</text>
-                <text x="${x}" y="${y + 36}" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="9.5">
-                    ${node.slot > 0 ? `Slot ${node.slot}` : 'No Slot'}${node.isFounder ? ' 👑' : ''}
+                ${isRoot ? `<rect x="${rx}" y="${y}" width="${NODE_W}" height="3" rx="1.5" fill="${c}" opacity="0.6"/>` : ''}
+                <text x="${x}" y="${y + NODE_H * 0.36}" text-anchor="middle" fill="${c}" font-size="${FS_CODE}" font-weight="700">#${node.code}</text>
+                <text x="${x}" y="${y + NODE_H * 0.6}" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="${FS_SLOT}">
+                    ${node.slot > 0 ? `S${node.slot}` : '—'}${crownTxt}
                 </text>
-                ${isRoot ? `<text x="${x}" y="${y + 52}" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="8.5">${node.children.length} direct${node.children.length !== 1 ? 's' : ''}</text>` : ''}
-                ${!isRoot && node.children.length > 0 ? `<text x="${x}" y="${y + 52}" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="8">${node.children.length} ref${node.children.length !== 1 ? 's' : ''}</text>` : ''}
+                ${isRoot && !isMobile ? `<text x="${x}" y="${y + NODE_H - 8}" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="${FS_SUB}">${node.children.length} direct${node.children.length !== 1 ? 's' : ''}</text>` : ''}
+                ${!isRoot && node.children.length > 0 && !isMobile ? `<text x="${x}" y="${y + NODE_H - 8}" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="${FS_SUB}">${node.children.length} ref${node.children.length !== 1 ? 's' : ''}</text>` : ''}
             </g>`);
 
         node.children.forEach(child => {
@@ -660,11 +672,11 @@ function renderTree(root) {
                 const ly = l2._y;
                 const lrx = lx - NODE_W / 2;
                 svgParts.push(`
-                    <rect x="${lrx}" y="${ly}" width="${NODE_W}" height="${NODE_H}" rx="10"
+                    <rect x="${lrx}" y="${ly}" width="${NODE_W}" height="${NODE_H}" rx="${isMobile ? 6 : 10}"
                         fill="rgba(255,255,255,0.03)" stroke="${lc}" stroke-width="1" stroke-opacity="0.6"/>
-                    <text x="${lx}" y="${ly + 22}" text-anchor="middle" fill="${lc}" font-size="10" font-weight="600">#${l2.code}</text>
-                    <text x="${lx}" y="${ly + 36}" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="9">
-                        ${l2.slot > 0 ? `Slot ${l2.slot}` : 'No Slot'}${l2.isFounder ? ' 👑' : ''}
+                    <text x="${lx}" y="${ly + NODE_H * 0.36}" text-anchor="middle" fill="${lc}" font-size="${Math.max(FS_CODE - 1, 6.5)}" font-weight="600">#${l2.code}</text>
+                    <text x="${lx}" y="${ly + NODE_H * 0.6}" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="${FS_SLOT}">
+                        ${l2.slot > 0 ? `S${l2.slot}` : '—'}${l2.isFounder ? ' 👑' : ''}
                     </text>`);
             });
         });
