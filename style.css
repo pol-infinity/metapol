@@ -2087,7 +2087,11 @@ img, video, iframe, embed, object {
     .logo-img { width: 34px !important; height: 34px !important; }
     .logo-text { font-size: 0.85rem; }
     .desktop-nav { display: none !important; }
-    .header-actions { display: none !important; }
+    /* Keep header-actions visible so the language switcher still shows in
+       the header on mobile — only hide the duplicate Connect Wallet button,
+       since the mobile-nav-drawer has its own. */
+    .header-actions { display: flex !important; gap: 8px; }
+    .header-actions > #btn-connect-wallet { display: none !important; }
     .hamburger { display: flex !important; }
 
     /* Dashboard header wallet */
@@ -7609,4 +7613,112 @@ header.main-header {
 }
 #sidebar-admin-link.admin-visible {
     display: flex !important;
+}
+
+/* ════════════════════════════════════════════════════════════
+   LANGUAGE SWITCHER — header globe dropdown (mobile + desktop)
+   ════════════════════════════════════════════════════════════ */
+.lang-switcher {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 8px;
+}
+.lang-switcher-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--card-border);
+    color: rgba(255,255,255,0.85);
+    border-radius: 10px;
+    padding: 8px 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+.lang-switcher-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(255,255,255,0.08);
+}
+.lang-switcher-btn i.fa-globe { font-size: 0.9rem; }
+.lang-switcher-btn .lang-chevron {
+    font-size: 0.6rem;
+    opacity: 0.6;
+    transition: transform 0.2s ease;
+}
+.lang-switcher.open .lang-chevron,
+.lang-switcher-menu.open ~ .lang-switcher-btn .lang-chevron { transform: rotate(180deg); }
+
+.lang-switcher-code { letter-spacing: 0.02em; }
+
+.lang-switcher-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 190px;
+    max-height: 320px;
+    overflow-y: auto;
+    background: rgba(15, 18, 30, 0.98);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    padding: 6px;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 999;
+}
+.lang-switcher-menu.open { display: flex; }
+
+.lang-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.78);
+    font-size: 0.84rem;
+    font-weight: 500;
+    text-align: left;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+    width: 100%;
+}
+.lang-option:hover { background: rgba(255,255,255,0.06); color: #fff; }
+.lang-option.active {
+    background: rgba(0,255,179,0.10);
+    color: var(--accent);
+    font-weight: 700;
+}
+.lang-flag { font-size: 1rem; }
+
+/* Hide Google's own translate banner/toolbar so only our dropdown shows */
+.goog-te-banner-frame,
+.goog-logo-link,
+#google_translate_element { display: none !important; }
+body.goog-te-banner-padding,
+body { top: 0 !important; }
+.goog-te-gadget { height: 0; overflow: hidden; font-size: 0; }
+.skiptranslate iframe { display: none !important; }
+
+/* Mobile: icon-only compact button so it never crowds the wallet button */
+@media (max-width: 480px) {
+    .lang-switcher { margin-right: 4px; }
+    .lang-switcher-btn {
+        padding: 8px 9px;
+        gap: 0;
+    }
+    .lang-switcher-btn .lang-switcher-code,
+    .lang-switcher-btn .lang-chevron { display: none; }
+    .lang-switcher-menu {
+        right: -8px;
+        min-width: 170px;
+    }
 }
