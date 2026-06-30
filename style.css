@@ -7706,14 +7706,14 @@ body { top: 0 !important; }
 .goog-te-gadget { height: 0; overflow: hidden; font-size: 0; }
 .skiptranslate iframe { display: none !important; }
 
-/* Mobile: icon-only compact button so it never crowds the wallet button */
+/* Mobile: compact button, but keep the language code text visible */
 @media (max-width: 480px) {
     .lang-switcher { margin-right: 4px; }
     .lang-switcher-btn {
-        padding: 8px 9px;
-        gap: 0;
+        padding: 7px 9px;
+        gap: 4px;
+        font-size: 0.72rem;
     }
-    .lang-switcher-btn .lang-switcher-code,
     .lang-switcher-btn .lang-chevron { display: none; }
     .lang-switcher-menu {
         min-width: 170px;

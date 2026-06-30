@@ -6,17 +6,22 @@
  */
 
 const METAPOL_LANGS = [
-    { code: 'en',    label: 'English',   flag: '🇬🇧' },
-    { code: 'hi',    label: 'हिन्दी',      flag: '🇮🇳' },
-    { code: 'te',    label: 'తెలుగు',     flag: '🇮🇳' },
-    { code: 'ta',    label: 'தமிழ்',      flag: '🇮🇳' },
-    { code: 'es',    label: 'Español',   flag: '🇪🇸' },
-    { code: 'fr',    label: 'Français',  flag: '🇫🇷' },
-    { code: 'pt',    label: 'Português', flag: '🇵🇹' },
-    { code: 'ru',    label: 'Русский',   flag: '🇷🇺' },
-    { code: 'ar',    label: 'العربية',    flag: '🇸🇦' },
-    { code: 'zh-CN', label: '中文',       flag: '🇨🇳' },
+    { code: 'en',    label: 'English',   short: 'EN', flag: '🇬🇧' },
+    { code: 'hi',    label: 'हिन्दी',      short: 'HI', flag: '🇮🇳' },
+    { code: 'te',    label: 'తెలుగు',     short: 'TE', flag: '🇮🇳' },
+    { code: 'ta',    label: 'தமிழ்',      short: 'TA', flag: '🇮🇳' },
+    { code: 'es',    label: 'Español',   short: 'ES', flag: '🇪🇸' },
+    { code: 'fr',    label: 'Français',  short: 'FR', flag: '🇫🇷' },
+    { code: 'pt',    label: 'Português', short: 'PT', flag: '🇵🇹' },
+    { code: 'ru',    label: 'Русский',   short: 'RU', flag: '🇷🇺' },
+    { code: 'ar',    label: 'العربية',    short: 'AR', flag: '🇸🇦' },
+    { code: 'zh-CN', label: '中文',       short: 'ZH', flag: '🇨🇳' },
 ];
+
+function metapolLangShort(code) {
+    const l = METAPOL_LANGS.find(x => x.code === code);
+    return l ? l.short : code.toUpperCase();
+}
 
 const METAPOL_LANG_STORAGE_KEY = 'metapol_lang';
 
@@ -47,7 +52,7 @@ function metapolInitLangSwitcher(mountSelector) {
     wrap.innerHTML = `
         <button class="lang-switcher-btn" id="lang-switcher-btn" onclick="metapolToggleLangMenu(event)" title="Change language">
             <i class="fa-solid fa-globe"></i>
-            <span class="lang-switcher-code" id="lang-switcher-code">${saved === 'en' ? 'EN' : metapolLangLabel(saved)}</span>
+            <span class="lang-switcher-code" id="lang-switcher-code">${metapolLangShort(saved)}</span>
             <i class="fa-solid fa-chevron-down lang-chevron"></i>
         </button>
         <div class="lang-switcher-menu" id="lang-switcher-menu">
@@ -114,7 +119,7 @@ function metapolCloseLangMenu() {
 
 function metapolUpdateBadge(lang) {
     const codeEl = document.getElementById('lang-switcher-code');
-    if (codeEl) codeEl.textContent = lang === 'en' ? 'EN' : metapolLangLabel(lang);
+    if (codeEl) codeEl.textContent = metapolLangShort(lang);
     document.querySelectorAll('.lang-option').forEach(b => {
         b.classList.toggle('active', b.dataset.lang === lang);
     });
