@@ -77,8 +77,36 @@ function metapolInitLangSwitcher(mountSelector) {
 function metapolToggleLangMenu(e) {
     e.stopPropagation();
     const menu = document.getElementById('lang-switcher-menu');
-    if (menu) menu.classList.toggle('open');
+    const btn  = document.getElementById('lang-switcher-btn');
+    if (!menu || !btn) return;
+
+    const willOpen = !menu.classList.contains('open');
+    if (willOpen) {
+        menu.classList.add('open');
+        metapolPositionLangMenu(btn, menu);
+    } else {
+        menu.classList.remove('open');
+    }
 }
+
+// Since the menu uses position:fixed (to escape the header's
+// overflow:hidden clipping on mobile), its coordinates must be computed
+// in JS relative to the button's on-screen position.
+function metapolPositionLangMenu(btn, menu) {
+    const r = btn.getBoundingClientRect();
+    const menuWidth = Math.max(menu.offsetWidth || 190, 170);
+    let left = r.right - menuWidth;
+    if (left < 8) left = 8;
+    if (left + menuWidth > window.innerWidth - 8) left = window.innerWidth - menuWidth - 8;
+    menu.style.left = `${left}px`;
+    menu.style.top  = `${r.bottom + 8}px`;
+}
+
+window.addEventListener('resize', () => {
+    const menu = document.getElementById('lang-switcher-menu');
+    const btn  = document.getElementById('lang-switcher-btn');
+    if (menu && btn && menu.classList.contains('open')) metapolPositionLangMenu(btn, menu);
+});
 function metapolCloseLangMenu() {
     const menu = document.getElementById('lang-switcher-menu');
     if (menu) menu.classList.remove('open');

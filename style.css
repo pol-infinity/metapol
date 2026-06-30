@@ -7656,9 +7656,7 @@ header.main-header {
 .lang-switcher-code { letter-spacing: 0.02em; }
 
 .lang-switcher-menu {
-    position: absolute;
-    top: calc(100% + 8px);
-    right: 0;
+    position: fixed;
     min-width: 190px;
     max-height: 320px;
     overflow-y: auto;
@@ -7671,7 +7669,7 @@ header.main-header {
     display: none;
     flex-direction: column;
     gap: 2px;
-    z-index: 999;
+    z-index: 9999;
 }
 .lang-switcher-menu.open { display: flex; }
 
@@ -7718,7 +7716,6 @@ body { top: 0 !important; }
     .lang-switcher-btn .lang-switcher-code,
     .lang-switcher-btn .lang-chevron { display: none; }
     .lang-switcher-menu {
-        right: -8px;
         min-width: 170px;
     }
 }
