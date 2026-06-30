@@ -51,18 +51,38 @@ window.syncLeaderboard = async function(forceRefresh) {
         const provider    = window.metapolApp.provider;
 
         // Chunk large block ranges to avoid RPC timeouts (max 2000 blocks per call)
+        // Retries failed chunks (with shrinking range) so all-time totals stay complete
+        // and consistent across refreshes, instead of silently dropping data.
         const CHUNK_SIZE = 2000;
+        const MAX_RETRIES = 3;
+        async function fetchChunk(filter, from, to, attempt = 1) {
+            try {
+                return await contract.queryFilter(filter, from, to);
+            } catch (e) {
+                if (attempt >= MAX_RETRIES) {
+                    // Last resort: split the range in half and try each half once more.
+                    if (to > from) {
+                        const mid = Math.floor((from + to) / 2);
+                        const [a, b] = await Promise.all([
+                            fetchChunk(filter, from, mid, attempt),
+                            fetchChunk(filter, mid + 1, to, attempt)
+                        ]);
+                        return [...a, ...b];
+                    }
+                    console.error(`Chunk ${from}-${to} failed after ${attempt} attempts, data may be incomplete:`, e);
+                    return [];
+                }
+                await new Promise(r => setTimeout(r, 300 * attempt));
+                return fetchChunk(filter, from, to, attempt + 1);
+            }
+        }
         async function queryFilterChunked(filter, fromBlock, toBlock) {
             const results = [];
             let from = fromBlock;
             while (from <= toBlock) {
                 const to = Math.min(from + CHUNK_SIZE - 1, toBlock);
-                try {
-                    const chunk = await contract.queryFilter(filter, from, to);
-                    results.push(...chunk);
-                } catch(e) {
-                    console.warn(`Chunk ${from}-${to} failed, skipping:`, e);
-                }
+                const chunk = await fetchChunk(filter, from, to);
+                results.push(...chunk);
                 from = to + 1;
             }
             return results;
@@ -143,7 +163,7 @@ window.syncLeaderboard = async function(forceRefresh) {
     } finally {
         if (refreshBtn){ refreshBtn.disabled = false; refreshBtn.innerHTML = `<i class="fa-solid fa-rotate"></i> Refresh`; }
         const upd = document.getElementById('lb-last-updated');
-        if (upd) upd.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+        if (upd) upd.textContent = `All-time totals · synced ${new Date().toLocaleTimeString()}`;
     }
 };
 
