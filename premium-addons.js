@@ -9,8 +9,9 @@
    SHARED: Chunked event fetch with retries (avoids RPC range limits
    that cause "failed to load" on mobile/WalletConnect RPC endpoints)
    ================================================================ */
-const EVT_CHUNK_SIZE  = 2000;
-const EVT_MAX_RETRIES = 3;
+const EVT_CHUNK_SIZE   = 5000;  // bigger chunks = far fewer round trips
+const EVT_CHUNK_PARALLEL = 6;   // fetch several chunks at once instead of one-by-one
+const EVT_MAX_RETRIES  = 3;
 
 async function fetchEventChunk(contract, filter, from, to, attempt = 1) {
     try {
@@ -33,16 +34,35 @@ async function fetchEventChunk(contract, filter, from, to, attempt = 1) {
         return fetchEventChunk(contract, filter, from, to, attempt + 1);
     }
 }
+
+// Runs async tasks with limited concurrency so we don't flood mobile RPC
+// bridges with dozens of simultaneous requests.
+async function mapWithConcurrency(items, limit, fn) {
+    const results = new Array(items.length);
+    let idx = 0;
+    async function worker() {
+        while (idx < items.length) {
+            const i = idx++;
+            results[i] = await fn(items[i], i);
+        }
+    }
+    await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
+    return results;
+}
+
 async function queryFilterChunked(contract, filter, fromBlock, toBlock) {
-    const results = [];
+    // Build the list of [from, to] ranges up front, then fetch several of
+    // them in parallel instead of one sequential round trip at a time —
+    // this is what was making the leaderboard/tree slow on large ranges.
+    const ranges = [];
     let from = fromBlock;
     while (from <= toBlock) {
         const to = Math.min(from + EVT_CHUNK_SIZE - 1, toBlock);
-        const chunk = await fetchEventChunk(contract, filter, from, to);
-        results.push(...chunk);
+        ranges.push([from, to]);
         from = to + 1;
     }
-    return results;
+    const chunks = await mapWithConcurrency(ranges, EVT_CHUNK_PARALLEL, ([f, t]) => fetchEventChunk(contract, filter, f, t));
+    return chunks.flat();
 }
 
 // Generic retry wrapper for single RPC calls (getUserInfo, getBlockNumber, etc).
@@ -59,21 +79,6 @@ async function retryCall(fn, attempts = 3, label = 'call') {
         }
     }
     throw lastErr;
-}
-
-// Runs async tasks with limited concurrency so we don't flood mobile RPC
-// bridges with dozens of simultaneous requests.
-async function mapWithConcurrency(items, limit, fn) {
-    const results = new Array(items.length);
-    let idx = 0;
-    async function worker() {
-        while (idx < items.length) {
-            const i = idx++;
-            results[i] = await fn(items[i], i);
-        }
-    }
-    await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
-    return results;
 }
 
 /* ================================================================
