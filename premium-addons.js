@@ -601,46 +601,41 @@ function renderTree(root) {
     loading.style.display = 'none';
     wrap.style.display    = 'block';
 
-    // ── Responsive layout constants (shrink nodes on small screens) ──
+    // ── Responsive layout constants (circular nodes, larger & professional) ──
     const vw = window.innerWidth;
     const isSmallMobile = vw <= 380;
     const isMobile       = vw <= 480;
     const isTablet       = vw <= 768;
 
-    const NODE_W   = isSmallMobile ? 66  : isMobile ? 74  : isTablet ? 90  : 110;
-    const NODE_H   = isSmallMobile ? 46  : isMobile ? 50  : isTablet ? 56  : 64;
-    const H_GAP    = isSmallMobile ? 10  : isMobile ? 12  : isTablet ? 16  : 24;
-    const V_GAP    = isSmallMobile ? 40  : isMobile ? 48  : isTablet ? 60  : 80;
-    const FS_CODE  = isSmallMobile ? 8   : isMobile ? 8.5 : isTablet ? 9.5 : 11;
-    const FS_SLOT  = isSmallMobile ? 6.5 : isMobile ? 7   : isTablet ? 8   : 9.5;
-    const FS_SUB   = isSmallMobile ? 6   : isMobile ? 6.5 : isTablet ? 7.5 : 8.5;
-    const LEVEL_Y  = [16, 16 + NODE_H + V_GAP, 16 + (NODE_H + V_GAP) * 2];
+    const NODE_R   = isSmallMobile ? 26  : isMobile ? 30  : isTablet ? 36  : 44;   // circle radius
+    const D        = NODE_R * 2;
+    const H_GAP    = isSmallMobile ? 14  : isMobile ? 16  : isTablet ? 20  : 28;
+    const V_GAP    = isSmallMobile ? 46  : isMobile ? 54  : isTablet ? 66  : 86;
+    const FS_CODE  = isSmallMobile ? 11  : isMobile ? 12  : isTablet ? 13.5: 15;
+    const FS_SLOT  = isSmallMobile ? 8   : isMobile ? 8.5 : isTablet ? 9.5 : 10.5;
+    const LEVEL_Y  = [NODE_R + 6, NODE_R + 6 + D + V_GAP, NODE_R + 6 + (D + V_GAP) * 2];
 
     // Compute positions
     function layoutTree(node, level) {
         if (level === 0) {
-            node._w = Math.max(NODE_W, (node.children.length || 1) * (NODE_W + H_GAP));
+            node._w = Math.max(D, (node.children.length || 1) * (D + H_GAP));
             node._x = node._w / 2;
             node._y = LEVEL_Y[0];
-            let cx = 0;
-            node.children.forEach(child => {
-                layoutTree(child, 1);
-                child._parentX = null;
-            });
+            node.children.forEach(child => { layoutTree(child, 1); });
             // Spread L1 evenly
             const l1Total = node.children.length;
-            node._w = Math.max(NODE_W, l1Total * (NODE_W + H_GAP) - H_GAP);
+            node._w = Math.max(D, l1Total * (D + H_GAP) - H_GAP);
             node._x = node._w / 2;
             let curX = 0;
-            node.children.forEach((child, i) => {
-                const childW = Math.max(NODE_W, (child.children.length || 1) * (NODE_W + H_GAP));
+            node.children.forEach((child) => {
+                const childW = Math.max(D, (child.children.length || 1) * (D + H_GAP));
                 child._x = curX + childW / 2;
                 child._y = LEVEL_Y[1];
                 let cxl2 = curX;
                 child.children.forEach(l2 => {
-                    l2._x = cxl2 + NODE_W / 2;
+                    l2._x = cxl2 + D / 2;
                     l2._y = LEVEL_Y[2];
-                    cxl2 += NODE_W + H_GAP;
+                    cxl2 += D + H_GAP;
                 });
                 curX += childW + H_GAP;
             });
@@ -650,10 +645,10 @@ function renderTree(root) {
     }
     layoutTree(root, 0);
 
-    const svgW  = Math.max(500, root._w + 60);
+    const svgW  = Math.max(360, root._w + NODE_R * 2 + 20);
     const svgH  = root.children.length > 0
-        ? (root.children.some(c => c.children.length > 0) ? LEVEL_Y[2] + NODE_H + 30 : LEVEL_Y[1] + NODE_H + 30)
-        : LEVEL_Y[0] + NODE_H + 30;
+        ? (root.children.some(c => c.children.length > 0) ? LEVEL_Y[2] + NODE_R + 28 : LEVEL_Y[1] + NODE_R + 28)
+        : LEVEL_Y[0] + NODE_R + 28;
 
     // ── Build SVG ──
     const svgStyle = isMobile
@@ -661,56 +656,61 @@ function renderTree(root) {
         : `min-width:${svgW}px; font-family:sans-serif;`;
     let svgParts = [`<svg viewBox="0 0 ${svgW} ${svgH}" xmlns="http://www.w3.org/2000/svg" style="${svgStyle}">`];
 
+    // Empty placeholder dots for unfilled child slots (matches reference UI)
+    function emptySlot(x, y) {
+        svgParts.push(`<circle cx="${x}" cy="${y}" r="${NODE_R * 0.55}" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>`);
+    }
+
+    function drawCircleNode(x, y, node, isRoot) {
+        const c = slotColor(node.slot, node.isFounder);
+        const glow = isRoot ? `filter:drop-shadow(0 0 10px ${c})` : `filter:drop-shadow(0 0 4px ${c}80)`;
+        const crownTxt = node.isFounder ? '👑' : '';
+        svgParts.push(`
+            <g style="${glow}">
+                <circle cx="${x}" cy="${y}" r="${NODE_R}" fill="${c}" fill-opacity="0.18" stroke="${c}" stroke-width="${isRoot ? 3 : 2.25}"/>
+                <circle cx="${x}" cy="${y}" r="${NODE_R - (isRoot ? 5 : 4)}" fill="${c}" fill-opacity="0.32"/>
+                <text x="${x}" y="${y + FS_CODE * 0.36}" text-anchor="middle" fill="#ffffff" font-size="${FS_CODE}" font-weight="800">${node.code}</text>
+            </g>
+            <text x="${x}" y="${y + NODE_R + FS_SLOT + 5}" text-anchor="middle" fill="rgba(255,255,255,0.55)" font-size="${FS_SLOT}" font-weight="600">
+                ${node.slot > 0 ? `Slot ${node.slot}` : 'No slot'} ${crownTxt}
+            </text>`);
+    }
+
     function drawNode(node, isRoot) {
-        const x  = node._x + 30;
+        const x  = node._x + NODE_R + 10;
         const y  = node._y;
-        const c  = slotColor(node.slot, node.isFounder);
-        const rx = x - NODE_W / 2;
 
         // Connection lines to children
         node.children.forEach(child => {
-            const cx = child._x + 30;
+            const cx = child._x + NODE_R + 10;
             const cy = child._y;
-            svgParts.push(`<line x1="${x}" y1="${y + NODE_H}" x2="${cx}" y2="${cy}" stroke="${c}" stroke-width="1.5" stroke-opacity="0.4" stroke-dasharray="4 3"/>`);
-            // L2 lines
-            child.children.forEach(l2 => {
-                const lx = l2._x + 30;
-                const ly = l2._y;
-                const cc = slotColor(l2.slot, l2.isFounder);
-                svgParts.push(`<line x1="${cx}" y1="${cy + NODE_H}" x2="${lx}" y2="${ly}" stroke="${cc}" stroke-width="1" stroke-opacity="0.3" stroke-dasharray="3 3"/>`);
-            });
+            const cc = slotColor(child.slot, child.isFounder);
+            svgParts.push(`<line x1="${x}" y1="${y + NODE_R}" x2="${cx}" y2="${cy - NODE_R}" stroke="${cc}" stroke-width="1.5" stroke-opacity="0.45"/>`);
+
+            if (child.children.length > 0) {
+                child.children.forEach(l2 => {
+                    const lx = l2._x + NODE_R + 10;
+                    const ly = l2._y;
+                    const lc = slotColor(l2.slot, l2.isFounder);
+                    svgParts.push(`<line x1="${cx}" y1="${cy + NODE_R}" x2="${lx}" y2="${ly - NODE_R}" stroke="${lc}" stroke-width="1.25" stroke-opacity="0.4"/>`);
+                });
+            } else if (!isMobile) {
+                // Show two empty placeholder slots under L1 nodes with no referrals yet
+                emptySlot(cx - (D + H_GAP) / 2, cy + D + V_GAP * 0.45);
+                emptySlot(cx + (D + H_GAP) / 2, cy + D + V_GAP * 0.45);
+            }
         });
 
-        // Node box
-        const glow = isRoot ? `filter:drop-shadow(0 0 8px ${c})` : '';
-        const crownTxt = node.isFounder ? ' 👑' : '';
-        svgParts.push(`
-            <g style="${glow}">
-                <rect x="${rx}" y="${y}" width="${NODE_W}" height="${NODE_H}" rx="${isMobile ? 6 : 10}"
-                    fill="rgba(255,255,255,0.04)" stroke="${c}" stroke-width="${isRoot ? 2 : 1.5}" stroke-opacity="0.8"/>
-                ${isRoot ? `<rect x="${rx}" y="${y}" width="${NODE_W}" height="3" rx="1.5" fill="${c}" opacity="0.6"/>` : ''}
-                <text x="${x}" y="${y + NODE_H * 0.36}" text-anchor="middle" fill="${c}" font-size="${FS_CODE}" font-weight="700">#${node.code}</text>
-                <text x="${x}" y="${y + NODE_H * 0.6}" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="${FS_SLOT}">
-                    ${node.slot > 0 ? `S${node.slot}` : '—'}${crownTxt}
-                </text>
-                ${isRoot && !isMobile ? `<text x="${x}" y="${y + NODE_H - 8}" text-anchor="middle" fill="rgba(255,255,255,0.35)" font-size="${FS_SUB}">${node.children.length} direct${node.children.length !== 1 ? 's' : ''}</text>` : ''}
-                ${!isRoot && node.children.length > 0 && !isMobile ? `<text x="${x}" y="${y + NODE_H - 8}" text-anchor="middle" fill="rgba(255,255,255,0.3)" font-size="${FS_SUB}">${node.children.length} ref${node.children.length !== 1 ? 's' : ''}</text>` : ''}
-            </g>`);
+        drawCircleNode(x, y, node, isRoot);
 
         node.children.forEach(child => {
-            drawNode(child, false);
+            const cx = child._x + NODE_R + 10;
+            const cy = child._y;
+            drawCircleNode(cx, cy, child, false);
             child.children.forEach(l2 => {
-                const lc = slotColor(l2.slot, l2.isFounder);
-                const lx = l2._x + 30;
+                const lx = l2._x + NODE_R + 10;
                 const ly = l2._y;
-                const lrx = lx - NODE_W / 2;
-                svgParts.push(`
-                    <rect x="${lrx}" y="${ly}" width="${NODE_W}" height="${NODE_H}" rx="${isMobile ? 6 : 10}"
-                        fill="rgba(255,255,255,0.03)" stroke="${lc}" stroke-width="1" stroke-opacity="0.6"/>
-                    <text x="${lx}" y="${ly + NODE_H * 0.36}" text-anchor="middle" fill="${lc}" font-size="${Math.max(FS_CODE - 1, 6.5)}" font-weight="600">#${l2.code}</text>
-                    <text x="${lx}" y="${ly + NODE_H * 0.6}" text-anchor="middle" fill="rgba(255,255,255,0.4)" font-size="${FS_SLOT}">
-                        ${l2.slot > 0 ? `S${l2.slot}` : '—'}${l2.isFounder ? ' 👑' : ''}
-                    </text>`);
+                drawCircleNode(lx, ly, l2, false);
             });
         });
     }
