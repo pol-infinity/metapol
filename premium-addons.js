@@ -6,6 +6,46 @@
  */
 
 /* ================================================================
+   SHARED: Chunked event fetch with retries (avoids RPC range limits
+   that cause "failed to load" on mobile/WalletConnect RPC endpoints)
+   ================================================================ */
+const EVT_CHUNK_SIZE  = 2000;
+const EVT_MAX_RETRIES = 3;
+
+async function fetchEventChunk(contract, filter, from, to, attempt = 1) {
+    try {
+        return await contract.queryFilter(filter, from, to);
+    } catch (e) {
+        if (attempt >= EVT_MAX_RETRIES) {
+            // Last resort: split the range in half and try each half once more.
+            if (to > from) {
+                const mid = Math.floor((from + to) / 2);
+                const [a, b] = await Promise.all([
+                    fetchEventChunk(contract, filter, from, mid, attempt),
+                    fetchEventChunk(contract, filter, mid + 1, to, attempt)
+                ]);
+                return [...a, ...b];
+            }
+            console.error(`Chunk ${from}-${to} failed after ${attempt} attempts, data may be incomplete:`, e);
+            return [];
+        }
+        await new Promise(r => setTimeout(r, 300 * attempt));
+        return fetchEventChunk(contract, filter, from, to, attempt + 1);
+    }
+}
+async function queryFilterChunked(contract, filter, fromBlock, toBlock) {
+    const results = [];
+    let from = fromBlock;
+    while (from <= toBlock) {
+        const to = Math.min(from + EVT_CHUNK_SIZE - 1, toBlock);
+        const chunk = await fetchEventChunk(contract, filter, from, to);
+        results.push(...chunk);
+        from = to + 1;
+    }
+    return results;
+}
+
+/* ================================================================
    1. LEADERBOARD CATEGORIES
    ================================================================ */
 
@@ -50,51 +90,13 @@ window.syncLeaderboard = async function(forceRefresh) {
         const contract    = window.metapolApp.contract;
         const provider    = window.metapolApp.provider;
 
-        // Chunk large block ranges to avoid RPC timeouts (max 2000 blocks per call)
-        // Retries failed chunks (with shrinking range) so all-time totals stay complete
-        // and consistent across refreshes, instead of silently dropping data.
-        const CHUNK_SIZE = 2000;
-        const MAX_RETRIES = 3;
-        async function fetchChunk(filter, from, to, attempt = 1) {
-            try {
-                return await contract.queryFilter(filter, from, to);
-            } catch (e) {
-                if (attempt >= MAX_RETRIES) {
-                    // Last resort: split the range in half and try each half once more.
-                    if (to > from) {
-                        const mid = Math.floor((from + to) / 2);
-                        const [a, b] = await Promise.all([
-                            fetchChunk(filter, from, mid, attempt),
-                            fetchChunk(filter, mid + 1, to, attempt)
-                        ]);
-                        return [...a, ...b];
-                    }
-                    console.error(`Chunk ${from}-${to} failed after ${attempt} attempts, data may be incomplete:`, e);
-                    return [];
-                }
-                await new Promise(r => setTimeout(r, 300 * attempt));
-                return fetchChunk(filter, from, to, attempt + 1);
-            }
-        }
-        async function queryFilterChunked(filter, fromBlock, toBlock) {
-            const results = [];
-            let from = fromBlock;
-            while (from <= toBlock) {
-                const to = Math.min(from + CHUNK_SIZE - 1, toBlock);
-                const chunk = await fetchChunk(filter, from, to);
-                results.push(...chunk);
-                from = to + 1;
-            }
-            return results;
-        }
-
         const latestBlock = await provider.getBlockNumber();
 
         // Fetch all SponsorPaid (commissions) + all RegUser (recruitments)
         const [sponsorEvents, regEvents, miningDepEvents] = await Promise.all([
-            queryFilterChunked(contract.filters.SponsorPaid(),   deployBlock, latestBlock),
-            queryFilterChunked(contract.filters.RegUser(),       deployBlock, latestBlock),
-            queryFilterChunked(contract.filters.MiningDeposit(), deployBlock, latestBlock).catch(() => [])
+            queryFilterChunked(contract, contract.filters.SponsorPaid(),   deployBlock, latestBlock),
+            queryFilterChunked(contract, contract.filters.RegUser(),       deployBlock, latestBlock),
+            queryFilterChunked(contract, contract.filters.MiningDeposit(), deployBlock, latestBlock).catch(() => [])
         ]);
 
         // ── Aggregate per address ──
@@ -457,7 +459,9 @@ window.syncNetworkTree = async function(forceRefresh) {
     try {
         const addr     = window.metapolApp.userAddress;
         const contract = window.metapolApp.contract;
+        const provider = window.metapolApp.provider;
         const deployBlock = window.CONFIG.CONTRACT_DEPLOY_BLOCK;
+        const latestBlock = await provider.getBlockNumber();
         const SLOT_PRICES = [10,20,40,80,160,320,640,1280,2560,5120,10240,20480];
 
         // Get MY info
@@ -473,7 +477,7 @@ window.syncNetworkTree = async function(forceRefresh) {
 
         // Level 1: all users who registered with me as referrer
         const filterL1 = contract.filters.RegUser(null, addr);
-        const l1Events = await contract.queryFilter(filterL1, deployBlock, 'latest');
+        const l1Events = await queryFilterChunked(contract, filterL1, deployBlock, latestBlock);
 
         const l1Nodes = [];
         let l2Nodes   = [];
@@ -495,7 +499,7 @@ window.syncNetworkTree = async function(forceRefresh) {
 
                     // Level 2: users referred by this L1 member
                     const filterL2 = contract.filters.RegUser(null, refAddr);
-                    const l2Evs    = await contract.queryFilter(filterL2, deployBlock, 'latest');
+                    const l2Evs    = await queryFilterChunked(contract, filterL2, deployBlock, latestBlock);
 
                     const children = [];
                     for (const ev2 of l2Evs.slice(0, 8)) { // cap at 8 per L1 for performance
