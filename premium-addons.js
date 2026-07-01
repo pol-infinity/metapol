@@ -3,83 +3,10 @@
  * 1. Leaderboard Multi-Category (Top Earners / Top Miners / Top Recruiters)
  * 2. Personal ROI Calculator
  * 3. Network Genealogy Tree (2 levels deep)
+ *
+ * Shared RPC helpers (retryCall, queryFilterChunked, etc.)
+ * are loaded via rpc-helpers.js which must be included first.
  */
-
-/* ================================================================
-   SHARED: Chunked event fetch with retries (avoids RPC range limits
-   that cause "failed to load" on mobile/WalletConnect RPC endpoints)
-   ================================================================ */
-const EVT_CHUNK_SIZE   = 5000;  // bigger chunks = far fewer round trips
-const EVT_CHUNK_PARALLEL = 6;   // fetch several chunks at once instead of one-by-one
-const EVT_MAX_RETRIES  = 3;
-
-async function fetchEventChunk(contract, filter, from, to, attempt = 1) {
-    try {
-        return await contract.queryFilter(filter, from, to);
-    } catch (e) {
-        if (attempt >= EVT_MAX_RETRIES) {
-            // Last resort: split the range in half and try each half once more.
-            if (to > from) {
-                const mid = Math.floor((from + to) / 2);
-                const [a, b] = await Promise.all([
-                    fetchEventChunk(contract, filter, from, mid, attempt),
-                    fetchEventChunk(contract, filter, mid + 1, to, attempt)
-                ]);
-                return [...a, ...b];
-            }
-            console.error(`Chunk ${from}-${to} failed after ${attempt} attempts, data may be incomplete:`, e);
-            return [];
-        }
-        await new Promise(r => setTimeout(r, 300 * attempt));
-        return fetchEventChunk(contract, filter, from, to, attempt + 1);
-    }
-}
-
-// Runs async tasks with limited concurrency so we don't flood mobile RPC
-// bridges with dozens of simultaneous requests.
-async function mapWithConcurrency(items, limit, fn) {
-    const results = new Array(items.length);
-    let idx = 0;
-    async function worker() {
-        while (idx < items.length) {
-            const i = idx++;
-            results[i] = await fn(items[i], i);
-        }
-    }
-    await Promise.all(Array.from({ length: Math.min(limit, items.length) }, worker));
-    return results;
-}
-
-async function queryFilterChunked(contract, filter, fromBlock, toBlock) {
-    // Build the list of [from, to] ranges up front, then fetch several of
-    // them in parallel instead of one sequential round trip at a time —
-    // this is what was making the leaderboard/tree slow on large ranges.
-    const ranges = [];
-    let from = fromBlock;
-    while (from <= toBlock) {
-        const to = Math.min(from + EVT_CHUNK_SIZE - 1, toBlock);
-        ranges.push([from, to]);
-        from = to + 1;
-    }
-    const chunks = await mapWithConcurrency(ranges, EVT_CHUNK_PARALLEL, ([f, t]) => fetchEventChunk(contract, filter, f, t));
-    return chunks.flat();
-}
-
-// Generic retry wrapper for single RPC calls (getUserInfo, getBlockNumber, etc).
-// Mobile/WalletConnect RPC bridges are often more rate-limit-sensitive than
-// desktop extension wallets, so plain calls need backoff too, not just event scans.
-async function retryCall(fn, attempts = 3, label = 'call') {
-    let lastErr;
-    for (let i = 1; i <= attempts; i++) {
-        try {
-            return await fn();
-        } catch (e) {
-            lastErr = e;
-            if (i < attempts) await new Promise(r => setTimeout(r, 350 * i));
-        }
-    }
-    throw lastErr;
-}
 
 /* ================================================================
    1. LEADERBOARD CATEGORIES
@@ -592,23 +519,6 @@ window.syncNetworkTree = async function(forceRefresh) {
         if (btn) { btn.disabled = false; btn.innerHTML = `<i class="fa-solid fa-rotate"></i> Refresh`; }
     }
 };
-
-// Shared cache for the full RegUser event log — the leaderboard and the
-// network tree both need "every registration ever," so scan once and let
-// both features reuse it within the TTL window instead of re-scanning.
-let _regEventsCache     = null;
-let _regEventsCacheTime = 0;
-const REG_EVENTS_TTL = 5 * 60 * 1000;
-async function getAllRegUserEvents(contract, deployBlock, latestBlock, forceRefresh) {
-    const now = Date.now();
-    if (!forceRefresh && _regEventsCache && (now - _regEventsCacheTime) < REG_EVENTS_TTL) {
-        return _regEventsCache;
-    }
-    const events = await queryFilterChunked(contract, contract.filters.RegUser(), deployBlock, latestBlock);
-    _regEventsCache     = events;
-    _regEventsCacheTime = Date.now();
-    return events;
-}
 
 function getHighestSlot(miningDep, prices) {
     for (let i = prices.length - 1; i >= 0; i--) {

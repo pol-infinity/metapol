@@ -798,25 +798,26 @@ async function syncTeamTab() {
         const filterRepurch  = window.metapolApp.contract.filters.AutoRepurchase(address);
         const filterSkipped  = window.metapolApp.contract.filters.IncomeSkipped(null, null, address);
 
-        // Single wide query helper — falls back to chunks only on RPC error
+        // Single wide query helper — uses the shared parallel chunked
+        // fetcher (with retries) instead of a single huge call that often
+        // times out, followed by a slow serial chunk-by-chunk fallback.
         async function queryAllEvents(filter) {
-            try {
-                return await window.metapolApp.contract.queryFilter(filter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, "latest");
-            } catch(_) {
-                // Chunked fallback
-                const latest = await window.metapolApp.provider.getBlockNumber();
-                const chunk  = 5000;
-                let all = [];
-                for (let f = window.CONFIG.CONTRACT_DEPLOY_BLOCK; f <= latest; f += chunk) {
-                    const t = Math.min(f + chunk - 1, latest);
-                    try { all = all.concat(await window.metapolApp.contract.queryFilter(filter, f, t)); } catch(e) {}
-                }
-                return all;
-            }
+            const latest = await retryCall(() => window.metapolApp.provider.getBlockNumber(), 3, 'getBlockNumber');
+            return queryFilterChunked(window.metapolApp.contract, filter, window.CONFIG.CONTRACT_DEPLOY_BLOCK, latest);
+        }
+
+        // RegUser events for "me as referrer" reuse the shared, cached
+        // full-history scan (also used by leaderboard/network tree) instead
+        // of re-scanning the chain from scratch every time the Team tab opens.
+        async function queryMyRegEvents() {
+            const latest = await retryCall(() => window.metapolApp.provider.getBlockNumber(), 3, 'getBlockNumber');
+            const all = await getAllRegUserEvents(window.metapolApp.contract, window.CONFIG.CONTRACT_DEPLOY_BLOCK, latest, false);
+            const meLc = address.toLowerCase();
+            return all.filter(ev => ev.args.referrer.toLowerCase() === meLc);
         }
 
         const [regEvents, sponsorEvents, upgradeEvents, repurchEvents, skippedEvents] = await Promise.all([
-            queryAllEvents(filterReg),
+            queryMyRegEvents(),
             queryAllEvents(filterSponsor),
             queryAllEvents(filterUpgrade),
             queryAllEvents(filterRepurch).catch(() => []),
@@ -865,17 +866,16 @@ async function syncTeamTab() {
 
         const SLOT_PRICES = [10,20,40,80,160,320,640,1280,2560,5120,10240,20480];
 
-        for (let i = 0; i < regEvents.length; i += 8) {
-            const batch = regEvents.slice(i, i + 8);
-            const results = await Promise.all(batch.map(async ev => {
-                const refAddr = ev.args.user;
-                const refId   = Number(ev.args.userId);
-                const regTime = Number(ev.args.time);
-                const info    = await window.metapolApp.contract.getUserInfo(refAddr);
+        const resolvedDetails = await mapWithConcurrency(regEvents, 8, async (ev) => {
+            const refAddr = ev.args.user;
+            const refId   = Number(ev.args.userId);
+            const regTime = Number(ev.args.time);
+            try {
+                const info = await retryCall(() => window.metapolApp.contract.getUserInfo(refAddr), 2, 'getUserInfo(team)');
                 // New contract: [isExist, id, referrerID, referredUsers, isFounder, incomeEligible]
                 const isFounder = info[4];
                 // Get mining data from getUserEarnings
-                const earningsData = await window.metapolApp.contract.getUserEarnings(refAddr).catch(() => [0n, 0n, 0n]);
+                const earningsData = await retryCall(() => window.metapolApp.contract.getUserEarnings(refAddr), 2, 'getUserEarnings(team)').catch(() => [0n, 0n, 0n]);
                 const miningDep    = earningsData[1];
                 const slotsInvested = miningDep * 5n;
 
@@ -892,9 +892,12 @@ async function syncTeamTab() {
                 totalTeamMining += miningDep;
 
                 return { id: refId, address: refAddr, addrLower: refAddr.toLowerCase(), date: new Date(regTime*1000).toLocaleDateString(), invested: slotsInvested, mining: miningDep, isFounder, highestSlot, l2Count: Number(info[3]) };
-            }));
-            results.forEach(r => { referralDetails.push(r); totalTeamVolume += r.invested; });
-        }
+            } catch (e) {
+                console.warn('Team: skipping referral after retries failed', refAddr, e);
+                return null;
+            }
+        });
+        resolvedDetails.forEach(r => { if (r) { referralDetails.push(r); totalTeamVolume += r.invested; } });
 
         const commPOL   = parseFloat(ethers.formatEther(totalSponsorPaid ?? 0n)).toFixed(2);
         const volPOL    = parseFloat(ethers.formatEther(totalTeamVolume ?? 0n)).toFixed(2);
