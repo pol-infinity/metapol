@@ -16,6 +16,7 @@ const METAPOL_LANGS = [
     { code: 'ru',    label: 'Русский',   short: 'RU', flag: '🇷🇺' },
     { code: 'ar',    label: 'العربية',    short: 'AR', flag: '🇸🇦' },
     { code: 'zh-CN', label: '中文',       short: 'ZH', flag: '🇨🇳' },
+    { code: 'id',    label: 'Indonesia',  short: 'ID', flag: '🇮🇩' },
 ];
 
 function metapolLangShort(code) {
